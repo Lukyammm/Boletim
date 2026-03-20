@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Boletim COSEP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f6fb;
+      color: #1f2937;
+    }
+    .topbar {
+      background: linear-gradient(135deg, #0a4b78, #0f6aa7);
+      color: #fff;
+      padding: 18px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      box-shadow: 0 4px 20px rgba(0,0,0,.12);
+    }
+    .topbar-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(120px, 1fr));
+      gap: 12px;
+      align-items: end;
+    }
+    .field label {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 6px;
+      opacity: .9;
+    }
+    .field select, .field input, .btn {
+      width: 100%;
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 14px;
+    }
+    .field select, .field input {
+      background: #fff;
+      color: #111827;
+    }
+    .btn {
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .btn-primary {
+      background: #f59e0b;
+      color: #fff;
+    }
+    .btn-secondary {
+      background: #ffffff;
+      color: #0a4b78;
+    }
+
+    .app {
+      max-width: 1400px;
+      margin: 20px auto;
+      padding: 0 16px 40px;
+    }
+
+    .page {
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, .08);
+      padding: 28px;
+      margin-bottom: 28px;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 20px;
+      border-bottom: 2px solid #eef2f7;
+      padding-bottom: 18px;
+      margin-bottom: 20px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 26px;
+      color: #0a4b78;
+    }
+    .brand p {
+      margin: 6px 0 0;
+      color: #6b7280;
+    }
+
+    .period {
+      text-align: right;
+      font-size: 14px;
+      color: #4b5563;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, #ffffff, #f8fbff);
+      border: 1px solid #e5edf5;
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    .card .label {
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 8px;
+    }
+
+    .card .value {
+      font-size: 32px;
+      font-weight: 800;
+      color: #0a4b78;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.3fr .7fr;
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .panel {
+      border: 1px solid #e5edf5;
+      border-radius: 18px;
+      padding: 18px;
+      background: #fff;
+    }
+
+    .panel h3 {
+      margin: 0 0 14px;
+      color: #0a4b78;
+      font-size: 18px;
+    }
+
+    .metas {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    .meta-box {
+      border: 1px solid #e5edf5;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .meta-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 18px;
+      background: linear-gradient(135deg, #f8fbff, #edf6ff);
+      border-bottom: 1px solid #e5edf5;
+    }
+
+    .meta-title {
+      font-weight: 800;
+      color: #0a4b78;
+    }
+
+    .meta-badge {
+      background: #0a4b78;
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #eef2f7;
+      text-align: left;
+      font-size: 13px;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f8fafc;
+      color: #334155;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+    }
+
+    .obs-list {
+      margin: 0;
+      padding-left: 18px;
+      color: #374151;
+    }
+
+    .small-card-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .mini-table td:first-child {
+      width: 75%;
+    }
+
+    .footer-note {
+      margin-top: 16px;
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px 20px;
+      color: #6b7280;
+      font-weight: 700;
+    }
+
+    .page-break {
+      page-break-after: always;
+    }
+
+    @media (max-width: 1100px) {
+      .cards { grid-template-columns: repeat(2, 1fr); }
+      .grid-2 { grid-template-columns: 1fr; }
+      .topbar-inner { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 700px) {
+      .cards { grid-template-columns: 1fr; }
+      .small-card-grid { grid-template-columns: 1fr; }
+      .topbar-inner { grid-template-columns: 1fr; }
+      .page-header { flex-direction: column; }
+      .period { text-align: left; }
+    }
+
+    @media print {
+      body { background: #fff; }
+      .topbar { display: none; }
+      .app { max-width: none; margin: 0; padding: 0; }
+      .page {
+        border-radius: 0;
+        box-shadow: none;
+        margin: 0;
+        min-height: 100vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="field">
+        <label for="ano">Ano</label>
+        <select id="ano"></select>
+      </div>
+      <div class="field">
+        <label for="mes">Mês</label>
+        <select id="mes"></select>
+      </div>
+      <div class="field">
+        <label for="unidade">Unidade avaliada</label>
+        <select id="unidade"></select>
+      </div>
+      <button class="btn btn-primary" onclick="carregarDados()">Gerar boletim</button>
+      <button class="btn btn-secondary" onclick="baixarPDF()">Baixar PDF</button>
+    </div>
+  </div>
+
+  <div class="app">
+    <div id="loading" class="loading">Carregando boletim...</div>
+
+    <div id="boletim" class="hidden">
+      <section class="page" id="pagina-cosep">
+        <div class="page-header">
+          <div class="brand">
+            <h1>Resultado das Caminhadas da Segurança</h1>
+            <p>Comissão de Segurança do Paciente (COSEP) • HUC</p>
+          </div>
+          <div class="period" id="periodo-cosep"></div>
+        </div>
+
+        <div class="cards">
+          <div class="card">
+            <div class="label">Conformidade geral</div>
+            <div class="value" id="cosep-conformidade">0%</div>
+          </div>
+          <div class="card">
+            <div class="label">Meta institucional</div>
+            <div class="value" id="cosep-meta">85%</div>
+          </div>
+          <div class="card">
+            <div class="label">Diferença da meta</div>
+            <div class="value" id="cosep-diferenca">0%</div>
+          </div>
+          <div class="card">
+            <div class="label">Avaliações realizadas</div>
+            <div class="value" id="cosep-avaliacoes">0</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <h3>Evolução mensal</h3>
+            <canvas id="graficoEvolucao" height="110"></canvas>
+          </div>
+          <div class="panel">
+            <h3>Observações gerais</h3>
+            <ul class="obs-list" id="obs-gerais"></ul>
+          </div>
+        </div>
+
+        <div class="metas" id="metas-container"></div>
+        <div class="footer-note">Boletim automático gerado a partir das abas BASE DE DADOS CAMINHADAS e NOTIFICA - BASE.</div>
+      </section>
+
+      <div class="page-break"></div>
+
+      <section class="page" id="pagina-notifica">
+        <div class="page-header">
+          <div class="brand">
+            <h1>Boletim de Notificações</h1>
+            <p>Comissão de Segurança do Paciente (COSEP) • HUC</p>
+          </div>
+          <div class="period" id="periodo-notifica"></div>
+        </div>
+
+        <div class="cards">
+          <div class="card">
+            <div class="label">Total de notificações</div>
+            <div class="value" id="notifica-total">0</div>
+          </div>
+          <div class="card">
+            <div class="label">% afetou paciente</div>
+            <div class="value" id="notifica-percentual-afetou">0%</div>
+          </div>
+          <div class="card">
+            <div class="label">Afetou paciente: Sim</div>
+            <div class="value" id="notifica-sim">0</div>
+          </div>
+          <div class="card">
+            <div class="label">Afetou paciente: Não</div>
+            <div class="value" id="notifica-nao">0</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <h3>Afetou paciente?</h3>
+            <canvas id="graficoAfetou" height="180"></canvas>
+          </div>
+          <div class="panel">
+            <h3>Resumo por tipo</h3>
+            <table class="mini-table">
+              <thead>
+                <tr>
+                  <th>Tipo</th>
+                  <th>Qtd</th>
+                </tr>
+              </thead>
+              <tbody id="tb-tipo"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="small-card-grid">
+          <div class="panel">
+            <h3>Por setor</h3>
+            <table class="mini-table">
+              <thead>
+                <tr><th>Setor</th><th>Qtd</th></tr>
+              </thead>
+              <tbody id="tb-setor"></tbody>
+            </table>
+          </div>
+          <div class="panel">
+            <h3>Por status</h3>
+            <table class="mini-table">
+              <thead>
+                <tr><th>Status</th><th>Qtd</th></tr>
+              </thead>
+              <tbody id="tb-status"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:18px;">
+          <h3>Tabela resumida de notificações</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Nº NOTIVISA</th>
+                <th>Data</th>
+                <th>Setor</th>
+                <th>Tipo</th>
+                <th>Natureza</th>
+                <th>Afetou paciente?</th>
+                <th>Status</th>
+                <th>Status resposta</th>
+              </tr>
+            </thead>
+            <tbody id="tb-notificacoes"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    let chartEvolucao = null;
+    let chartAfetou = null;
+
+    async function fetchAPI(params = {}) {
+      const query = new URLSearchParams({ api: '1', ...params });
+      const url = `${location.pathname}?${query.toString()}`;
+      const res = await fetch(url);
+      return await res.json();
+    }
+
+    function optionHTML(value, text, selected = false) {
+      return `<option value="${escapeHtml(value)}" ${selected ? 'selected' : ''}>${escapeHtml(text)}</option>`;
+    }
+
+    function escapeHtml(str) {
+      return String(str == null ? '' : str)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function formatPct(v) {
+      return `${Number(v || 0).toFixed(1)}%`;
+    }
+
+    function preencherFiltros(filtros) {
+      const ano = document.getElementById('ano');
+      const mes = document.getElementById('mes');
+      const unidade = document.getElementById('unidade');
+
+      ano.innerHTML = optionHTML('', 'Todos') + filtros.anos.map((v, i, arr) => optionHTML(v, v, i === arr.length - 1)).join('');
+      mes.innerHTML = optionHTML('', 'Todos') + filtros.meses.map(v => optionHTML(v, v)).join('');
+      unidade.innerHTML = optionHTML('', 'Todas') + filtros.unidades.map(v => optionHTML(v, v)).join('');
+    }
+
+    function topEntries(obj, limit = 10) {
+      return Object.entries(obj || {})
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, limit);
+    }
+
+    function renderRows(entries) {
+      if (!entries.length) return '<tr><td colspan="2">Sem dados</td></tr>';
+      return entries.map(([k, v]) => `<tr><td>${escapeHtml(k)}</td><td>${v}</td></tr>`).join('');
+    }
+
+    function renderCosep(data, filtros) {
+      document.getElementById('cosep-conformidade').textContent = formatPct(data.conformidadeGeral);
+      document.getElementById('cosep-meta').textContent = formatPct(data.metaInstitucional);
+      document.getElementById('cosep-diferenca').textContent = `${data.diferencaMeta >= 0 ? '+' : ''}${formatPct(data.diferencaMeta)}`;
+      document.getElementById('cosep-avaliacoes').textContent = data.totalAvaliacoes || 0;
+
+      document.getElementById('periodo-cosep').innerHTML = `
+        <strong>Período:</strong> ${escapeHtml(filtros.mes || 'Todos os meses')} / ${escapeHtml(filtros.ano || 'Todos os anos')}<br>
+        <strong>Unidade:</strong> ${escapeHtml(filtros.unidade || 'Todas')}
+      `;
+
+      const obs = document.getElementById('obs-gerais');
+      const observacoes = data.observacoesGerais || [];
+      obs.innerHTML = observacoes.length
+        ? observacoes.map(v => `<li>${escapeHtml(v)}</li>`).join('')
+        : '<li>Sem observações gerais no filtro atual.</li>';
+
+      const metasContainer = document.getElementById('metas-container');
+      metasContainer.innerHTML = (data.metas || []).map(meta => `
+        <div class="meta-box">
+          <div class="meta-head">
+            <div class="meta-title">${escapeHtml(meta.codigo)}. ${escapeHtml(meta.nome)}</div>
+            <div class="meta-badge">${formatPct(meta.percentual)}</div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Subitem</th>
+                <th>Conformes</th>
+                <th>Não conformes</th>
+                <th>Total avaliado</th>
+                <th>% conformidade</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${meta.itens.map(item => `
+                <tr>
+                  <td>${escapeHtml(item.codigo)}</td>
+                  <td>${escapeHtml(item.nome)}</td>
+                  <td>${item.conformes}</td>
+                  <td>${item.naoConformes}</td>
+                  <td>${item.avaliados}</td>
+                  <td>${formatPct(item.percentual)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `).join('');
+
+      const labels = (data.evolucaoMensal || []).map(x => x.mes);
+      const valores = (data.evolucaoMensal || []).map(x => x.percentual);
+
+      if (chartEvolucao) chartEvolucao.destroy();
+      chartEvolucao = new Chart(document.getElementById('graficoEvolucao'), {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Conformidade (%)',
+            data: valores
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, max: 100 } }
+        }
+      });
+    }
+
+    function renderNotifica(data, filtros) {
+      document.getElementById('notifica-total').textContent = data.total || 0;
+      document.getElementById('notifica-percentual-afetou').textContent = formatPct(data.percentualAfetouPaciente);
+      document.getElementById('notifica-sim').textContent = data.afetouSim || 0;
+      document.getElementById('notifica-nao').textContent = data.afetouNao || 0;
+
+      document.getElementById('periodo-notifica').innerHTML = `
+        <strong>Período:</strong> ${escapeHtml(filtros.mes || 'Todos os meses')} / ${escapeHtml(filtros.ano || 'Todos os anos')}<br>
+        <strong>Unidade:</strong> ${escapeHtml(filtros.unidade || 'Todas')}
+      `;
+
+      document.getElementById('tb-tipo').innerHTML = renderRows(topEntries(data.porTipo, 10));
+      document.getElementById('tb-setor').innerHTML = renderRows(topEntries(data.porSetor, 10));
+      document.getElementById('tb-status').innerHTML = renderRows(topEntries(data.porStatus, 10));
+
+      const linhas = (data.tabela || []).slice(0, 30);
+      document.getElementById('tb-notificacoes').innerHTML = linhas.length ? linhas.map(item => `
+        <tr>
+          <td>${item.link ? `<a href="${escapeHtml(item.link)}" target="_blank">${escapeHtml(item.numeroNotivisa)}</a>` : escapeHtml(item.numeroNotivisa)}</td>
+          <td>${escapeHtml(item.dataOcorrencia)}</td>
+          <td>${escapeHtml(item.setorNotificado)}</td>
+          <td>${escapeHtml(item.tipoClassificacao)}</td>
+          <td>${escapeHtml(item.natureza)}</td>
+          <td>${escapeHtml(item.afetouPaciente)}</td>
+          <td>${escapeHtml(item.status)}</td>
+          <td>${escapeHtml(item.statusResposta)}</td>
+        </tr>
+      `).join('') : '<tr><td colspan="8">Sem notificações no filtro atual.</td></tr>';
+
+      if (chartAfetou) chartAfetou.destroy();
+      chartAfetou = new Chart(document.getElementById('graficoAfetou'), {
+        type: 'doughnut',
+        data: {
+          labels: ['Sim', 'Não'],
+          datasets: [{
+            data: [data.afetouSim || 0, data.afetouNao || 0]
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: 'bottom' } }
+        }
+      });
+    }
+
+    async function carregarDados() {
+      try {
+        document.getElementById('loading').classList.remove('hidden');
+        document.getElementById('boletim').classList.add('hidden');
+
+        const filtros = {
+          ano: document.getElementById('ano').value,
+          mes: document.getElementById('mes').value,
+          unidade: document.getElementById('unidade').value
+        };
+
+        const data = await fetchAPI(filtros);
+
+        renderCosep(data.caminhadas, filtros);
+        renderNotifica(data.notificacoes, filtros);
+
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('boletim').classList.remove('hidden');
+      } catch (err) {
+        document.getElementById('loading').classList.remove('hidden');
+        document.getElementById('loading').textContent = 'Erro ao carregar os dados. Verifica a implantação do Web App e as permissões.';
+        console.error(err);
+      }
+    }
+
+    async function init() {
+      try {
+        const data = await fetchAPI();
+        preencherFiltros(data.filtros);
+        await carregarDados();
+      } catch (err) {
+        document.getElementById('loading').textContent = 'Erro ao iniciar o sistema.';
+        console.error(err);
+      }
+    }
+
+    function baixarPDF() {
+      const element = document.getElementById('boletim');
+      const opt = {
+        margin: 6,
+        filename: 'boletim-cosep.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['css', 'legacy'] }
+      };
+      html2pdf().set(opt).from(element).save();
+    }
+
+    init();
+  </script>
+</body>
+</html>
