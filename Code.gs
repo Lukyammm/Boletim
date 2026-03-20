@@ -294,6 +294,7 @@ function processarCaminhadas(ss, filtros) {
     conformes: 0,
     naoConformes: 0,
     percentual: 0,
+    totalObservacoes: 0,
     observacoes: [],
     itens: meta.itens.map(item => ({
       codigo: item.codigo,
@@ -368,6 +369,7 @@ function processarCaminhadas(ss, filtros) {
 
       const observacaoMeta = String(row[metaDef.observacaoIdx] || '').trim();
       if (observacaoMeta) {
+        metas[metaIndex].totalObservacoes++;
         metas[metaIndex].observacoes.push({ unidade: unidade, texto: observacaoMeta });
       }
     });
