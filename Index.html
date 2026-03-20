@@ -29,12 +29,45 @@
 
     body {
       margin: 0;
-      background: var(--bg);
+      background:
+        radial-gradient(circle at top left, rgba(124, 156, 255, 0.28), transparent 28%),
+        radial-gradient(circle at top right, rgba(61, 210, 196, 0.18), transparent 24%),
+        linear-gradient(180deg, #eef4ff 0%, #e8eef8 50%, #e1e8f2 100%);
       color: var(--text);
-      font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+    }
+
+    body::before,
+    body::after {
+      content: '';
+      position: fixed;
+      inset: auto;
+      border-radius: 999px;
+      filter: blur(40px);
+      opacity: 0.55;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::before {
+      width: 280px;
+      height: 280px;
+      top: -80px;
+      left: -60px;
+      background: rgba(116, 144, 255, 0.24);
+    }
+
+    body::after {
+      width: 240px;
+      height: 240px;
+      right: -60px;
+      bottom: 80px;
+      background: rgba(78, 184, 198, 0.22);
     }
 
     .app-shell {
+      position: relative;
+      z-index: 1;
       max-width: 1400px;
       margin: 0 auto;
       padding: 24px 16px 40px;
@@ -44,29 +77,42 @@
     .filters,
     .status-box,
     .loading-box {
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.68);
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      border-radius: 22px;
       box-shadow: var(--shadow);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
     }
 
     .header {
-      padding: 22px 24px;
+      padding: 24px 26px;
       margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.28), rgba(255,255,255,0));
+      pointer-events: none;
     }
 
     .header h1 {
       margin: 0 0 6px;
-      font-size: 28px;
+      font-size: 30px;
       font-weight: 700;
-      letter-spacing: -0.02em;
+      letter-spacing: -0.03em;
     }
 
     .header p {
       margin: 0;
       color: var(--muted);
       font-size: 14px;
-      line-height: 1.5;
+      line-height: 1.6;
+      max-width: 860px;
     }
 
     .filters {
@@ -82,10 +128,11 @@
     }
 
     .filter-group {
-      border: 1px solid var(--line);
-      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.82);
+      border-radius: 18px;
       padding: 16px;
-      background: #f9fbfd;
+      background: rgba(248, 251, 255, 0.74);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
     }
 
     .filter-group h2 {
@@ -115,13 +162,14 @@
     .field select,
     .btn {
       width: 100%;
-      min-height: 42px;
-      border-radius: 12px;
-      border: 1px solid var(--line-strong);
-      background: #fff;
+      min-height: 44px;
+      border-radius: 14px;
+      border: 1px solid rgba(199, 210, 224, 0.95);
+      background: rgba(255, 255, 255, 0.92);
       color: var(--text);
       font: inherit;
       padding: 0 12px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.85);
     }
 
     .actions {
@@ -136,9 +184,10 @@
     }
 
     .btn-primary {
-      background: var(--blue);
-      border-color: var(--blue);
+      background: linear-gradient(135deg, #2f6df6, #6c8dff);
+      border-color: rgba(47, 109, 246, 0.95);
       color: #fff;
+      box-shadow: 0 14px 30px rgba(47, 109, 246, 0.22);
     }
 
     .status-box {
@@ -169,13 +218,15 @@
       min-height: 297mm;
       margin: 0 auto;
       padding: 12mm;
-      background: var(--page);
-      border: 1px solid #cfd8e3;
-      box-shadow: var(--shadow);
+      background: rgba(255, 255, 255, 0.84);
+      border: 1px solid rgba(255, 255, 255, 0.92);
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
       display: grid;
       align-content: start;
       gap: 10px;
       overflow: hidden;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
     }
 
     .page-break { break-after: page; }
@@ -185,8 +236,8 @@
       justify-content: space-between;
       align-items: flex-start;
       gap: 16px;
-      padding-bottom: 8px;
-      border-bottom: 2px solid #1f2937;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(31, 41, 55, 0.12);
     }
 
     .page-header h2 {
@@ -214,12 +265,13 @@
     }
 
     .metric-card {
-      border: 1px solid var(--line);
+      border: 1px solid rgba(255, 255, 255, 0.86);
       border-left: 4px solid var(--blue);
-      border-radius: 12px;
-      padding: 10px;
-      background: #fff;
+      border-radius: 16px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.8);
       min-height: 88px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.75);
     }
 
     .metric-card.green { border-left-color: var(--green); background: var(--green-soft); }
@@ -260,12 +312,13 @@
     .section-grid-3 { grid-template-columns: 1fr 0.95fr 0.95fr; }
 
     .panel {
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 10px;
-      background: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.86);
+      border-radius: 16px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.78);
       min-height: 100%;
       overflow: hidden;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.72);
     }
 
     .panel h3 {
@@ -380,6 +433,8 @@
       width: 100%;
       border-collapse: collapse;
       table-layout: fixed;
+      border-radius: 14px;
+      overflow: hidden;
     }
 
     th, td {
@@ -452,6 +507,8 @@
         width: 210mm;
         min-height: 297mm;
         margin: 0;
+        background: #fff;
+        backdrop-filter: none;
       }
     }
   </style>
@@ -553,11 +610,10 @@
           <div class="panel">
             <h3>Resumo do período</h3>
             <p>Indicadores principais para leitura rápida.</p>
-            <div class="metrics" style="grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px;">
+            <div class="metrics" style="grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px;">
               <div class="metric-card"><span>Conformes</span><strong id="cosep-conformes">0</strong><small>Itens marcados como conformes.</small></div>
               <div class="metric-card"><span>Não conformes</span><strong id="cosep-nao-conformes">0</strong><small>Itens marcados como não conformes.</small></div>
-              <div class="metric-card"><span>Observações</span><strong id="cosep-observacoes-count">0</strong><small>Registros com observação geral.</small></div>
-              <div class="metric-card"><span>Fotos</span><strong id="cosep-fotos">0</strong><small>Formulários com evidência anexada.</small></div>
+              <div class="metric-card"><span>Observações</span><strong id="cosep-observacoes-count">0</strong><small>Registros com observação no período.</small></div>
             </div>
           </div>
           <div class="panel">
@@ -572,17 +628,10 @@
           </div>
         </section>
 
-        <section class="section-grid-2">
-          <div class="panel">
-            <h3>Distribuição por unidade</h3>
-            <p>Ranking das unidades avaliadas dentro do recorte atual.</p>
-            <div id="lista-unidades"></div>
-          </div>
-          <div class="panel">
-            <h3>Observações gerais</h3>
-            <p>Principais registros textuais associados às caminhadas.</p>
-            <ul class="bullet-list" id="obs-gerais"></ul>
-          </div>
+        <section class="panel">
+          <h3>Distribuição por unidade</h3>
+          <p>Ranking das unidades avaliadas dentro do recorte atual.</p>
+          <div id="lista-unidades"></div>
         </section>
 
         <section class="panel">
@@ -853,21 +902,6 @@
       `;
     }
 
-    function renderObservacoes(lista, elementId, vazio) {
-      const alvo = document.getElementById(elementId);
-      if (!lista || !lista.length) {
-        alvo.innerHTML = `<li>${escapeHtml(vazio)}</li>`;
-        return;
-      }
-
-      alvo.innerHTML = lista.map(item => `
-        <li>
-          ${escapeHtml(item.texto || '')}
-          ${item.unidade ? `<small>${escapeHtml(item.unidade)}</small>` : ''}
-        </li>
-      `).join('');
-    }
-
     function renderTabelaMetas(lista) {
       const alvo = document.getElementById('tb-metas');
       if (!lista || !lista.length) {
@@ -968,11 +1002,9 @@
       document.getElementById('cosep-conformes').textContent = data.geralConformes || 0;
       document.getElementById('cosep-nao-conformes').textContent = data.geralNaoConformes || 0;
       document.getElementById('cosep-observacoes-count').textContent = data.totalComObservacao || 0;
-      document.getElementById('cosep-fotos').textContent = data.totalComFoto || 0;
 
       renderBadgeList(data.metasCriticas || []);
       renderDistribuicao(data.porUnidade || []);
-      renderObservacoes(data.observacoesGerais || [], 'obs-gerais', 'Sem observações gerais no filtro atual.');
       renderTabelaMetas(data.metas || []);
       criarGraficoLinha((data.evolucaoMensal || []).map(item => item.mes), (data.evolucaoMensal || []).map(item => item.percentual));
     }
