@@ -929,12 +929,34 @@
     let chartAfetou = null;
     let ultimoPayload = null;
 
-    async function fetchAPI(params = {}) {
+    function fetchViaGoogleScript(params = {}) {
+      return new Promise((resolve, reject) => {
+        if (!(window.google && google.script && google.script.run)) {
+          reject(new Error('google.script.run indisponível.'));
+          return;
+        }
+
+        google.script.run
+          .withSuccessHandler(resolve)
+          .withFailureHandler(reject)
+          .obterPayload(params);
+      });
+    }
+
+    async function fetchViaHttp(params = {}) {
       const query = new URLSearchParams({ api: '1', ...params });
       const url = `${location.pathname}?${query.toString()}`;
       const resposta = await fetch(url, { cache: 'no-store' });
       if (!resposta.ok) throw new Error('Falha ao buscar dados do Apps Script.');
       return resposta.json();
+    }
+
+    async function fetchAPI(params = {}) {
+      if (window.google && google.script && google.script.run) {
+        return fetchViaGoogleScript(params);
+      }
+
+      return fetchViaHttp(params);
     }
 
     function escapeHtml(value) {

@@ -138,6 +138,17 @@ function montarPayload(ss, filtros) {
   };
 }
 
+function obterPayload(filtros) {
+  const ss = SpreadsheetApp.openById(ID_PLANILHA);
+  const parametros = filtros || {};
+
+  return montarPayload(ss, {
+    ano: String(parametros.ano || '').trim(),
+    mes: String(parametros.mes || '').trim(),
+    unidade: String(parametros.unidade || '').trim()
+  });
+}
+
 function normalizarTexto(valor) {
   return String(valor == null ? '' : valor)
     .trim()
