@@ -18,6 +18,20 @@ const ORDEM_MESES = {
   'NOVEMBRO': 11,
   'DEZEMBRO': 12
 };
+const MESES_CANONICOS = {
+  1: 'Janeiro',
+  2: 'Fevereiro',
+  3: 'Março',
+  4: 'Abril',
+  5: 'Maio',
+  6: 'Junho',
+  7: 'Julho',
+  8: 'Agosto',
+  9: 'Setembro',
+  10: 'Outubro',
+  11: 'Novembro',
+  12: 'Dezembro'
+};
 
 const METAS_CAMINHADAS = [
   {
@@ -112,13 +126,9 @@ function doGet(e) {
   const params = (e && e.parameter) || {};
 
   if (params.api === '1') {
-    const ano = String(params.ano || '').trim();
-    const mes = String(params.mes || '').trim();
-    const unidade = String(params.unidade || '').trim();
     const ss = SpreadsheetApp.openById(ID_PLANILHA);
-
     return ContentService
-      .createTextOutput(JSON.stringify(montarPayload(ss, { ano, mes, unidade })))
+      .createTextOutput(JSON.stringify(montarPayload(ss, extrairFiltros(params))))
       .setMimeType(ContentService.MimeType.JSON);
   }
 
@@ -128,25 +138,37 @@ function doGet(e) {
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
+function extrairFiltros(params) {
+  const bruto = params || {};
+  return {
+    caminhadas: {
+      ano: String(bruto.anoCosep || bruto.ano || '').trim(),
+      mes: normalizarMes(bruto.mesCosep || bruto.mes || ''),
+      unidade: String(bruto.unidadeCosep || bruto.unidade || '').trim()
+    },
+    notificacoes: {
+      ano: String(bruto.anoNotifica || bruto.ano || '').trim(),
+      mes: normalizarMes(bruto.mesNotifica || bruto.mes || ''),
+      unidade: String(bruto.unidadeNotifica || bruto.unidade || '').trim()
+    }
+  };
+}
+
 function montarPayload(ss, filtros) {
+  const filtrosAplicados = filtros || { caminhadas: {}, notificacoes: {} };
   return {
     success: true,
     geradoEm: Utilities.formatDate(new Date(), FUSO_HORARIO, "dd/MM/yyyy 'às' HH:mm"),
     filtros: getFiltros(ss),
-    caminhadas: processarCaminhadas(ss, filtros),
-    notificacoes: processarNotificacoes(ss, filtros)
+    aplicado: filtrosAplicados,
+    caminhadas: processarCaminhadas(ss, filtrosAplicados.caminhadas || {}),
+    notificacoes: processarNotificacoes(ss, filtrosAplicados.notificacoes || {})
   };
 }
 
 function obterPayload(filtros) {
   const ss = SpreadsheetApp.openById(ID_PLANILHA);
-  const parametros = filtros || {};
-
-  return montarPayload(ss, {
-    ano: String(parametros.ano || '').trim(),
-    mes: String(parametros.mes || '').trim(),
-    unidade: String(parametros.unidade || '').trim()
-  });
+  return montarPayload(ss, extrairFiltros(filtros || {}));
 }
 
 function normalizarTexto(valor) {
@@ -157,7 +179,20 @@ function normalizarTexto(valor) {
 }
 
 function normalizarMes(valor) {
-  return String(valor == null ? '' : valor).trim();
+  const texto = normalizarTexto(valor);
+  if (!texto) return '';
+
+  if (ORDEM_MESES[texto]) {
+    return MESES_CANONICOS[ORDEM_MESES[texto]];
+  }
+
+  const numero = Number(texto);
+  if (!Number.isNaN(numero) && numero >= 1 && numero <= 12) {
+    return MESES_CANONICOS[numero];
+  }
+
+  const base = String(valor == null ? '' : valor).trim().toLowerCase();
+  return base ? base.charAt(0).toUpperCase() + base.slice(1) : '';
 }
 
 function normalizarAno(valor) {
@@ -197,12 +232,34 @@ function incrementarMapa(mapa, chave) {
 }
 
 function getUnidade(row) {
-  const indices = [4, 68, 69, 70, 71, 72, 73, 74, 75, 76]; // E, BQ..BY
+  const indices = [4, 68, 69, 70, 71, 72, 73, 74, 75, 76];
   for (let i = 0; i < indices.length; i++) {
     const valor = String(row[indices[i]] == null ? '' : row[indices[i]]).trim();
     if (valor) return valor;
   }
   return 'Não informado';
+}
+
+function coletarFiltros(dados, config) {
+  const anos = {};
+  const meses = {};
+  const unidades = {};
+
+  dados.forEach(row => {
+    const ano = normalizarAno(row[config.anoIdx]);
+    const mes = normalizarMes(row[config.mesIdx]);
+    const unidade = config.unidadeFn(row);
+
+    if (ano) anos[ano] = true;
+    if (mes) meses[mes] = true;
+    if (unidade) unidades[unidade] = true;
+  });
+
+  return {
+    anos: Object.keys(anos).sort((a, b) => Number(a) - Number(b) || a.localeCompare(b, 'pt-BR')),
+    meses: Object.keys(meses).sort(ordenarMeses),
+    unidades: Object.keys(unidades).sort((a, b) => a.localeCompare(b, 'pt-BR'))
+  };
 }
 
 function getFiltros(ss) {
@@ -212,32 +269,17 @@ function getFiltros(ss) {
   const dadosCaminhadas = shCaminhadas.getDataRange().getValues().slice(1);
   const dadosNotifica = shNotifica.getDataRange().getValues().slice(2);
 
-  const anos = {};
-  const meses = {};
-  const unidades = {};
-
-  dadosCaminhadas.forEach(row => {
-    const ano = normalizarAno(row[3]);
-    const mes = normalizarMes(row[2]);
-    const unidade = getUnidade(row);
-    if (ano) anos[ano] = true;
-    if (mes) meses[mes] = true;
-    if (unidade) unidades[unidade] = true;
-  });
-
-  dadosNotifica.forEach(row => {
-    const ano = normalizarAno(row[3]);
-    const mes = normalizarMes(row[2]);
-    const setor = String(row[6] || '').trim();
-    if (ano) anos[ano] = true;
-    if (mes) meses[mes] = true;
-    if (setor) unidades[setor] = true;
-  });
-
   return {
-    anos: Object.keys(anos).sort((a, b) => Number(a) - Number(b) || a.localeCompare(b, 'pt-BR')),
-    meses: Object.keys(meses).sort(ordenarMeses),
-    unidades: Object.keys(unidades).sort((a, b) => a.localeCompare(b, 'pt-BR'))
+    caminhadas: coletarFiltros(dadosCaminhadas, {
+      anoIdx: 3,
+      mesIdx: 2,
+      unidadeFn: getUnidade
+    }),
+    notificacoes: coletarFiltros(dadosNotifica, {
+      anoIdx: 3,
+      mesIdx: 2,
+      unidadeFn: row => String(row[6] || '').trim() || 'Não informado'
+    })
   };
 }
 
@@ -289,10 +331,10 @@ function processarCaminhadas(ss, filtros) {
 
   linhasFiltradas.forEach(row => {
     const unidade = getUnidade(row);
-    const observacaoGeral = String(row[59] || '').trim(); // BH
-    const temFoto = String(row[58] || '').trim(); // BG
-    const avaliador = String(row[9] || '').trim(); // J
-    const metaPrincipal = String(row[13] || '').trim(); // N
+    const observacaoGeral = String(row[59] || '').trim();
+    const temFoto = String(row[58] || '').trim();
+    const avaliador = String(row[9] || '').trim();
+    const metaPrincipal = String(row[13] || '').trim();
 
     incrementarMapa(porUnidade, unidade);
     if (avaliador) avaliadores[avaliador] = true;
@@ -301,15 +343,10 @@ function processarCaminhadas(ss, filtros) {
 
     if (observacaoGeral) {
       totalComObservacao++;
-      observacoesGerais.push({
-        unidade: unidade,
-        texto: observacaoGeral
-      });
+      observacoesGerais.push({ unidade: unidade, texto: observacaoGeral });
     }
 
     METAS_CAMINHADAS.forEach((metaDef, metaIndex) => {
-      let metaTemAchado = false;
-
       metaDef.itens.forEach((itemDef, itemIndex) => {
         const valor = row[itemDef.idx];
         const item = metas[metaIndex].itens[itemIndex];
@@ -326,22 +363,13 @@ function processarCaminhadas(ss, filtros) {
           metas[metaIndex].naoConformes++;
           metas[metaIndex].avaliados++;
           geralNaoConformes++;
-          metaTemAchado = true;
         }
       });
 
       const observacaoMeta = String(row[metaDef.observacaoIdx] || '').trim();
       if (observacaoMeta) {
-        metas[metaIndex].observacoes.push({
-          unidade: unidade,
-          texto: observacaoMeta
-        });
-        metaTemAchado = true;
+        metas[metaIndex].observacoes.push({ unidade: unidade, texto: observacaoMeta });
       }
-
-      metas[metaIndex].percentual = metas[metaIndex].avaliados
-        ? Number(((metas[metaIndex].conformes / metas[metaIndex].avaliados) * 100).toFixed(1))
-        : 0;
     });
   });
 
@@ -350,7 +378,7 @@ function processarCaminhadas(ss, filtros) {
     meta.itens.forEach(item => {
       item.percentual = item.avaliados ? Number(((item.conformes / item.avaliados) * 100).toFixed(1)) : 0;
     });
-    meta.observacoes = meta.observacoes.slice(0, 4);
+    meta.observacoes = meta.observacoes.slice(0, 3);
   });
 
   const totalAvaliado = geralConformes + geralNaoConformes;
@@ -412,7 +440,7 @@ function processarCaminhadas(ss, filtros) {
     porUnidade: unidadesOrdenadas,
     evolucaoMensal: evolucaoMensal,
     metasCriticas: metasCriticas,
-    observacoesGerais: observacoesGerais.slice(0, 6)
+    observacoesGerais: observacoesGerais.slice(0, 5)
   };
 }
 
@@ -463,10 +491,10 @@ function processarNotificacoes(ss, filtros) {
     else pendentes++;
   });
 
-  const tabela = filtradas.slice(0, 30).map(row => ({
+  const tabela = filtradas.slice(0, 12).map(row => ({
     numeroNotivisa: row[0],
     link: row[1],
-    mes: row[2],
+    mes: normalizarMes(row[2]),
     ano: row[3],
     codigo: row[4],
     dataOcorrencia: formatarData(row[5]),
