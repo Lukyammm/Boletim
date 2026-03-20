@@ -310,9 +310,6 @@
 
     .section-grid-2 { grid-template-columns: 1.2fr 0.8fr; }
     .section-grid-3 { grid-template-columns: 1fr 0.95fr 0.95fr; }
-    .section-grid-cosep { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 10px; }
-    .panel-stack { display: grid; gap: 10px; }
-
     .panel {
       border: 1px solid rgba(255, 255, 255, 0.86);
       border-radius: 16px;
@@ -333,45 +330,6 @@
       color: var(--muted);
       font-size: 12px;
       line-height: 1.45;
-    }
-
-    .summary-cards {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
-    }
-
-    .summary-card {
-      border: 1px solid rgba(255, 255, 255, 0.86);
-      border-left: 4px solid var(--blue);
-      border-radius: 14px;
-      padding: 10px;
-      background: rgba(255, 255, 255, 0.84);
-      min-height: 78px;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.72);
-    }
-
-    .summary-card span {
-      display: block;
-      font-size: 10px;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 6px;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-    }
-
-    .summary-card strong {
-      font-size: 20px;
-      line-height: 1.05;
-      display: block;
-      margin-bottom: 4px;
-    }
-
-    .summary-card small {
-      color: var(--muted);
-      font-size: 11px;
-      line-height: 1.35;
     }
 
     .chart-box {
@@ -514,16 +472,6 @@
       padding-left: 14px;
     }
 
-    .observacao-row td {
-      background: #fafcff;
-      color: var(--muted);
-    }
-
-    .dash-cell {
-      color: var(--muted);
-      text-align: center;
-    }
-
     .footer-note {
       display: flex;
       justify-content: space-between;
@@ -544,9 +492,7 @@
       .fields,
       .metrics,
       .section-grid-2,
-      .section-grid-3,
-      .section-grid-cosep,
-      .summary-cards {
+      .section-grid-3 {
         grid-template-columns: 1fr;
       }
 
@@ -678,33 +624,15 @@
           </div>
         </section>
 
-        <section class="section-grid-cosep">
-          <div class="panel">
-            <h3>Resumo do período</h3>
-            <p>Indicadores principais para leitura rápida.</p>
-            <div class="summary-cards">
-              <div class="summary-card"><span>Conformes</span><strong id="cosep-conformes">0</strong><small>Itens marcados como conformes.</small></div>
-              <div class="summary-card"><span>Não conformes</span><strong id="cosep-nao-conformes">0</strong><small>Itens marcados como não conformes.</small></div>
-              <div class="summary-card"><span>Observações</span><strong id="cosep-observacoes-count">0</strong><small>Registros com observação no período.</small></div>
-            </div>
-          </div>
-          <div class="panel-stack">
-            <div class="panel">
-              <h3>Evolução mensal</h3>
-              <p>Conformidade no ano filtrado, sem duplicação de meses.</p>
-              <div class="chart-box"><canvas id="graficoEvolucao"></canvas></div>
-            </div>
-            <div class="panel">
-              <h3>Metas em atenção</h3>
-              <p>Menores percentuais encontrados no filtro atual.</p>
-              <div class="badge-list" id="metas-criticas"></div>
-            </div>
-          </div>
+        <section class="panel">
+          <h3>Evolução mensal</h3>
+          <p>Conformidade no ano filtrado, sem duplicação de meses.</p>
+          <div class="chart-box"><canvas id="graficoEvolucao"></canvas></div>
         </section>
 
         <section class="panel">
           <h3>Resumo por meta e submeta de segurança</h3>
-          <p>Consolidação detalhada das metas principais, submetas e observações do recorte atual.</p>
+          <p>Consolidação detalhada das metas principais e submetas do recorte atual.</p>
           <table class="meta-table">
             <thead>
               <tr>
@@ -930,22 +858,6 @@
         unidade: filtro.unidade || (tipo === 'cosep' ? 'Todas as unidades' : 'Todos os setores')
       };
     }
-
-    function renderBadgeList(lista) {
-      const alvo = document.getElementById('metas-criticas');
-      if (!lista || !lista.length) {
-        alvo.innerHTML = '<div class="badge-item"><span>Nenhuma meta crítica encontrada.</span><span class="badge-value">0,0%</span></div>';
-        return;
-      }
-
-      alvo.innerHTML = lista.map(item => `
-        <div class="badge-item">
-          <strong>${escapeHtml(item.codigo)}. ${escapeHtml(item.nome)}</strong>
-          <span class="badge-value">${formatPct(item.percentual)}</span>
-        </div>
-      `).join('');
-    }
-
     function renderTabelaMetas(lista) {
       const alvo = document.getElementById('tb-metas');
       if (!lista || !lista.length) {
@@ -965,17 +877,6 @@
           </tr>
         `).join('');
 
-        const linhaObservacao = `
-          <tr class="observacao-row">
-            <td>${escapeHtml(meta.codigo)}.obs</td>
-            <td>Observações registradas</td>
-            <td>${meta.totalObservacoes || 0}</td>
-            <td class="dash-cell">—</td>
-            <td class="dash-cell">—</td>
-            <td class="dash-cell">—</td>
-          </tr>
-        `;
-
         return `
           <tr class="meta-row">
             <td>${escapeHtml(meta.codigo)}</td>
@@ -986,7 +887,6 @@
             <td>${formatPct(meta.percentual)}</td>
           </tr>
           ${linhasItens}
-          ${linhaObservacao}
         `;
       }).join('');
     }
@@ -1069,11 +969,6 @@
       document.getElementById('cosep-unidades').textContent = data.totalUnidades || 0;
       document.getElementById('cosep-diferenca').textContent = `${data.diferencaMeta >= 0 ? '+' : ''}${formatPct(data.diferencaMeta)}`;
       document.getElementById('cosep-meta-note').textContent = `Meta institucional de ${formatPct(data.metaInstitucional)}.`;
-      document.getElementById('cosep-conformes').textContent = data.geralConformes || 0;
-      document.getElementById('cosep-nao-conformes').textContent = data.geralNaoConformes || 0;
-      document.getElementById('cosep-observacoes-count').textContent = data.totalComObservacao || 0;
-
-      renderBadgeList(data.metasCriticas || []);
       renderTabelaMetas(data.metas || []);
       criarGraficoLinha((data.evolucaoMensal || []).map(item => item.mes), (data.evolucaoMensal || []).map(item => item.percentual));
     }

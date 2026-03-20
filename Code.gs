@@ -223,7 +223,7 @@ function ehSim(valor) {
 
 function ehNao(valor) {
   const v = normalizarTexto(valor);
-  return ['NÃO', 'NAO', 'N', 'INCONFORME', 'INADEQUADO'].includes(v);
+  return ['NÃO', 'NAO', 'N', 'INCONFORME', 'INADEQUADO', 'NÃO CONFORME', 'NAO CONFORME'].includes(v);
 }
 
 function incrementarMapa(mapa, chave) {
