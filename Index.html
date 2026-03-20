@@ -8,679 +8,505 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     :root {
-      --bg-01: #eef4ff;
-      --bg-02: #dcecff;
-      --bg-03: #f7fbff;
-      --surface: rgba(255, 255, 255, 0.62);
-      --surface-strong: rgba(255, 255, 255, 0.82);
-      --surface-dark: rgba(13, 31, 54, 0.84);
-      --border: rgba(255, 255, 255, 0.52);
-      --shadow: 0 24px 60px rgba(17, 40, 74, 0.16);
-      --text: #17304c;
-      --muted: #63758b;
-      --blue: #2f6df6;
-      --blue-soft: #dce8ff;
-      --green: #17a672;
-      --green-soft: #daf7ed;
-      --amber: #d89a22;
-      --amber-soft: #fff1cf;
-      --red: #d85f6f;
-      --red-soft: #ffe2e6;
-      --page-width: 210mm;
-      --page-height: 297mm;
+      --bg: #edf2f7;
+      --page: #ffffff;
+      --line: #d7dee8;
+      --line-strong: #b7c3d4;
+      --text: #1f2937;
+      --muted: #5b6777;
+      --blue: #1f5fbf;
+      --blue-soft: #eaf1fb;
+      --green: #1f8f5f;
+      --green-soft: #eaf7f0;
+      --amber: #b7791f;
+      --amber-soft: #fff5e5;
+      --red: #c05621;
+      --red-soft: #fff0eb;
+      --shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
     }
 
     * { box-sizing: border-box; }
 
-    html { scroll-behavior: smooth; }
-
     body {
       margin: 0;
-      min-height: 100vh;
-      font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      color: var(--text);
       background:
-        radial-gradient(circle at top left, rgba(64, 149, 255, 0.22), transparent 28%),
-        radial-gradient(circle at top right, rgba(31, 190, 164, 0.18), transparent 24%),
-        linear-gradient(180deg, #f6fbff 0%, #eef3fb 48%, #e9eef7 100%);
+        radial-gradient(circle at top left, rgba(124, 156, 255, 0.28), transparent 28%),
+        radial-gradient(circle at top right, rgba(61, 210, 196, 0.18), transparent 24%),
+        linear-gradient(180deg, #eef4ff 0%, #e8eef8 50%, #e1e8f2 100%);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
     }
 
     body::before,
     body::after {
       content: '';
       position: fixed;
+      inset: auto;
       border-radius: 999px;
-      filter: blur(30px);
-      opacity: 0.45;
+      filter: blur(40px);
+      opacity: 0.55;
       pointer-events: none;
       z-index: 0;
     }
 
     body::before {
-      width: 320px;
-      height: 320px;
+      width: 280px;
+      height: 280px;
       top: -80px;
-      left: -50px;
-      background: rgba(47, 109, 246, 0.22);
+      left: -60px;
+      background: rgba(116, 144, 255, 0.24);
     }
 
     body::after {
-      width: 280px;
-      height: 280px;
-      right: -80px;
-      bottom: 120px;
-      background: rgba(23, 166, 114, 0.20);
+      width: 240px;
+      height: 240px;
+      right: -60px;
+      bottom: 80px;
+      background: rgba(78, 184, 198, 0.22);
     }
 
-    .shell {
+    .app-shell {
       position: relative;
       z-index: 1;
-      max-width: 1480px;
+      max-width: 1400px;
       margin: 0 auto;
-      padding: 28px 18px 46px;
+      padding: 24px 16px 40px;
     }
 
-    .glass {
-      background: var(--surface);
-      border: 1px solid var(--border);
+    .header,
+    .filters,
+    .status-box,
+    .loading-box {
+      background: rgba(255, 255, 255, 0.68);
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
       backdrop-filter: blur(22px);
       -webkit-backdrop-filter: blur(22px);
-      box-shadow: var(--shadow);
     }
 
-    .hero {
-      border-radius: 30px;
-      padding: 28px;
-      margin-bottom: 22px;
-      display: grid;
-      grid-template-columns: 1.3fr 0.7fr;
-      gap: 18px;
-      overflow: hidden;
+    .header {
+      padding: 24px 26px;
+      margin-bottom: 16px;
       position: relative;
+      overflow: hidden;
     }
 
-    .hero::after {
+    .header::after {
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(135deg, rgba(255,255,255,0.14), rgba(255,255,255,0));
+      background: linear-gradient(135deg, rgba(255,255,255,0.28), rgba(255,255,255,0));
       pointer-events: none;
     }
 
-    .hero-title {
-      display: flex;
-      gap: 18px;
-      align-items: flex-start;
-    }
-
-    .logo-mark {
-      width: 68px;
-      height: 68px;
-      border-radius: 22px;
-      background: linear-gradient(135deg, rgba(47, 109, 246, 0.95), rgba(23, 166, 114, 0.9));
-      color: #fff;
-      display: grid;
-      place-items: center;
-      font-weight: 800;
-      font-size: 20px;
-      box-shadow: 0 20px 40px rgba(47, 109, 246, 0.24);
-      flex-shrink: 0;
-    }
-
-    .hero h1 {
-      margin: 0;
-      font-size: clamp(30px, 3vw, 42px);
-      line-height: 1.05;
+    .header h1 {
+      margin: 0 0 6px;
+      font-size: 30px;
+      font-weight: 700;
       letter-spacing: -0.03em;
     }
 
-    .hero p {
-      margin: 10px 0 0;
-      max-width: 720px;
+    .header p {
+      margin: 0;
       color: var(--muted);
-      font-size: 15px;
+      font-size: 14px;
       line-height: 1.6;
+      max-width: 860px;
     }
 
-    .hero-meta {
-      border-radius: 26px;
+    .filters {
       padding: 20px;
-      background: rgba(14, 31, 55, 0.84);
-      color: #eef6ff;
+      margin-bottom: 16px;
+    }
+
+    .filters-grid {
       display: grid;
-      gap: 10px;
-      align-content: start;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 16px;
+      align-items: start;
     }
 
-    .hero-meta .eyebrow {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      opacity: 0.68;
+    .filter-group {
+      border: 1px solid rgba(255, 255, 255, 0.82);
+      border-radius: 18px;
+      padding: 16px;
+      background: rgba(248, 251, 255, 0.74);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
     }
 
-    .hero-meta strong {
-      font-size: 24px;
-      line-height: 1.1;
+    .filter-group h2 {
+      margin: 0 0 14px;
+      font-size: 16px;
     }
 
-    .hero-meta small {
-      color: rgba(238, 246, 255, 0.72);
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .toolbar {
-      border-radius: 30px;
-      padding: 22px;
-      margin-bottom: 24px;
-    }
-
-    .toolbar-grid {
+    .fields {
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 14px;
-      align-items: end;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
     }
 
     .field {
       display: grid;
-      gap: 8px;
+      gap: 6px;
     }
 
     .field label {
       font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
       color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
     .field select,
-    .field input,
     .btn {
       width: 100%;
-      border: 1px solid rgba(255, 255, 255, 0.66);
-      border-radius: 18px;
-      padding: 14px 16px;
-      font-size: 14px;
-      font-family: inherit;
-      outline: none;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-    }
-
-    .field select,
-    .field input {
-      background: rgba(255, 255, 255, 0.88);
+      min-height: 44px;
+      border-radius: 14px;
+      border: 1px solid rgba(199, 210, 224, 0.95);
+      background: rgba(255, 255, 255, 0.92);
       color: var(--text);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+      font: inherit;
+      padding: 0 12px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.85);
     }
 
-    .field select:focus,
-    .field input:focus {
-      border-color: rgba(47, 109, 246, 0.46);
-      box-shadow: 0 0 0 4px rgba(47, 109, 246, 0.12);
+    .actions {
+      display: grid;
+      gap: 10px;
+      min-width: 190px;
     }
 
     .btn {
       cursor: pointer;
-      font-weight: 800;
-      letter-spacing: 0.01em;
-    }
-
-    .btn:hover {
-      transform: translateY(-1px);
+      font-weight: 600;
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, var(--blue), #4d85ff);
+      background: linear-gradient(135deg, #2f6df6, #6c8dff);
+      border-color: rgba(47, 109, 246, 0.95);
       color: #fff;
-      box-shadow: 0 14px 28px rgba(47, 109, 246, 0.22);
+      box-shadow: 0 14px 30px rgba(47, 109, 246, 0.22);
     }
 
-    .btn-secondary {
-      background: rgba(255,255,255,0.9);
-      color: var(--text);
-    }
-
-    .status-strip {
-      margin-top: 14px;
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-      color: var(--muted);
+    .status-box {
+      padding: 12px 16px;
+      margin-bottom: 18px;
+      display: grid;
+      gap: 8px;
       font-size: 13px;
-    }
-
-    .status-pill {
-      border-radius: 999px;
-      padding: 8px 12px;
-      background: rgba(255, 255, 255, 0.72);
-      border: 1px solid rgba(255, 255, 255, 0.64);
-    }
-
-    .loading-card {
-      padding: 36px 24px;
-      border-radius: 30px;
-      text-align: center;
-      font-weight: 700;
       color: var(--muted);
+    }
+
+    .loading-box {
+      padding: 28px;
+      text-align: center;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .report-stack {
+      display: grid;
+      gap: 24px;
     }
 
     .hidden { display: none !important; }
 
-    .report-stack {
-      display: grid;
-      gap: 28px;
-    }
-
     .document-page {
-      width: 100%;
-      max-width: 1120px;
+      width: 210mm;
+      min-height: 297mm;
       margin: 0 auto;
-      min-height: var(--page-height);
-      background: var(--surface-strong);
-      border: 1px solid rgba(255, 255, 255, 0.62);
-      border-radius: 34px;
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      box-shadow: 0 28px 60px rgba(17, 40, 74, 0.16);
-      padding: 28px;
-      position: relative;
+      padding: 12mm;
+      background: rgba(255, 255, 255, 0.84);
+      border: 1px solid rgba(255, 255, 255, 0.92);
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+      display: grid;
+      align-content: start;
+      gap: 10px;
       overflow: hidden;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
     }
 
-    .document-page::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(180deg, rgba(255,255,255,0.36), rgba(255,255,255,0.06));
-      pointer-events: none;
-    }
+    .page-break { break-after: page; }
 
-    .document-page > * {
-      position: relative;
-      z-index: 1;
-    }
-
-    .page-head {
+    .page-header {
       display: flex;
       justify-content: space-between;
-      gap: 20px;
       align-items: flex-start;
-      margin-bottom: 22px;
+      gap: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(31, 41, 55, 0.12);
     }
 
-    .page-brand {
-      display: grid;
-      gap: 6px;
+    .page-header h2 {
+      margin: 0 0 4px;
+      font-size: 22px;
     }
 
-    .page-kicker {
+    .page-header p,
+    .page-meta {
+      margin: 0;
+      color: var(--muted);
       font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--muted);
-      font-weight: 800;
+      line-height: 1.5;
     }
 
-    .page-title {
-      margin: 0;
-      font-size: 30px;
-      line-height: 1.08;
-      letter-spacing: -0.03em;
+    .page-meta {
+      min-width: 215px;
+      text-align: right;
     }
 
-    .page-subtitle {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.55;
-      font-size: 14px;
-    }
-
-    .page-tag {
-      min-width: 240px;
-      border-radius: 22px;
-      padding: 16px 18px;
-      background: rgba(255, 255, 255, 0.72);
-      border: 1px solid rgba(255,255,255,0.64);
-      display: grid;
-      gap: 7px;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .page-tag strong {
-      color: var(--text);
-      font-size: 15px;
-    }
-
-    .cards-grid {
+    .metrics {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 14px;
-      margin-bottom: 18px;
+      gap: 8px;
     }
 
     .metric-card {
-      border-radius: 24px;
-      padding: 18px;
-      background: rgba(255, 255, 255, 0.74);
-      border: 1px solid rgba(255, 255, 255, 0.7);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.62);
-      min-height: 132px;
+      border: 1px solid rgba(255, 255, 255, 0.86);
+      border-left: 4px solid var(--blue);
+      border-radius: 16px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.8);
+      min-height: 88px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.75);
+    }
+
+    .metric-card.green { border-left-color: var(--green); background: var(--green-soft); }
+    .metric-card.amber { border-left-color: var(--amber); background: var(--amber-soft); }
+    .metric-card.red { border-left-color: var(--red); background: var(--red-soft); }
+    .metric-card.blue { background: var(--blue-soft); }
+
+    .metric-card span {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .metric-card strong {
+      font-size: 28px;
+      line-height: 1;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .metric-card small {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .section-grid-2,
+    .section-grid-3 {
       display: grid;
       gap: 10px;
-      align-content: start;
     }
 
-    .metric-label {
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--muted);
-      font-weight: 800;
-    }
-
-    .metric-value {
-      font-size: clamp(24px, 2.7vw, 38px);
-      font-weight: 800;
-      letter-spacing: -0.04em;
-      color: var(--text);
-      line-height: 1;
-    }
-
-    .metric-note {
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.5;
-    }
-
-    .metric-card.is-blue { background: linear-gradient(180deg, rgba(220, 232, 255, 0.92), rgba(255,255,255,0.86)); }
-    .metric-card.is-green { background: linear-gradient(180deg, rgba(218, 247, 237, 0.92), rgba(255,255,255,0.86)); }
-    .metric-card.is-amber { background: linear-gradient(180deg, rgba(255, 241, 207, 0.95), rgba(255,255,255,0.86)); }
-    .metric-card.is-red { background: linear-gradient(180deg, rgba(255, 226, 230, 0.95), rgba(255,255,255,0.86)); }
-
-    .layout-2col,
-    .layout-3col {
-      display: grid;
-      gap: 16px;
-      margin-bottom: 18px;
-    }
-
-    .layout-2col { grid-template-columns: 1.15fr 0.85fr; }
-    .layout-3col { grid-template-columns: 1.1fr 0.95fr 0.95fr; }
+    .section-grid-2 { grid-template-columns: 1.2fr 0.8fr; }
+    .section-grid-3 { grid-template-columns: 1fr 0.95fr 0.95fr; }
 
     .panel {
-      border-radius: 26px;
-      padding: 20px;
-      background: rgba(255,255,255,0.72);
-      border: 1px solid rgba(255,255,255,0.7);
+      border: 1px solid rgba(255, 255, 255, 0.86);
+      border-radius: 16px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.78);
       min-height: 100%;
+      overflow: hidden;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.72);
     }
 
-    .panel-title {
-      margin: 0 0 14px;
-      font-size: 18px;
-      letter-spacing: -0.02em;
+    .panel h3 {
+      margin: 0 0 4px;
+      font-size: 15px;
     }
 
-    .panel-subtitle {
-      margin: -6px 0 16px;
-      font-size: 13px;
+    .panel p {
+      margin: 0 0 10px;
       color: var(--muted);
-      line-height: 1.5;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .chart-box {
+      position: relative;
+      height: 165px;
+      width: 100%;
+    }
+
+    .chart-box canvas {
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
     }
 
     .distribution-list,
-    .observations-list,
-    .alert-list {
+    .bullet-list {
       margin: 0;
       padding: 0;
       list-style: none;
       display: grid;
-      gap: 12px;
+      gap: 8px;
     }
 
     .distribution-item {
       display: grid;
-      gap: 8px;
+      gap: 4px;
     }
 
-    .distribution-meta {
+    .distribution-top {
       display: flex;
       justify-content: space-between;
-      gap: 12px;
-      font-size: 14px;
-      color: var(--text);
-      font-weight: 700;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
     }
 
-    .track {
-      width: 100%;
-      height: 10px;
+    .bar-track {
+      height: 8px;
+      background: #e7edf5;
       border-radius: 999px;
-      background: rgba(99, 117, 139, 0.14);
       overflow: hidden;
     }
 
-    .track > span {
+    .bar-track span {
       display: block;
       height: 100%;
+      background: var(--blue);
       border-radius: inherit;
-      background: linear-gradient(135deg, var(--blue), #7ba7ff);
     }
 
-    .observations-list li,
-    .alert-list li {
-      border-radius: 18px;
-      padding: 14px 16px;
-      background: rgba(255,255,255,0.68);
-      border: 1px solid rgba(255,255,255,0.66);
-      color: var(--text);
-      line-height: 1.5;
-      font-size: 14px;
-    }
-
-    .observations-list small,
-    .alert-list small {
-      display: block;
-      color: var(--muted);
-      margin-top: 6px;
+    .bullet-list li {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 10px;
       font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
+      line-height: 1.45;
+      background: #fbfcfe;
     }
 
-    .meta-stack {
+    .bullet-list small {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .badge-list {
       display: grid;
-      gap: 14px;
-      margin-bottom: 18px;
+      gap: 8px;
     }
 
-    .meta-card {
-      border-radius: 26px;
-      padding: 20px;
-      background: rgba(255,255,255,0.74);
-      border: 1px solid rgba(255,255,255,0.68);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
-    }
-
-    .meta-top {
+    .badge-item {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 10px;
+      background: #fbfcfe;
       display: flex;
       justify-content: space-between;
-      gap: 16px;
+      gap: 10px;
       align-items: center;
-      margin-bottom: 14px;
+      font-size: 12px;
     }
 
-    .meta-name {
-      margin: 0;
-      font-size: 18px;
-      letter-spacing: -0.02em;
-    }
-
-    .meta-badge {
-      border-radius: 999px;
-      padding: 8px 12px;
+    .badge-item strong {
       font-size: 13px;
-      font-weight: 800;
+    }
+
+    .badge-value {
+      min-width: 64px;
+      text-align: center;
+      border-radius: 999px;
+      padding: 4px 8px;
       color: #fff;
-      background: linear-gradient(135deg, var(--blue), #80a6ff);
-      white-space: nowrap;
-    }
-
-    .meta-badge.is-good { background: linear-gradient(135deg, var(--green), #48c598); }
-    .meta-badge.is-mid { background: linear-gradient(135deg, var(--amber), #efbc51); }
-    .meta-badge.is-low { background: linear-gradient(135deg, var(--red), #ee8d9c); }
-
-    .meta-progress {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
-    .mini-metric {
-      border-radius: 18px;
-      padding: 12px 14px;
-      background: rgba(245, 249, 255, 0.72);
-      border: 1px solid rgba(255,255,255,0.66);
-    }
-
-    .mini-metric span {
-      display: block;
+      background: var(--blue);
       font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      color: var(--muted);
-      margin-bottom: 6px;
-      font-weight: 800;
-    }
-
-    .mini-metric strong {
-      font-size: 20px;
-      line-height: 1;
+      font-weight: 700;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
+      table-layout: fixed;
+      border-radius: 14px;
       overflow: hidden;
-      border-radius: 18px;
-      background: rgba(255,255,255,0.56);
     }
 
     th, td {
-      padding: 11px 12px;
-      text-align: left;
-      border-bottom: 1px solid rgba(99, 117, 139, 0.12);
-      font-size: 13px;
+      border: 1px solid var(--line);
+      padding: 6px 7px;
+      font-size: 11px;
       vertical-align: top;
+      word-break: break-word;
     }
 
     th {
-      font-size: 11px;
-      letter-spacing: 0.08em;
+      background: #f4f7fb;
       text-transform: uppercase;
+      letter-spacing: 0.04em;
       color: var(--muted);
-      background: rgba(255,255,255,0.86);
-      font-weight: 800;
+      font-size: 10px;
+      text-align: left;
     }
 
-    tr:last-child td { border-bottom: none; }
-
-    .table-wrap {
-      border-radius: 20px;
-      overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.66);
-      background: rgba(255,255,255,0.66);
-    }
-
-    .note-line {
-      margin-top: 18px;
+    .footer-note {
       display: flex;
       justify-content: space-between;
       gap: 12px;
-      flex-wrap: wrap;
+      padding-top: 6px;
+      border-top: 1px solid var(--line);
       color: var(--muted);
-      font-size: 12px;
-      line-height: 1.5;
+      font-size: 11px;
     }
-
-    .page-break { break-after: page; }
 
     a {
       color: var(--blue);
       text-decoration: none;
-      font-weight: 700;
     }
 
-    .empty-state {
-      padding: 16px;
-      border-radius: 18px;
-      background: rgba(255,255,255,0.72);
-      color: var(--muted);
-      border: 1px solid rgba(255,255,255,0.66);
-      font-size: 14px;
-    }
-
-    @media (max-width: 1180px) {
-      .hero,
-      .layout-2col,
-      .layout-3col,
-      .toolbar-grid,
-      .cards-grid,
-      .meta-progress {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .hero-meta,
-      .page-tag { min-width: 0; }
-    }
-
-    @media (max-width: 820px) {
-      .hero,
-      .toolbar-grid,
-      .layout-2col,
-      .layout-3col,
-      .cards-grid,
-      .meta-progress,
-      .page-head {
+    @media (max-width: 1240px) {
+      .filters-grid,
+      .fields,
+      .metrics,
+      .section-grid-2,
+      .section-grid-3 {
         grid-template-columns: 1fr;
-        display: grid;
       }
 
-      .page-head { gap: 14px; }
-      .document-page { padding: 20px; border-radius: 26px; }
-      .shell { padding-inline: 12px; }
-    }
-
-    @media print {
-      body {
-        background: #fff;
-      }
-
-      body::before,
-      body::after,
-      .hero,
-      .toolbar {
-        display: none !important;
-      }
-
-      .shell {
-        max-width: none;
-        padding: 0;
+      .actions {
+        min-width: 0;
       }
 
       .document-page {
-        max-width: none;
+        width: 100%;
         min-height: auto;
+      }
+
+      .page-header,
+      .footer-note {
+        flex-direction: column;
+      }
+
+      .page-meta {
+        text-align: left;
+      }
+    }
+
+    @media print {
+      body { background: #fff; }
+      .header, .filters, .status-box, .loading-box { display: none !important; }
+      .app-shell { padding: 0; }
+      .document-page {
         box-shadow: none;
         border: none;
-        border-radius: 0;
-        padding: 12mm;
+        width: 210mm;
+        min-height: 297mm;
+        margin: 0;
         background: #fff;
         backdrop-filter: none;
       }
@@ -688,237 +514,248 @@
   </style>
 </head>
 <body>
-  <main class="shell">
-    <section class="hero glass">
-      <div class="hero-title">
-        <div class="logo-mark">CS</div>
-        <div>
-          <h1>Boletim COSEP</h1>
-          <p>Dashboard institucional da Comissão de Segurança do Paciente do HUC – Hospital Universitário do Ceará, com consolidação das caminhadas de segurança e das notificações em um boletim visual pronto para PDF em duas páginas.</p>
-        </div>
-      </div>
-      <aside class="hero-meta">
-        <span class="eyebrow">Relatório oficial</span>
-        <strong>Visual Apple style + glassmorphism</strong>
-        <small>O sistema foi reorganizado para exibir os filtros, a prévia do boletim em A4 e a exportação em PDF com uma página COSEP e outra página de Notificações.</small>
-      </aside>
+  <main class="app-shell">
+    <section class="header">
+      <h1>Boletim COSEP</h1>
+      <p>Prévia em A4 com uma página para Caminhadas de Segurança e outra para Notificações, cada uma com filtros independentes.</p>
     </section>
 
-    <section class="toolbar glass">
-      <div class="toolbar-grid">
-        <div class="field">
-          <label for="ano">Ano</label>
-          <select id="ano"></select>
+    <section class="filters">
+      <div class="filters-grid">
+        <div class="filter-group">
+          <h2>Página 1 · Caminhadas de Segurança</h2>
+          <div class="fields">
+            <div class="field">
+              <label for="ano-cosep">Ano</label>
+              <select id="ano-cosep"></select>
+            </div>
+            <div class="field">
+              <label for="mes-cosep">Mês</label>
+              <select id="mes-cosep"></select>
+            </div>
+            <div class="field">
+              <label for="unidade-cosep">Unidade</label>
+              <select id="unidade-cosep"></select>
+            </div>
+          </div>
         </div>
-        <div class="field">
-          <label for="mes">Mês</label>
-          <select id="mes"></select>
+
+        <div class="filter-group">
+          <h2>Página 2 · Notificações</h2>
+          <div class="fields">
+            <div class="field">
+              <label for="ano-notifica">Ano</label>
+              <select id="ano-notifica"></select>
+            </div>
+            <div class="field">
+              <label for="mes-notifica">Mês</label>
+              <select id="mes-notifica"></select>
+            </div>
+            <div class="field">
+              <label for="unidade-notifica">Setor</label>
+              <select id="unidade-notifica"></select>
+            </div>
+          </div>
         </div>
-        <div class="field">
-          <label for="unidade">Unidade / Setor</label>
-          <select id="unidade"></select>
+
+        <div class="actions">
+          <button type="button" class="btn btn-primary" onclick="carregarDados()">Gerar boletim</button>
+          <button type="button" class="btn" onclick="baixarPDF()">Baixar PDF</button>
         </div>
-        <button type="button" class="btn btn-primary" onclick="carregarDados()">Gerar boletim</button>
-        <button type="button" class="btn btn-secondary" onclick="baixarPDF()">Baixar PDF</button>
-      </div>
-      <div class="status-strip">
-        <span class="status-pill" id="status-periodo">Período: aguardando seleção</span>
-        <span class="status-pill" id="status-gerado">Boletim ainda não gerado</span>
       </div>
     </section>
 
-    <section id="loading" class="loading-card glass">Carregando dados do boletim...</section>
+    <section class="status-box">
+      <div id="status-cosep">Página 1: aguardando geração.</div>
+      <div id="status-notifica">Página 2: aguardando geração.</div>
+      <div id="status-gerado">Última geração: não realizada.</div>
+    </section>
+
+    <section id="loading" class="loading-box">Carregando dados do boletim...</section>
 
     <section id="boletim" class="report-stack hidden">
       <article class="document-page page-break" id="pagina-cosep">
-        <header class="page-head">
-          <div class="page-brand">
-            <span class="page-kicker">Página 1 de 2</span>
-            <h2 class="page-title">Boletim COSEP – Caminhadas de Segurança</h2>
-            <p class="page-subtitle">Comissão de Segurança do Paciente • HUC – Hospital Universitário do Ceará.</p>
+        <header class="page-header">
+          <div>
+            <h2>Boletim COSEP · Caminhadas de Segurança</h2>
+            <p>Consolidação das metas de segurança do paciente no recorte selecionado.</p>
           </div>
-          <div class="page-tag" id="periodo-cosep"></div>
+          <div class="page-meta" id="periodo-cosep"></div>
         </header>
 
-        <section class="cards-grid">
-          <div class="metric-card is-blue">
-            <span class="metric-label">Conformidade geral</span>
-            <strong class="metric-value" id="cosep-conformidade">0%</strong>
-            <span class="metric-note">Resultado geral das metas avaliadas no período.</span>
+        <section class="metrics">
+          <div class="metric-card blue">
+            <span>Conformidade geral</span>
+            <strong id="cosep-conformidade">0%</strong>
+            <small>Resultado consolidado do período selecionado.</small>
           </div>
-          <div class="metric-card is-green">
-            <span class="metric-label">Avaliações realizadas</span>
-            <strong class="metric-value" id="cosep-avaliacoes">0</strong>
-            <span class="metric-note">Total de formulários filtrados para o boletim.</span>
+          <div class="metric-card green">
+            <span>Avaliações</span>
+            <strong id="cosep-avaliacoes">0</strong>
+            <small>Formulários considerados na página 1.</small>
           </div>
-          <div class="metric-card is-amber">
-            <span class="metric-label">Unidades avaliadas</span>
-            <strong class="metric-value" id="cosep-unidades">0</strong>
-            <span class="metric-note">Considerando a regra E → BQ → BR → ... → BY.</span>
+          <div class="metric-card amber">
+            <span>Unidades</span>
+            <strong id="cosep-unidades">0</strong>
+            <small>Total de unidades identificadas no recorte.</small>
           </div>
-          <div class="metric-card is-red">
-            <span class="metric-label">Diferença para meta</span>
-            <strong class="metric-value" id="cosep-diferenca">0%</strong>
-            <span class="metric-note" id="cosep-meta-note">Meta institucional de 85%.</span>
+          <div class="metric-card red">
+            <span>Diferença da meta</span>
+            <strong id="cosep-diferenca">0%</strong>
+            <small id="cosep-meta-note">Meta institucional.</small>
           </div>
         </section>
 
-        <section class="layout-3col">
+        <section class="section-grid-3">
           <div class="panel">
-            <h3 class="panel-title">Resumo executivo</h3>
-            <p class="panel-subtitle">Leitura rápida do comportamento geral da COSEP dentro do filtro selecionado.</p>
-            <div class="cards-grid" style="grid-template-columns: repeat(2, minmax(0,1fr)); margin: 0; gap: 12px;">
-              <div class="mini-metric"><span>Conformes</span><strong id="cosep-conformes">0</strong></div>
-              <div class="mini-metric"><span>Não conformes</span><strong id="cosep-nao-conformes">0</strong></div>
-              <div class="mini-metric"><span>Com observação</span><strong id="cosep-observacoes-count">0</strong></div>
-              <div class="mini-metric"><span>Com foto</span><strong id="cosep-fotos">0</strong></div>
+            <h3>Resumo do período</h3>
+            <p>Indicadores principais para leitura rápida.</p>
+            <div class="metrics" style="grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px;">
+              <div class="metric-card"><span>Conformes</span><strong id="cosep-conformes">0</strong><small>Itens marcados como conformes.</small></div>
+              <div class="metric-card"><span>Não conformes</span><strong id="cosep-nao-conformes">0</strong><small>Itens marcados como não conformes.</small></div>
+              <div class="metric-card"><span>Observações</span><strong id="cosep-observacoes-count">0</strong><small>Registros com observação no período.</small></div>
             </div>
           </div>
           <div class="panel">
-            <h3 class="panel-title">Evolução mensal</h3>
-            <p class="panel-subtitle">Percentual de conformidade no ano filtrado.</p>
-            <canvas id="graficoEvolucao" height="180"></canvas>
+            <h3>Evolução mensal</h3>
+            <p>Conformidade no ano filtrado, sem duplicação de meses.</p>
+            <div class="chart-box"><canvas id="graficoEvolucao"></canvas></div>
           </div>
           <div class="panel">
-            <h3 class="panel-title">Metas em atenção</h3>
-            <p class="panel-subtitle">As três metas com menor desempenho no filtro atual.</p>
-            <ul class="alert-list" id="metas-criticas"></ul>
-          </div>
-        </section>
-
-        <section class="layout-2col">
-          <div class="panel">
-            <h3 class="panel-title">Distribuição por unidade avaliada</h3>
-            <p class="panel-subtitle">Ranking consolidado das unidades encontradas pela lógica principal + colunas alternativas.</p>
-            <div id="lista-unidades"></div>
-          </div>
-          <div class="panel">
-            <h3 class="panel-title">Observações gerais</h3>
-            <p class="panel-subtitle">Síntese das observações registradas na caminhada.</p>
-            <ul class="observations-list" id="obs-gerais"></ul>
-          </div>
-        </section>
-
-        <section>
-          <h3 class="panel-title" style="margin-bottom: 14px;">Desempenho por meta de segurança</h3>
-          <div class="meta-stack" id="metas-container"></div>
-        </section>
-
-        <footer class="note-line">
-          <span>Fonte: aba BASE DE DADOS CAMINHADAS.</span>
-          <span>Boletim gerado automaticamente pelo Web App COSEP.</span>
-        </footer>
-      </article>
-
-      <article class="document-page" id="pagina-notifica">
-        <header class="page-head">
-          <div class="page-brand">
-            <span class="page-kicker">Página 2 de 2</span>
-            <h2 class="page-title">Boletim de Notificações</h2>
-            <p class="page-subtitle">Consolidação da aba NOTIFICA - BASE para o mesmo período e unidade/setor selecionados.</p>
-          </div>
-          <div class="page-tag" id="periodo-notifica"></div>
-        </header>
-
-        <section class="cards-grid">
-          <div class="metric-card is-blue">
-            <span class="metric-label">Total de notificações</span>
-            <strong class="metric-value" id="notifica-total">0</strong>
-            <span class="metric-note">Registros encontrados na aba de notificações.</span>
-          </div>
-          <div class="metric-card is-red">
-            <span class="metric-label">Afetou paciente</span>
-            <strong class="metric-value" id="notifica-percentual-afetou">0%</strong>
-            <span class="metric-note">Percentual de ocorrências marcadas como “Sim”.</span>
-          </div>
-          <div class="metric-card is-green">
-            <span class="metric-label">Concluídas</span>
-            <strong class="metric-value" id="notifica-concluidas">0</strong>
-            <span class="metric-note">Status concluído dentro do recorte atual.</span>
-          </div>
-          <div class="metric-card is-amber">
-            <span class="metric-label">Setores notificados</span>
-            <strong class="metric-value" id="notifica-setores">0</strong>
-            <span class="metric-note">Quantidade de setores distintos no período.</span>
-          </div>
-        </section>
-
-        <section class="layout-3col">
-          <div class="panel">
-            <h3 class="panel-title">Afetou paciente?</h3>
-            <p class="panel-subtitle">Comparativo direto entre notificações que afetaram ou não o paciente.</p>
-            <canvas id="graficoAfetou" height="180"></canvas>
-          </div>
-          <div class="panel">
-            <h3 class="panel-title">Top classificações</h3>
-            <p class="panel-subtitle">Principais tipos de classificação das notificações.</p>
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Tipo</th><th>Qtd</th></tr></thead>
-                <tbody id="tb-tipo"></tbody>
-              </table>
-            </div>
-          </div>
-          <div class="panel">
-            <h3 class="panel-title">Top setores</h3>
-            <p class="panel-subtitle">Setores com maior volume de notificações.</p>
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Setor</th><th>Qtd</th></tr></thead>
-                <tbody id="tb-setor"></tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-
-        <section class="layout-2col">
-          <div class="panel">
-            <h3 class="panel-title">Status das notificações</h3>
-            <p class="panel-subtitle">Painel resumido para acompanhamento da situação atual.</p>
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Status</th><th>Qtd</th></tr></thead>
-                <tbody id="tb-status"></tbody>
-              </table>
-            </div>
-          </div>
-          <div class="panel">
-            <h3 class="panel-title">Status de resposta</h3>
-            <p class="panel-subtitle">Andamento do retorno das notificações.</p>
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Status resposta</th><th>Qtd</th></tr></thead>
-                <tbody id="tb-status-resposta"></tbody>
-              </table>
-            </div>
+            <h3>Metas em atenção</h3>
+            <p>Menores percentuais encontrados no filtro atual.</p>
+            <div class="badge-list" id="metas-criticas"></div>
           </div>
         </section>
 
         <section class="panel">
-          <h3 class="panel-title">Tabela resumida de notificações</h3>
-          <p class="panel-subtitle">Amostra limitada para manter o PDF em duas páginas e preservar a leitura do boletim.</p>
-          <div class="table-wrap">
+          <h3>Distribuição por unidade</h3>
+          <p>Ranking das unidades avaliadas dentro do recorte atual.</p>
+          <div id="lista-unidades"></div>
+        </section>
+
+        <section class="panel">
+          <h3>Resumo por meta de segurança</h3>
+          <p>Tabela consolidada por meta para caber corretamente em uma página A4.</p>
+          <table>
+            <thead>
+              <tr>
+                <th style="width:9%;">Código</th>
+                <th style="width:41%;">Meta</th>
+                <th style="width:12%;">Avaliados</th>
+                <th style="width:12%;">Conformes</th>
+                <th style="width:12%;">Não conformes</th>
+                <th style="width:14%;">%</th>
+              </tr>
+            </thead>
+            <tbody id="tb-metas"></tbody>
+          </table>
+        </section>
+
+        <footer class="footer-note">
+          <span>Fonte: BASE DE DADOS CAMINHADAS.</span>
+          <span>Página 1 de 2.</span>
+        </footer>
+      </article>
+
+      <article class="document-page" id="pagina-notifica">
+        <header class="page-header">
+          <div>
+            <h2>Boletim COSEP · Notificações</h2>
+            <p>Consolidação da aba de notificações com filtro independente da página 1.</p>
+          </div>
+          <div class="page-meta" id="periodo-notifica"></div>
+        </header>
+
+        <section class="metrics">
+          <div class="metric-card blue">
+            <span>Total de notificações</span>
+            <strong id="notifica-total">0</strong>
+            <small>Registros encontrados para a página 2.</small>
+          </div>
+          <div class="metric-card red">
+            <span>Afetou paciente</span>
+            <strong id="notifica-percentual-afetou">0%</strong>
+            <small>Percentual de ocorrências marcadas como sim.</small>
+          </div>
+          <div class="metric-card green">
+            <span>Concluídas</span>
+            <strong id="notifica-concluidas">0</strong>
+            <small>Status concluído no recorte selecionado.</small>
+          </div>
+          <div class="metric-card amber">
+            <span>Setores</span>
+            <strong id="notifica-setores">0</strong>
+            <small>Total de setores encontrados no recorte.</small>
+          </div>
+        </section>
+
+        <section class="section-grid-3">
+          <div class="panel">
+            <h3>Afetou paciente?</h3>
+            <p>Distribuição entre registros marcados como sim e não.</p>
+            <div class="chart-box"><canvas id="graficoAfetou"></canvas></div>
+          </div>
+          <div class="panel">
+            <h3>Top classificações</h3>
+            <p>Classificações mais frequentes no filtro atual.</p>
             <table>
-              <thead>
-                <tr>
-                  <th>Nº NOTIVISA</th>
-                  <th>Data</th>
-                  <th>Setor</th>
-                  <th>Tipo</th>
-                  <th>Natureza</th>
-                  <th>Afetou?</th>
-                  <th>Status</th>
-                  <th>Resp.</th>
-                </tr>
-              </thead>
-              <tbody id="tb-notificacoes"></tbody>
+              <thead><tr><th>Tipo</th><th style="width:22%;">Qtd</th></tr></thead>
+              <tbody id="tb-tipo"></tbody>
+            </table>
+          </div>
+          <div class="panel">
+            <h3>Top setores</h3>
+            <p>Setores com maior volume de notificações.</p>
+            <table>
+              <thead><tr><th>Setor</th><th style="width:22%;">Qtd</th></tr></thead>
+              <tbody id="tb-setor"></tbody>
             </table>
           </div>
         </section>
 
-        <footer class="note-line">
-          <span>Fonte: aba NOTIFICA - BASE.</span>
-          <span>Relatório em duas páginas para exportação em PDF.</span>
+        <section class="section-grid-2">
+          <div class="panel">
+            <h3>Status das notificações</h3>
+            <p>Situação dos registros no período filtrado.</p>
+            <table>
+              <thead><tr><th>Status</th><th style="width:22%;">Qtd</th></tr></thead>
+              <tbody id="tb-status"></tbody>
+            </table>
+          </div>
+          <div class="panel">
+            <h3>Status de resposta</h3>
+            <p>Retorno associado às notificações selecionadas.</p>
+            <table>
+              <thead><tr><th>Status resposta</th><th style="width:22%;">Qtd</th></tr></thead>
+              <tbody id="tb-status-resposta"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h3>Notificações resumidas</h3>
+          <p>Amostra reduzida para manter a página 2 organizada na exportação em PDF.</p>
+          <table>
+            <thead>
+              <tr>
+                <th style="width:14%;">Nº</th>
+                <th style="width:10%;">Data</th>
+                <th style="width:19%;">Setor</th>
+                <th style="width:18%;">Tipo</th>
+                <th style="width:14%;">Natureza</th>
+                <th style="width:8%;">Afetou</th>
+                <th style="width:9%;">Status</th>
+                <th style="width:8%;">Resp.</th>
+              </tr>
+            </thead>
+            <tbody id="tb-notificacoes"></tbody>
+          </table>
+        </section>
+
+        <footer class="footer-note">
+          <span>Fonte: NOTIFICA - BASE.</span>
+          <span>Página 2 de 2.</span>
         </footer>
       </article>
     </section>
@@ -927,7 +764,6 @@
   <script>
     let chartEvolucao = null;
     let chartAfetou = null;
-    let ultimoPayload = null;
 
     function fetchViaGoogleScript(params = {}) {
       return new Promise((resolve, reject) => {
@@ -945,8 +781,7 @@
 
     async function fetchViaHttp(params = {}) {
       const query = new URLSearchParams({ api: '1', ...params });
-      const url = `${location.pathname}?${query.toString()}`;
-      const resposta = await fetch(url, { cache: 'no-store' });
+      const resposta = await fetch(`${location.pathname}?${query.toString()}`, { cache: 'no-store' });
       if (!resposta.ok) throw new Error('Falha ao buscar dados do Apps Script.');
       return resposta.json();
     }
@@ -955,7 +790,6 @@
       if (window.google && google.script && google.script.run) {
         return fetchViaGoogleScript(params);
       }
-
       return fetchViaHttp(params);
     }
 
@@ -968,161 +802,196 @@
         .replaceAll("'", '&#039;');
     }
 
-    function optionHTML(value, text, selected) {
+    function optionHTML(value, text, selected = false) {
       return `<option value="${escapeHtml(value)}" ${selected ? 'selected' : ''}>${escapeHtml(text)}</option>`;
+    }
+
+    function preencherSelect(id, opcoes, vazioLabel) {
+      const elemento = document.getElementById(id);
+      elemento.innerHTML = optionHTML('', vazioLabel, false) + (opcoes || []).map(item => optionHTML(item, item)).join('');
+    }
+
+    function preencherFiltros(filtros) {
+      const filtrosCosep = (filtros && filtros.caminhadas) || {};
+      const filtrosNotifica = (filtros && filtros.notificacoes) || {};
+
+      preencherSelect('ano-cosep', filtrosCosep.anos, 'Todos');
+      preencherSelect('mes-cosep', filtrosCosep.meses, 'Todos');
+      preencherSelect('unidade-cosep', filtrosCosep.unidades, 'Todas');
+
+      preencherSelect('ano-notifica', filtrosNotifica.anos, 'Todos');
+      preencherSelect('mes-notifica', filtrosNotifica.meses, 'Todos');
+      preencherSelect('unidade-notifica', filtrosNotifica.unidades, 'Todos');
+
+      const ultimoAnoCosep = (filtrosCosep.anos || []).slice(-1)[0] || '';
+      const ultimoAnoNotifica = (filtrosNotifica.anos || []).slice(-1)[0] || '';
+      document.getElementById('ano-cosep').value = ultimoAnoCosep;
+      document.getElementById('ano-notifica').value = ultimoAnoNotifica;
     }
 
     function formatPct(value) {
       return `${Number(value || 0).toFixed(1)}%`;
     }
 
-    function corBadge(percentual) {
-      if (percentual >= 85) return 'is-good';
-      if (percentual >= 70) return 'is-mid';
-      return 'is-low';
-    }
-
-    function preencherFiltros(filtros) {
-      const ano = document.getElementById('ano');
-      const mes = document.getElementById('mes');
-      const unidade = document.getElementById('unidade');
-
-      ano.innerHTML = optionHTML('', 'Todos', false) + (filtros.anos || []).map((v, idx, arr) => optionHTML(v, v, idx === arr.length - 1)).join('');
-      mes.innerHTML = optionHTML('', 'Todos', false) + (filtros.meses || []).map(v => optionHTML(v, v, false)).join('');
-      unidade.innerHTML = optionHTML('', 'Todas', false) + (filtros.unidades || []).map(v => optionHTML(v, v, false)).join('');
-    }
-
-    function topEntries(obj, limit = 10) {
+    function topEntries(obj, limit = 5) {
       return Object.entries(obj || {}).slice(0, limit);
     }
 
     function renderRows(entries, colSpan = 2) {
-      if (!entries.length) return `<tr><td colspan="${colSpan}">Sem dados no filtro atual.</td></tr>`;
+      if (!entries.length) {
+        return `<tr><td colspan="${colSpan}">Sem dados no filtro atual.</td></tr>`;
+      }
       return entries.map(([chave, valor]) => `<tr><td>${escapeHtml(chave)}</td><td>${escapeHtml(valor)}</td></tr>`).join('');
     }
 
-    function formatPeriodo(filtros) {
+    function obterFiltrosTela() {
       return {
-        mes: filtros.mes || 'Todos os meses',
-        ano: filtros.ano || 'Todos os anos',
-        unidade: filtros.unidade || 'Todas as unidades / setores'
+        anoCosep: document.getElementById('ano-cosep').value,
+        mesCosep: document.getElementById('mes-cosep').value,
+        unidadeCosep: document.getElementById('unidade-cosep').value,
+        anoNotifica: document.getElementById('ano-notifica').value,
+        mesNotifica: document.getElementById('mes-notifica').value,
+        unidadeNotifica: document.getElementById('unidade-notifica').value
       };
     }
 
-    function renderDistribuicao(container, lista) {
-      const alvo = document.getElementById(container);
+    function formatPeriodo(filtro, tipo) {
+      return {
+        ano: filtro.ano || 'Todos os anos',
+        mes: filtro.mes || 'Todos os meses',
+        unidade: filtro.unidade || (tipo === 'cosep' ? 'Todas as unidades' : 'Todos os setores')
+      };
+    }
+
+    function renderBadgeList(lista) {
+      const alvo = document.getElementById('metas-criticas');
       if (!lista || !lista.length) {
-        alvo.innerHTML = '<div class="empty-state">Sem unidades encontradas no filtro atual.</div>';
+        alvo.innerHTML = '<div class="badge-item"><span>Nenhuma meta crítica encontrada.</span><span class="badge-value">0,0%</span></div>';
         return;
       }
 
-      const maximo = Math.max(...lista.map(item => Number(item.quantidade || 0)), 1);
+      alvo.innerHTML = lista.map(item => `
+        <div class="badge-item">
+          <strong>${escapeHtml(item.codigo)}. ${escapeHtml(item.nome)}</strong>
+          <span class="badge-value">${formatPct(item.percentual)}</span>
+        </div>
+      `).join('');
+    }
+
+    function renderDistribuicao(lista) {
+      const alvo = document.getElementById('lista-unidades');
+      if (!lista || !lista.length) {
+        alvo.innerHTML = '<div class="bullet-list"><li>Sem unidades encontradas no filtro atual.</li></div>';
+        return;
+      }
+
+      const top = lista.slice(0, 6);
+      const maximo = Math.max(...top.map(item => Number(item.quantidade || 0)), 1);
       alvo.innerHTML = `
         <div class="distribution-list">
-          ${lista.map(item => `
+          ${top.map(item => `
             <div class="distribution-item">
-              <div class="distribution-meta">
+              <div class="distribution-top">
                 <span>${escapeHtml(item.nome)}</span>
-                <strong>${item.quantidade}</strong>
+                <span>${item.quantidade}</span>
               </div>
-              <div class="track"><span style="width:${(Number(item.quantidade || 0) / maximo) * 100}%"></span></div>
+              <div class="bar-track"><span style="width:${(Number(item.quantidade || 0) / maximo) * 100}%"></span></div>
             </div>
           `).join('')}
         </div>
       `;
     }
 
-    function renderObservacoes(lista, elementId, mensagemVazia) {
-      const alvo = document.getElementById(elementId);
+    function renderTabelaMetas(lista) {
+      const alvo = document.getElementById('tb-metas');
       if (!lista || !lista.length) {
-        alvo.innerHTML = `<li>${escapeHtml(mensagemVazia)}</li>`;
+        alvo.innerHTML = '<tr><td colspan="6">Sem metas avaliadas no filtro atual.</td></tr>';
         return;
       }
-      alvo.innerHTML = lista.map(item => `
-        <li>
-          ${escapeHtml(item.texto || item.nome || '')}
-          ${item.unidade ? `<small>${escapeHtml(item.unidade)}</small>` : ''}
-        </li>
-      `).join('');
-    }
 
-    function renderMetasCriticas(lista) {
-      const alvo = document.getElementById('metas-criticas');
-      if (!lista || !lista.length) {
-        alvo.innerHTML = '<li>Nenhuma meta crítica encontrada no filtro atual.</li>';
-        return;
-      }
       alvo.innerHTML = lista.map(meta => `
-        <li>
-          <strong>${escapeHtml(meta.codigo)}. ${escapeHtml(meta.nome)}</strong>
-          <small>${formatPct(meta.percentual)} de conformidade</small>
-        </li>
+        <tr>
+          <td>${escapeHtml(meta.codigo)}</td>
+          <td>${escapeHtml(meta.nome)}</td>
+          <td>${meta.avaliados || 0}</td>
+          <td>${meta.conformes || 0}</td>
+          <td>${meta.naoConformes || 0}</td>
+          <td>${formatPct(meta.percentual)}</td>
+        </tr>
       `).join('');
     }
 
-    function renderMetaCards(metas) {
-      const container = document.getElementById('metas-container');
-      if (!metas || !metas.length) {
-        container.innerHTML = '<div class="empty-state">Sem metas avaliadas para o filtro selecionado.</div>';
-        return;
-      }
-
-      container.innerHTML = metas.map(meta => `
-        <article class="meta-card">
-          <div class="meta-top">
-            <div>
-              <h4 class="meta-name">${escapeHtml(meta.codigo)}. ${escapeHtml(meta.nome)}</h4>
-            </div>
-            <span class="meta-badge ${corBadge(meta.percentual)}">${formatPct(meta.percentual)}</span>
-          </div>
-          <div class="meta-progress">
-            <div class="mini-metric"><span>Avaliados</span><strong>${meta.avaliados}</strong></div>
-            <div class="mini-metric"><span>Conformes</span><strong>${meta.conformes}</strong></div>
-            <div class="mini-metric"><span>Não conformes</span><strong>${meta.naoConformes}</strong></div>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Código</th>
-                  <th>Subitem</th>
-                  <th>Conformes</th>
-                  <th>Não conformes</th>
-                  <th>Total</th>
-                  <th>%</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${meta.itens.map(item => `
-                  <tr>
-                    <td>${escapeHtml(item.codigo)}</td>
-                    <td>${escapeHtml(item.nome)}</td>
-                    <td>${item.conformes}</td>
-                    <td>${item.naoConformes}</td>
-                    <td>${item.avaliados}</td>
-                    <td>${formatPct(item.percentual)}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-          ${meta.observacoes && meta.observacoes.length ? `
-            <ul class="observations-list" style="margin-top: 14px;">
-              ${meta.observacoes.map(item => `
-                <li>${escapeHtml(item.texto)}<small>${escapeHtml(item.unidade || 'Unidade não informada')}</small></li>
-              `).join('')}
-            </ul>
-          ` : ''}
-        </article>
-      `).join('');
+    function criarGraficoLinha(labels, valores) {
+      if (chartEvolucao) chartEvolucao.destroy();
+      chartEvolucao = new Chart(document.getElementById('graficoEvolucao'), {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            data: valores,
+            borderColor: '#1f5fbf',
+            backgroundColor: 'rgba(31, 95, 191, 0.12)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.25,
+            pointRadius: 3,
+            pointHoverRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100,
+              ticks: { callback: value => `${value}%`, font: { size: 10 } },
+              grid: { color: 'rgba(148, 163, 184, 0.3)' }
+            },
+            x: {
+              ticks: { font: { size: 10 }, maxRotation: 0, minRotation: 0 },
+              grid: { display: false }
+            }
+          }
+        }
+      });
     }
 
-    function renderCosep(data, filtros, geradoEm) {
-      const periodo = formatPeriodo(filtros);
+    function criarGraficoRosca(sim, nao) {
+      if (chartAfetou) chartAfetou.destroy();
+      chartAfetou = new Chart(document.getElementById('graficoAfetou'), {
+        type: 'doughnut',
+        data: {
+          labels: ['Sim', 'Não'],
+          datasets: [{
+            data: [sim || 0, nao || 0],
+            backgroundColor: ['#c05621', '#1f8f5f'],
+            borderColor: '#ffffff',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { boxWidth: 12, font: { size: 11 } }
+            }
+          }
+        }
+      });
+    }
+
+    function renderCosep(data, filtro, geradoEm) {
+      const periodo = formatPeriodo(filtro, 'cosep');
       document.getElementById('periodo-cosep').innerHTML = `
-        <strong>${escapeHtml(periodo.mes)} / ${escapeHtml(periodo.ano)}</strong>
-        <span>Unidade / setor: ${escapeHtml(periodo.unidade)}</span>
-        <span>Gerado em: ${escapeHtml(geradoEm || '')}</span>
+        <div><strong>Período:</strong> ${escapeHtml(periodo.mes)} / ${escapeHtml(periodo.ano)}</div>
+        <div><strong>Unidade:</strong> ${escapeHtml(periodo.unidade)}</div>
+        <div><strong>Gerado em:</strong> ${escapeHtml(geradoEm)}</div>
       `;
 
       document.getElementById('cosep-conformidade').textContent = formatPct(data.conformidadeGeral);
@@ -1133,55 +1002,19 @@
       document.getElementById('cosep-conformes').textContent = data.geralConformes || 0;
       document.getElementById('cosep-nao-conformes').textContent = data.geralNaoConformes || 0;
       document.getElementById('cosep-observacoes-count').textContent = data.totalComObservacao || 0;
-      document.getElementById('cosep-fotos').textContent = data.totalComFoto || 0;
 
-      renderMetasCriticas(data.metasCriticas || []);
-      renderDistribuicao('lista-unidades', data.porUnidade || []);
-      renderObservacoes(data.observacoesGerais || [], 'obs-gerais', 'Sem observações gerais no filtro atual.');
-      renderMetaCards(data.metas || []);
-
-      const labels = (data.evolucaoMensal || []).map(item => item.mes);
-      const valores = (data.evolucaoMensal || []).map(item => item.percentual);
-
-      if (chartEvolucao) chartEvolucao.destroy();
-      chartEvolucao = new Chart(document.getElementById('graficoEvolucao'), {
-        type: 'line',
-        data: {
-          labels,
-          datasets: [{
-            data: valores,
-            borderColor: '#2f6df6',
-            backgroundColor: 'rgba(47, 109, 246, 0.16)',
-            borderWidth: 3,
-            fill: true,
-            tension: 0.35,
-            pointRadius: 4,
-            pointBackgroundColor: '#2f6df6'
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: {
-              beginAtZero: true,
-              max: 100,
-              ticks: { callback: value => `${value}%` },
-              grid: { color: 'rgba(23, 48, 76, 0.08)' }
-            },
-            x: { grid: { display: false } }
-          }
-        }
-      });
+      renderBadgeList(data.metasCriticas || []);
+      renderDistribuicao(data.porUnidade || []);
+      renderTabelaMetas(data.metas || []);
+      criarGraficoLinha((data.evolucaoMensal || []).map(item => item.mes), (data.evolucaoMensal || []).map(item => item.percentual));
     }
 
-    function renderNotifica(data, filtros, geradoEm) {
-      const periodo = formatPeriodo(filtros);
+    function renderNotifica(data, filtro, geradoEm) {
+      const periodo = formatPeriodo(filtro, 'notifica');
       document.getElementById('periodo-notifica').innerHTML = `
-        <strong>${escapeHtml(periodo.mes)} / ${escapeHtml(periodo.ano)}</strong>
-        <span>Unidade / setor: ${escapeHtml(periodo.unidade)}</span>
-        <span>Gerado em: ${escapeHtml(geradoEm || '')}</span>
+        <div><strong>Período:</strong> ${escapeHtml(periodo.mes)} / ${escapeHtml(periodo.ano)}</div>
+        <div><strong>Setor:</strong> ${escapeHtml(periodo.unidade)}</div>
+        <div><strong>Gerado em:</strong> ${escapeHtml(geradoEm)}</div>
       `;
 
       document.getElementById('notifica-total').textContent = data.total || 0;
@@ -1189,12 +1022,12 @@
       document.getElementById('notifica-concluidas').textContent = data.concluidas || 0;
       document.getElementById('notifica-setores').textContent = data.totalSetores || 0;
 
-      document.getElementById('tb-tipo').innerHTML = renderRows(topEntries(data.porTipo, 6));
-      document.getElementById('tb-setor').innerHTML = renderRows(topEntries(data.porSetor, 6));
-      document.getElementById('tb-status').innerHTML = renderRows(topEntries(data.porStatus, 6));
-      document.getElementById('tb-status-resposta').innerHTML = renderRows(topEntries(data.porStatusResposta, 6));
+      document.getElementById('tb-tipo').innerHTML = renderRows(topEntries(data.porTipo, 5));
+      document.getElementById('tb-setor').innerHTML = renderRows(topEntries(data.porSetor, 5));
+      document.getElementById('tb-status').innerHTML = renderRows(topEntries(data.porStatus, 5));
+      document.getElementById('tb-status-resposta').innerHTML = renderRows(topEntries(data.porStatusResposta, 5));
 
-      const linhas = (data.tabela || []).slice(0, 12);
+      const linhas = (data.tabela || []).slice(0, 8);
       document.getElementById('tb-notificacoes').innerHTML = linhas.length
         ? linhas.map(item => `
           <tr>
@@ -1210,29 +1043,15 @@
         `).join('')
         : '<tr><td colspan="8">Sem notificações no filtro atual.</td></tr>';
 
-      if (chartAfetou) chartAfetou.destroy();
-      chartAfetou = new Chart(document.getElementById('graficoAfetou'), {
-        type: 'doughnut',
-        data: {
-          labels: ['Sim', 'Não'],
-          datasets: [{
-            data: [data.afetouSim || 0, data.afetouNao || 0],
-            backgroundColor: ['#d85f6f', '#17a672'],
-            borderColor: ['rgba(255,255,255,0.92)', 'rgba(255,255,255,0.92)'],
-            borderWidth: 3
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { position: 'bottom' } }
-        }
-      });
+      criarGraficoRosca(data.afetouSim || 0, data.afetouNao || 0);
     }
 
-    function atualizarFaixaStatus(filtros, geradoEm) {
-      const periodo = formatPeriodo(filtros);
-      document.getElementById('status-periodo').textContent = `Período: ${periodo.mes} / ${periodo.ano} • ${periodo.unidade}`;
+    function atualizarStatus(filtrosAplicados, geradoEm) {
+      const periodoCosep = formatPeriodo(filtrosAplicados.caminhadas || {}, 'cosep');
+      const periodoNotifica = formatPeriodo(filtrosAplicados.notificacoes || {}, 'notifica');
+
+      document.getElementById('status-cosep').textContent = `Página 1: ${periodoCosep.mes} / ${periodoCosep.ano} • ${periodoCosep.unidade}`;
+      document.getElementById('status-notifica').textContent = `Página 2: ${periodoNotifica.mes} / ${periodoNotifica.ano} • ${periodoNotifica.unidade}`;
       document.getElementById('status-gerado').textContent = `Última geração: ${geradoEm}`;
     }
 
@@ -1243,27 +1062,19 @@
       try {
         loading.classList.remove('hidden');
         boletim.classList.add('hidden');
-        loading.textContent = 'Gerando boletim com os dados da planilha...';
+        loading.textContent = 'Gerando boletim com os filtros selecionados...';
 
-        const filtros = {
-          ano: document.getElementById('ano').value,
-          mes: document.getElementById('mes').value,
-          unidade: document.getElementById('unidade').value
-        };
-
-        const payload = await fetchAPI(filtros);
-        ultimoPayload = payload;
-
-        renderCosep(payload.caminhadas, filtros, payload.geradoEm);
-        renderNotifica(payload.notificacoes, filtros, payload.geradoEm);
-        atualizarFaixaStatus(filtros, payload.geradoEm);
+        const payload = await fetchAPI(obterFiltrosTela());
+        renderCosep(payload.caminhadas || {}, (payload.aplicado || {}).caminhadas || {}, payload.geradoEm || '');
+        renderNotifica(payload.notificacoes || {}, (payload.aplicado || {}).notificacoes || {}, payload.geradoEm || '');
+        atualizarStatus(payload.aplicado || {}, payload.geradoEm || '');
 
         loading.classList.add('hidden');
         boletim.classList.remove('hidden');
       } catch (erro) {
         loading.classList.remove('hidden');
         boletim.classList.add('hidden');
-        loading.textContent = 'Erro ao carregar os dados. Verifique a implantação do Apps Script, o acesso à planilha e as permissões do Web App.';
+        loading.textContent = 'Erro ao carregar os dados. Verifique a implantação do Apps Script, a planilha e as permissões do Web App.';
         console.error(erro);
       }
     }
@@ -1282,21 +1093,18 @@
     }
 
     function baixarPDF() {
-      const element = document.getElementById('boletim');
-      const filtros = {
-        ano: document.getElementById('ano').value || 'todos-os-anos',
-        mes: document.getElementById('mes').value || 'todos-os-meses'
-      };
-      const nomeArquivo = `boletim-cosep-${filtros.mes}-${filtros.ano}.pdf`;
+      const elemento = document.getElementById('boletim');
+      const filtros = obterFiltrosTela();
+      const nomeArquivo = `boletim-cosep-${filtros.mesCosep || 'todos'}-${filtros.anoCosep || 'todos'}-notifica-${filtros.mesNotifica || 'todos'}-${filtros.anoNotifica || 'todos'}.pdf`;
 
       html2pdf().set({
-        margin: [5, 5, 5, 5],
+        margin: [0, 0, 0, 0],
         filename: nomeArquivo,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
         pagebreak: { mode: ['css', 'legacy'] }
-      }).from(element).save();
+      }).from(elemento).save();
     }
 
     init();
