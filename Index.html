@@ -2,8 +2,11 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Boletim COSEP</title>
+  <title>Boletim da Segurança do Paciente</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Merriweather:wght@700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
@@ -34,7 +37,7 @@
         radial-gradient(circle at top right, rgba(61, 210, 196, 0.18), transparent 24%),
         linear-gradient(180deg, #eef4ff 0%, #e8eef8 50%, #e1e8f2 100%);
       color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
     body::before,
@@ -105,18 +108,20 @@
 
     .hero-header h1 {
       margin: 0 0 10px;
-      font-size: 48px;
-      line-height: 1.04;
-      font-weight: 800;
-      letter-spacing: -0.045em;
-      color: #22324c;
+      font-family: "Merriweather", Georgia, serif;
+      font-size: 46px;
+      line-height: 1.12;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      color: #1d2b43;
     }
 
     .hero-header p {
       margin: 0;
-      color: #6f7f95;
-      font-size: 19px;
-      line-height: 1.65;
+      color: #52637d;
+      font-size: 18px;
+      line-height: 1.7;
+      font-weight: 500;
       max-width: 1120px;
     }
 
@@ -336,9 +341,10 @@
       padding: 18px 22px;
       border-radius: 22px;
       background: linear-gradient(180deg, #eef5ff 0%, #e7f0ff 100%);
-      color: #596b86;
-      font-size: 17px;
-      line-height: 1.5;
+      color: #4f5f78;
+      font-size: 16px;
+      line-height: 1.6;
+      font-weight: 500;
     }
 
     .info-strip strong {
@@ -978,7 +984,7 @@
   <main class="app-shell">
     <section class="hero-card">
       <header class="hero-header">
-        <h1>Boletim COSEP</h1>
+        <h1>Boletim da Segurança do Paciente</h1>
         <p>Prévia em A4 com uma página para Caminhadas de Segurança e outra para Notificações, cada uma com filtros independentes.</p>
       </header>
 
@@ -1093,7 +1099,7 @@
       <article class="document-page page-break" id="pagina-cosep">
         <header class="page-header">
           <div>
-            <h2>Boletim COSEP · Caminhadas de Segurança</h2>
+            <h2>Boletim da Segurança do Paciente · Caminhadas de Segurança</h2>
             <p>Consolidação das metas de segurança do paciente no recorte selecionado.</p>
           </div>
           <div class="page-meta" id="periodo-cosep"></div>
@@ -1141,7 +1147,7 @@
       <article class="document-page" id="pagina-notifica">
         <header class="page-header">
           <div>
-            <h2>Boletim COSEP · Notificações</h2>
+            <h2>Boletim da Segurança do Paciente · Notificações</h2>
             <p>Consolidação da aba de notificações com filtro independente da página 1.</p>
           </div>
           <div class="page-meta" id="periodo-notifica"></div>
@@ -1664,7 +1670,7 @@
     function baixarPDF() {
       const elemento = document.getElementById('boletim');
       const filtros = obterFiltrosTela();
-      const nomeArquivo = `boletim-cosep-${filtros.mesCosep || 'todos'}-${filtros.anoCosep || 'todos'}-notifica-${filtros.mesNotifica || 'todos'}-${filtros.anoNotifica || 'todos'}.pdf`;
+      const nomeArquivo = `boletim-seguranca-paciente-${filtros.mesCosep || 'todos'}-${filtros.anoCosep || 'todos'}-notifica-${filtros.mesNotifica || 'todos'}-${filtros.anoNotifica || 'todos'}.pdf`;
 
       html2pdf().set({
         margin: [0, 0, 0, 0],
