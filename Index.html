@@ -453,25 +453,83 @@
       text-align: left;
     }
 
-    .meta-table th,
-    .meta-table td {
-      font-size: 9px;
-      padding: 4px 5px;
+    .panel-metas {
+      padding: 8px;
     }
 
-    .meta-row td {
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+      align-items: start;
+    }
+
+    .meta-card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #fbfcfe;
+      min-width: 0;
+    }
+
+    .meta-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 8px;
       background: #eef4ff;
+      border-bottom: 1px solid var(--line);
+      font-size: 10px;
       font-weight: 700;
     }
 
-    .submeta-row td {
-      background: #fff;
+    .meta-card-header strong {
+      font-size: 12px;
     }
 
-    .submeta-row td:nth-child(2) {
-      padding-left: 14px;
+    .meta-card table {
+      border: none;
+      table-layout: fixed;
     }
 
+    .meta-card th,
+    .meta-card td {
+      border: 1px solid var(--line);
+      padding: 4px 5px;
+      font-size: 9px;
+      text-align: left;
+    }
+
+    .meta-card th:last-child,
+    .meta-card td:last-child {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .meta-card tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .meta-card td:first-child,
+    .meta-card th:first-child {
+      border-left: none;
+    }
+
+    .meta-card td:last-child,
+    .meta-card th:last-child {
+      border-right: none;
+    }
+
+    .meta-card-empty {
+      padding: 10px;
+      border: 1px dashed var(--line);
+      border-radius: 12px;
+      font-size: 10px;
+      color: var(--muted);
+      text-align: center;
+      background: #fbfcfe;
+    }
 
     .compact-panel p {
       margin-bottom: 6px;
@@ -488,7 +546,7 @@
     }
 
     .chart-box.compact {
-      height: 140px;
+      height: 115px;
     }
 
     .panel,
@@ -523,7 +581,8 @@
       .fields,
       .metrics,
       .section-grid-2,
-      .section-grid-3 {
+      .section-grid-3,
+      .meta-grid {
         grid-template-columns: 1fr;
       }
 
@@ -661,20 +720,8 @@
           <div class="chart-box compact"><canvas id="graficoEvolucao"></canvas></div>
         </section>
 
-        <section class="panel">
-          <h3>Resumo por meta e submeta de segurança</h3>
-          <p>Consolidação detalhada das metas principais e submetas do recorte atual.</p>
-          <table class="meta-table">
-            <thead>
-              <tr>
-                <th style="width:9%;">Código</th>
-                <th style="width:41%;">Meta</th>
-                <th style="width:16%;">Avaliados</th>
-                <th style="width:20%;">Conformidade</th>
-              </tr>
-            </thead>
-            <tbody id="tb-metas"></tbody>
-          </table>
+        <section class="panel panel-metas">
+          <div class="meta-grid" id="tb-metas"></div>
         </section>
 
         <footer class="footer-note">
@@ -870,28 +917,36 @@
     function renderTabelaMetas(lista) {
       const alvo = document.getElementById('tb-metas');
       if (!lista || !lista.length) {
-        alvo.innerHTML = '<tr><td colspan="4">Sem metas avaliadas no filtro atual.</td></tr>'; 
+        alvo.innerHTML = '<div class="meta-card-empty">Sem metas avaliadas no filtro atual.</div>';
         return;
       }
 
       alvo.innerHTML = lista.map(meta => {
         const linhasItens = (meta.itens || []).map(item => `
-          <tr class="submeta-row">
+          <tr>
             <td>${escapeHtml(item.codigo)}</td>
-            <td>${escapeHtml(item.nome)}</td>
-            <td>${item.avaliados || 0}</td>
             <td>${formatPct(item.percentual)}</td>
           </tr>
         `).join('');
 
         return `
-          <tr class="meta-row">
-            <td>${escapeHtml(meta.codigo)}</td>
-            <td>${escapeHtml(meta.nome)}</td>
-            <td>${meta.avaliados || 0}</td>
-            <td>${formatPct(meta.percentual)}</td>
-          </tr>
-          ${linhasItens}
+          <section class="meta-card">
+            <div class="meta-card-header">
+              <span>Meta ${escapeHtml(meta.codigo)}</span>
+              <strong>${formatPct(meta.percentual)}</strong>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Conformidade</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${linhasItens}
+              </tbody>
+            </table>
+          </section>
         `;
       }).join('');
     }
