@@ -465,27 +465,48 @@
     }
 
     .meta-card {
-      border: 1px solid var(--line);
+      border: 1px solid #dce7f5;
       border-radius: 12px;
       overflow: hidden;
-      background: #fbfcfe;
+      background: linear-gradient(180deg, #f9fbff 0%, #f4f8ff 100%);
       min-width: 0;
     }
 
     .meta-card-header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 8px;
-      background: #eef4ff;
-      border-bottom: 1px solid var(--line);
+      align-items: flex-start;
+      gap: 8px;
+      padding: 7px 8px;
+      background: #edf4ff;
+      border-bottom: 1px solid #dce7f5;
       font-size: 10px;
       font-weight: 700;
     }
 
+    .meta-card-header-text {
+      min-width: 0;
+      display: grid;
+      gap: 2px;
+    }
+
+    .meta-card-header-text span {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .meta-card-header-text small {
+      color: var(--muted);
+      font-size: 9px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
     .meta-card-header strong {
       font-size: 12px;
+      white-space: nowrap;
     }
 
     .meta-card table {
@@ -505,6 +526,12 @@
     .meta-card td:last-child {
       text-align: right;
       white-space: nowrap;
+      width: 27%;
+    }
+
+    .meta-card th:first-child,
+    .meta-card td:first-child {
+      width: 73%;
     }
 
     .meta-card tbody tr:last-child td {
@@ -519,6 +546,14 @@
     .meta-card td:last-child,
     .meta-card th:last-child {
       border-right: none;
+    }
+
+
+    .meta-item-label {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .meta-card-empty {
@@ -922,23 +957,29 @@
       }
 
       alvo.innerHTML = lista.map(meta => {
-        const linhasItens = (meta.itens || []).map(item => `
-          <tr>
-            <td>${escapeHtml(item.codigo)}</td>
-            <td>${formatPct(item.percentual)}</td>
-          </tr>
-        `).join('');
+        const linhasItens = (meta.itens || []).map(item => {
+          const legendaItem = `${item.codigo} ${item.nome || ''}`.trim();
+          return `
+            <tr>
+              <td title="${escapeHtml(legendaItem)}"><span class="meta-item-label">${escapeHtml(legendaItem)}</span></td>
+              <td>${formatPct(item.percentual)}</td>
+            </tr>
+          `;
+        }).join('');
 
         return `
           <section class="meta-card">
             <div class="meta-card-header">
-              <span>Meta ${escapeHtml(meta.codigo)}</span>
+              <div class="meta-card-header-text">
+                <small>Código ${escapeHtml(meta.codigo)}</small>
+                <span title="${escapeHtml(meta.nome || '')}">${escapeHtml(meta.nome || `Meta ${meta.codigo}`)}</span>
+              </div>
               <strong>${formatPct(meta.percentual)}</strong>
             </div>
             <table>
               <thead>
                 <tr>
-                  <th>Código</th>
+                  <th>Subitem</th>
                   <th>Conformidade</th>
                 </tr>
               </thead>
