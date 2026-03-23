@@ -818,7 +818,7 @@
               <select id="mes-cosep"></select>
             </div>
             <div class="field">
-              <label for="unidade-cosep">Unidade</label>
+              <label for="unidade-cosep">Setor</label>
               <select id="unidade-cosep"></select>
             </div>
           </div>
@@ -879,9 +879,9 @@
             <small>Formulários considerados na página 1.</small>
           </div>
           <div class="metric-card amber" id="card-cosep-unidades">
-            <span>Unidades</span>
+            <span>Setores</span>
             <strong id="cosep-unidades">0</strong>
-            <small>Total de unidades identificadas no recorte.</small>
+            <small>Total de setores identificados no recorte.</small>
           </div>
           <div class="metric-card red">
             <span>Diferença da meta</span>
@@ -931,7 +931,7 @@
             <strong id="notifica-concluidas">0</strong>
             <small>Status concluído no recorte selecionado.</small>
           </div>
-          <div class="metric-card amber">
+          <div class="metric-card amber" id="card-notifica-setores">
             <span>Setores</span>
             <strong id="notifica-setores">0</strong>
             <small>Total de setores encontrados no recorte.</small>
@@ -945,14 +945,14 @@
             <div class="chart-box pie-chart-box"><canvas id="graficoAfetou"></canvas></div>
           </div>
           <div class="panel">
-            <h3>Top classificações</h3>
-            <p>Classificações mais frequentes no filtro atual.</p>
+            <h3>Classificações</h3>
+            <p>Todas as classificações encontradas no filtro atual.</p>
             <table class="compact-table">
               <thead><tr><th>Tipo</th><th style="width:22%;">Qtd</th></tr></thead>
               <tbody id="tb-tipo"></tbody>
             </table>
           </div>
-          <div class="panel">
+          <div class="panel" id="panel-top-setores">
             <h3>Top setores</h3>
             <p>Setores com maior volume de notificações.</p>
             <table class="compact-table">
@@ -1045,7 +1045,7 @@
 
       preencherSelect('ano-cosep', filtrosCosep.anos, 'Todos');
       preencherSelect('mes-cosep', filtrosCosep.meses, 'Todos');
-      preencherSelect('unidade-cosep', filtrosCosep.unidades, 'Todas');
+      preencherSelect('unidade-cosep', filtrosCosep.unidades, 'Todos');
 
       preencherSelect('ano-notifica', filtrosNotifica.anos, 'Todos');
       preencherSelect('mes-notifica', filtrosNotifica.meses, 'Todos');
@@ -1087,7 +1087,7 @@
       return {
         ano: filtro.ano || 'Todos os anos',
         mes: filtro.mes || 'Todos os meses',
-        unidade: filtro.unidade || (tipo === 'cosep' ? 'Todas as unidades' : 'Todos os setores')
+        unidade: filtro.unidade || 'Todos os setores'
       };
     }
 
@@ -1286,11 +1286,23 @@
       cardUnidades.classList.toggle('hidden', Boolean(filtro && filtro.unidade));
     }
 
+    function toggleNotificaSetoresCard(filtro) {
+      const cardSetores = document.getElementById('card-notifica-setores');
+      if (!cardSetores) return;
+      cardSetores.classList.toggle('hidden', Boolean(filtro && filtro.unidade));
+    }
+
+    function toggleTopSetoresPanel(filtro, totalSetores) {
+      const panelTopSetores = document.getElementById('panel-top-setores');
+      if (!panelTopSetores) return;
+      panelTopSetores.classList.toggle('hidden', Boolean((filtro && filtro.unidade) || Number(totalSetores || 0) <= 1));
+    }
+
     function renderCosep(data, filtro, geradoEm) {
       const periodo = formatPeriodo(filtro, 'cosep');
       document.getElementById('periodo-cosep').innerHTML = `
         <div><strong>Período:</strong> ${escapeHtml(periodo.mes)} / ${escapeHtml(periodo.ano)}</div>
-        <div><strong>Unidade:</strong> ${escapeHtml(periodo.unidade)}</div>
+        <div><strong>Setor:</strong> ${escapeHtml(periodo.unidade)}</div>
         <div><strong>Gerado em:</strong> ${escapeHtml(geradoEm)}</div>
       `;
 
@@ -1316,8 +1328,10 @@
       document.getElementById('notifica-percentual-afetou').textContent = formatPct(data.percentualAfetouPaciente);
       document.getElementById('notifica-concluidas').textContent = data.concluidas || 0;
       document.getElementById('notifica-setores').textContent = data.totalSetores || 0;
+      toggleNotificaSetoresCard(filtro);
+      toggleTopSetoresPanel(filtro, data.totalSetores);
 
-      document.getElementById('tb-tipo').innerHTML = renderRows(topEntries(data.porTipo, 5));
+      document.getElementById('tb-tipo').innerHTML = renderRows(Object.entries(data.porTipo || {}));
       document.getElementById('tb-setor').innerHTML = renderRows(topEntries(data.porSetor, 5));
       document.getElementById('tb-status').innerHTML = renderRows(topEntries(data.porStatus, 5));
       document.getElementById('tb-status-resposta').innerHTML = renderRows(topEntries(data.porStatusResposta, 5));
