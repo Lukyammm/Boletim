@@ -33,6 +33,13 @@ const MESES_CANONICOS = {
   12: 'Dezembro'
 };
 
+const CLASSIFICACOES_META_5_DIAS = [
+  'EVENTO ADVERSO GRAVE',
+  'EVENTO ADVERSO ÓBITO',
+  'EVENTO ADVERSO OBITO',
+  'NEVER EVENT'
+];
+
 const METAS_CAMINHADAS = [
   {
     codigo: '1',
@@ -450,6 +457,11 @@ function processarNotificacoes(ss, filtros) {
   const sh = ss.getSheetByName(ABA_NOTIFICA);
   const linhas = sh.getDataRange().getValues().slice(2);
 
+  const desempenhoResposta = {
+    meta5: criarResumoPrazoResposta(5),
+    meta10: criarResumoPrazoResposta(10)
+  };
+
   const filtradas = linhas.filter(row => {
     const mes = normalizarMes(row[2]);
     const ano = normalizarAno(row[3]);
@@ -485,6 +497,14 @@ function processarNotificacoes(ss, filtros) {
     incrementarMapa(porNatureza, natureza);
     incrementarMapa(porStatus, status);
     incrementarMapa(porStatusResposta, statusResposta);
+
+    const classificacao = normalizarTexto(row[8]);
+    const dataClassificacao = converterEmData(row[14]);
+    const dataResposta = converterEmData(row[16]);
+    const diasResposta = calcularDiferencaDias(dataClassificacao, dataResposta);
+    const grupoPrazo = CLASSIFICACOES_META_5_DIAS.includes(classificacao) ? desempenhoResposta.meta5 : desempenhoResposta.meta10;
+
+    atualizarResumoPrazoResposta(grupoPrazo, dataClassificacao, diasResposta);
 
     if (afetou === 'SIM') afetouSim++;
     else afetouNao++;
@@ -527,7 +547,49 @@ function processarNotificacoes(ss, filtros) {
     porNatureza: ordenarMapaPorValor(porNatureza),
     porStatus: ordenarMapaPorValor(porStatus),
     porStatusResposta: ordenarMapaPorValor(porStatusResposta),
+    desempenhoResposta: {
+      meta5: finalizarResumoPrazoResposta(desempenhoResposta.meta5),
+      meta10: finalizarResumoPrazoResposta(desempenhoResposta.meta10)
+    },
     tabela: tabela
+  };
+}
+
+function criarResumoPrazoResposta(metaDias) {
+  return {
+    metaDias: metaDias,
+    dentroPrazo: 0,
+    foraPrazo: 0,
+    totalComResposta: 0,
+    somaDias: 0,
+    mediaDias: 0
+  };
+}
+
+function atualizarResumoPrazoResposta(resumo, dataClassificacao, diasResposta) {
+  if (!resumo || !dataClassificacao) return;
+
+  if (diasResposta == null) {
+    resumo.foraPrazo++;
+    return;
+  }
+
+  resumo.totalComResposta++;
+  resumo.somaDias += diasResposta;
+
+  if (diasResposta <= resumo.metaDias) resumo.dentroPrazo++;
+  else resumo.foraPrazo++;
+}
+
+function finalizarResumoPrazoResposta(resumo) {
+  const base = resumo || criarResumoPrazoResposta(0);
+  const total = Number(base.totalComResposta || 0);
+  return {
+    metaDias: base.metaDias,
+    dentroPrazo: Number(base.dentroPrazo || 0),
+    foraPrazo: Number(base.foraPrazo || 0),
+    totalComResposta: total,
+    mediaDias: total ? Number((base.somaDias / total).toFixed(1)) : 0
   };
 }
 
@@ -547,4 +609,35 @@ function formatarData(valor) {
     return Utilities.formatDate(valor, FUSO_HORARIO, 'dd/MM/yyyy');
   }
   return String(valor).trim();
+}
+
+function converterEmData(valor) {
+  if (!valor) return null;
+
+  if (Object.prototype.toString.call(valor) === '[object Date]' && !Number.isNaN(valor.getTime())) {
+    return new Date(valor.getFullYear(), valor.getMonth(), valor.getDate());
+  }
+
+  const texto = String(valor).trim();
+  if (!texto) return null;
+
+  const partes = texto.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (partes) {
+    return new Date(Number(partes[3]), Number(partes[2]) - 1, Number(partes[1]));
+  }
+
+  const data = new Date(texto);
+  if (Number.isNaN(data.getTime())) return null;
+
+  return new Date(data.getFullYear(), data.getMonth(), data.getDate());
+}
+
+function calcularDiferencaDias(dataInicial, dataFinal) {
+  if (!dataInicial || !dataFinal) return null;
+
+  const inicio = new Date(dataInicial.getFullYear(), dataInicial.getMonth(), dataInicial.getDate());
+  const fim = new Date(dataFinal.getFullYear(), dataFinal.getMonth(), dataFinal.getDate());
+  const diferenca = Math.round((fim.getTime() - inicio.getTime()) / 86400000);
+
+  return diferenca < 0 ? 0 : diferenca;
 }
