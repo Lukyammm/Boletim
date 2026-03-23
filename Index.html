@@ -1758,7 +1758,7 @@
       document.getElementById('tb-setor').innerHTML = renderRows(topEntries(data.porSetor, 5));
       document.getElementById('tb-status').innerHTML = renderRows(ordenarEntriesDesc(Object.entries(data.porStatus || {})));
       criarGraficoRosca(data.afetouSim || 0, data.afetouNao || 0);
-      chartRespostaMeta5 = criarGraficoPrazoResposta('graficoRespostaMeta5', chartRespostaMeta5, (data.desempenhoResposta || {}).meta5 || {}, false);
+      chartRespostaMeta5 = criarGraficoPrazoResposta('graficoRespostaMeta5', chartRespostaMeta5, (data.desempenhoResposta || {}).meta5 || {}, true);
       chartRespostaMeta10 = criarGraficoPrazoResposta('graficoRespostaMeta10', chartRespostaMeta10, (data.desempenhoResposta || {}).meta10 || {}, true);
     }
 
