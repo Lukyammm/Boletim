@@ -1061,8 +1061,16 @@
       return `${Number(value || 0).toFixed(1)}%`;
     }
 
+    function ordenarEntriesDesc(entries) {
+      return [...(entries || [])].sort((a, b) => {
+        const diferenca = Number(b[1] || 0) - Number(a[1] || 0);
+        if (diferenca !== 0) return diferenca;
+        return String(a[0] || '').localeCompare(String(b[0] || ''), 'pt-BR');
+      });
+    }
+
     function topEntries(obj, limit = 5) {
-      return Object.entries(obj || {}).slice(0, limit);
+      return ordenarEntriesDesc(Object.entries(obj || {})).slice(0, limit);
     }
 
     function renderRows(entries, colSpan = 2) {
@@ -1331,10 +1339,10 @@
       toggleNotificaSetoresCard(filtro);
       toggleTopSetoresPanel(filtro, data.totalSetores);
 
-      document.getElementById('tb-tipo').innerHTML = renderRows(Object.entries(data.porTipo || {}));
+      document.getElementById('tb-tipo').innerHTML = renderRows(ordenarEntriesDesc(Object.entries(data.porTipo || {})));
       document.getElementById('tb-setor').innerHTML = renderRows(topEntries(data.porSetor, 5));
-      document.getElementById('tb-status').innerHTML = renderRows(Object.entries(data.porStatus || {}));
-      document.getElementById('tb-status-resposta').innerHTML = renderRows(Object.entries(data.porStatusResposta || {}));
+      document.getElementById('tb-status').innerHTML = renderRows(ordenarEntriesDesc(Object.entries(data.porStatus || {})));
+      document.getElementById('tb-status-resposta').innerHTML = renderRows(ordenarEntriesDesc(Object.entries(data.porStatusResposta || {})));
       criarGraficoRosca(data.afetouSim || 0, data.afetouNao || 0);
     }
 
