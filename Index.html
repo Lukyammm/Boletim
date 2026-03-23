@@ -194,7 +194,7 @@
       padding: 12px 16px;
       margin-bottom: 18px;
       display: grid;
-      gap: 8px;
+      gap: 6px;
       font-size: 13px;
       color: var(--muted);
     }
@@ -208,22 +208,22 @@
 
     .report-stack {
       display: grid;
-      gap: 24px;
+      gap: 0;
     }
 
     .hidden { display: none !important; }
 
     .document-page {
       width: 210mm;
-      min-height: 297mm;
+      height: 297mm;
       margin: 0 auto;
-      padding: 12mm;
+      padding: 10mm;
       background: rgba(255, 255, 255, 0.84);
       border: 1px solid rgba(255, 255, 255, 0.92);
       box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
       display: grid;
       align-content: start;
-      gap: 10px;
+      gap: 8px;
       overflow: hidden;
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
@@ -235,14 +235,14 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      gap: 16px;
-      padding-bottom: 10px;
+      gap: 12px;
+      padding-bottom: 8px;
       border-bottom: 1px solid rgba(31, 41, 55, 0.12);
     }
 
     .page-header h2 {
       margin: 0 0 4px;
-      font-size: 22px;
+      font-size: 20px;
     }
 
     .page-header p,
@@ -254,7 +254,7 @@
     }
 
     .page-meta {
-      min-width: 215px;
+      min-width: 205px;
       text-align: right;
     }
 
@@ -267,10 +267,10 @@
     .metric-card {
       border: 1px solid rgba(255, 255, 255, 0.86);
       border-left: 4px solid var(--blue);
-      border-radius: 16px;
-      padding: 12px;
+      border-radius: 14px;
+      padding: 10px;
       background: rgba(255, 255, 255, 0.8);
-      min-height: 88px;
+      min-height: 78px;
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.75);
     }
 
@@ -290,7 +290,7 @@
     }
 
     .metric-card strong {
-      font-size: 28px;
+      font-size: 24px;
       line-height: 1;
       display: block;
       margin-bottom: 4px;
@@ -308,12 +308,12 @@
       gap: 10px;
     }
 
-    .section-grid-2 { grid-template-columns: 1.2fr 0.8fr; }
-    .section-grid-3 { grid-template-columns: 1fr 0.95fr 0.95fr; }
+    .section-grid-2 { grid-template-columns: 1fr 1fr; }
+    .section-grid-3 { grid-template-columns: 1.05fr 0.95fr 0.95fr; }
     .panel {
       border: 1px solid rgba(255, 255, 255, 0.86);
-      border-radius: 16px;
-      padding: 12px;
+      border-radius: 14px;
+      padding: 10px;
       background: rgba(255, 255, 255, 0.78);
       min-height: 100%;
       overflow: hidden;
@@ -326,7 +326,7 @@
     }
 
     .panel p {
-      margin: 0 0 10px;
+      margin: 0 0 8px;
       color: var(--muted);
       font-size: 12px;
       line-height: 1.45;
@@ -334,7 +334,7 @@
 
     .chart-box {
       position: relative;
-      height: 165px;
+      height: 150px;
       width: 100%;
     }
 
@@ -438,8 +438,8 @@
 
     th, td {
       border: 1px solid var(--line);
-      padding: 6px 7px;
-      font-size: 11px;
+      padding: 5px 6px;
+      font-size: 10px;
       vertical-align: top;
       word-break: break-word;
     }
@@ -449,14 +449,14 @@
       text-transform: uppercase;
       letter-spacing: 0.04em;
       color: var(--muted);
-      font-size: 10px;
+      font-size: 9px;
       text-align: left;
     }
 
     .meta-table th,
     .meta-table td {
-      font-size: 10px;
-      padding: 5px 6px;
+      font-size: 9px;
+      padding: 4px 5px;
     }
 
     .meta-row td {
@@ -472,11 +472,42 @@
       padding-left: 14px;
     }
 
+
+    .compact-panel p {
+      margin-bottom: 6px;
+    }
+
+    .compact-table th,
+    .compact-table td {
+      padding: 4px 5px;
+      font-size: 9px;
+    }
+
+    .pie-chart-box {
+      height: 180px;
+    }
+
+    .chart-box.compact {
+      height: 140px;
+    }
+
+    .panel,
+    .metrics,
+    .page-header,
+    .footer-note,
+    table,
+    tr,
+    td,
+    th {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
     .footer-note {
       display: flex;
       justify-content: space-between;
-      gap: 12px;
-      padding-top: 6px;
+      gap: 8px;
+      padding-top: 4px;
       border-top: 1px solid var(--line);
       color: var(--muted);
       font-size: 11px;
@@ -502,7 +533,7 @@
 
       .document-page {
         width: 100%;
-        min-height: auto;
+        height: auto;
       }
 
       .page-header,
@@ -523,7 +554,7 @@
         box-shadow: none;
         border: none;
         width: 210mm;
-        min-height: 297mm;
+        height: 297mm;
         margin: 0;
         background: #fff;
         backdrop-filter: none;
@@ -627,7 +658,7 @@
         <section class="panel">
           <h3>Evolução mensal</h3>
           <p>Conformidade no ano filtrado, sem duplicação de meses.</p>
-          <div class="chart-box"><canvas id="graficoEvolucao"></canvas></div>
+          <div class="chart-box compact"><canvas id="graficoEvolucao"></canvas></div>
         </section>
 
         <section class="panel">
@@ -638,10 +669,8 @@
               <tr>
                 <th style="width:9%;">Código</th>
                 <th style="width:41%;">Meta</th>
-                <th style="width:12%;">Avaliados</th>
-                <th style="width:12%;">Conformes</th>
-                <th style="width:12%;">Não conformes</th>
-                <th style="width:14%;">%</th>
+                <th style="width:16%;">Avaliados</th>
+                <th style="width:20%;">Conformidade</th>
               </tr>
             </thead>
             <tbody id="tb-metas"></tbody>
@@ -690,12 +719,12 @@
           <div class="panel">
             <h3>Afetou paciente?</h3>
             <p>Distribuição entre registros marcados como sim e não.</p>
-            <div class="chart-box"><canvas id="graficoAfetou"></canvas></div>
+            <div class="chart-box pie-chart-box"><canvas id="graficoAfetou"></canvas></div>
           </div>
           <div class="panel">
             <h3>Top classificações</h3>
             <p>Classificações mais frequentes no filtro atual.</p>
-            <table>
+            <table class="compact-table">
               <thead><tr><th>Tipo</th><th style="width:22%;">Qtd</th></tr></thead>
               <tbody id="tb-tipo"></tbody>
             </table>
@@ -703,7 +732,7 @@
           <div class="panel">
             <h3>Top setores</h3>
             <p>Setores com maior volume de notificações.</p>
-            <table>
+            <table class="compact-table">
               <thead><tr><th>Setor</th><th style="width:22%;">Qtd</th></tr></thead>
               <tbody id="tb-setor"></tbody>
             </table>
@@ -711,42 +740,22 @@
         </section>
 
         <section class="section-grid-2">
-          <div class="panel">
+          <div class="panel compact-panel">
             <h3>Status das notificações</h3>
             <p>Situação dos registros no período filtrado.</p>
-            <table>
+            <table class="compact-table">
               <thead><tr><th>Status</th><th style="width:22%;">Qtd</th></tr></thead>
               <tbody id="tb-status"></tbody>
             </table>
           </div>
-          <div class="panel">
+          <div class="panel compact-panel">
             <h3>Status de resposta</h3>
             <p>Retorno associado às notificações selecionadas.</p>
-            <table>
+            <table class="compact-table">
               <thead><tr><th>Status resposta</th><th style="width:22%;">Qtd</th></tr></thead>
               <tbody id="tb-status-resposta"></tbody>
             </table>
           </div>
-        </section>
-
-        <section class="panel">
-          <h3>Notificações resumidas</h3>
-          <p>Amostra reduzida para manter a página 2 organizada na exportação em PDF.</p>
-          <table>
-            <thead>
-              <tr>
-                <th style="width:14%;">Nº</th>
-                <th style="width:10%;">Data</th>
-                <th style="width:19%;">Setor</th>
-                <th style="width:18%;">Tipo</th>
-                <th style="width:14%;">Natureza</th>
-                <th style="width:8%;">Afetou</th>
-                <th style="width:9%;">Status</th>
-                <th style="width:8%;">Resp.</th>
-              </tr>
-            </thead>
-            <tbody id="tb-notificacoes"></tbody>
-          </table>
         </section>
 
         <footer class="footer-note">
@@ -861,7 +870,7 @@
     function renderTabelaMetas(lista) {
       const alvo = document.getElementById('tb-metas');
       if (!lista || !lista.length) {
-        alvo.innerHTML = '<tr><td colspan="6">Sem metas avaliadas no filtro atual.</td></tr>';
+        alvo.innerHTML = '<tr><td colspan="4">Sem metas avaliadas no filtro atual.</td></tr>'; 
         return;
       }
 
@@ -871,8 +880,6 @@
             <td>${escapeHtml(item.codigo)}</td>
             <td>${escapeHtml(item.nome)}</td>
             <td>${item.avaliados || 0}</td>
-            <td>${item.conformes || 0}</td>
-            <td>${item.naoConformes || 0}</td>
             <td>${formatPct(item.percentual)}</td>
           </tr>
         `).join('');
@@ -882,8 +889,6 @@
             <td>${escapeHtml(meta.codigo)}</td>
             <td>${escapeHtml(meta.nome)}</td>
             <td>${meta.avaliados || 0}</td>
-            <td>${meta.conformes || 0}</td>
-            <td>${meta.naoConformes || 0}</td>
             <td>${formatPct(meta.percentual)}</td>
           </tr>
           ${linhasItens}
@@ -929,6 +934,35 @@
       });
     }
 
+    const pluginLegendaInternaPizza = {
+      id: 'legendaInternaPizza',
+      afterDatasetsDraw(chart) {
+        const { ctx } = chart;
+        const dataset = chart.data.datasets[0];
+        const meta = chart.getDatasetMeta(0);
+        const total = (dataset.data || []).reduce((acc, value) => acc + Number(value || 0), 0);
+
+        meta.data.forEach((arc, index) => {
+          const valor = Number(dataset.data[index] || 0);
+          if (!valor || !total) return;
+
+          const posicao = arc.tooltipPosition();
+          const percentual = Math.round((valor / total) * 100);
+          const label = `${chart.data.labels[index]} ${percentual}%`;
+
+          ctx.save();
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 11px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.18)';
+          ctx.shadowBlur = 3;
+          ctx.fillText(label, posicao.x, posicao.y);
+          ctx.restore();
+        });
+      }
+    };
+
     function criarGraficoRosca(sim, nao) {
       if (chartAfetou) chartAfetou.destroy();
       chartAfetou = new Chart(document.getElementById('graficoAfetou'), {
@@ -947,12 +981,11 @@
           maintainAspectRatio: false,
           animation: false,
           plugins: {
-            legend: {
-              position: 'bottom',
-              labels: { boxWidth: 12, font: { size: 11 } }
-            }
-          }
-        }
+            legend: { display: false }
+          },
+          cutout: '42%'
+        },
+        plugins: [pluginLegendaInternaPizza]
       });
     }
 
@@ -990,23 +1023,6 @@
       document.getElementById('tb-setor').innerHTML = renderRows(topEntries(data.porSetor, 5));
       document.getElementById('tb-status').innerHTML = renderRows(topEntries(data.porStatus, 5));
       document.getElementById('tb-status-resposta').innerHTML = renderRows(topEntries(data.porStatusResposta, 5));
-
-      const linhas = (data.tabela || []).slice(0, 8);
-      document.getElementById('tb-notificacoes').innerHTML = linhas.length
-        ? linhas.map(item => `
-          <tr>
-            <td>${item.link ? `<a href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.numeroNotivisa)}</a>` : escapeHtml(item.numeroNotivisa)}</td>
-            <td>${escapeHtml(item.dataOcorrencia)}</td>
-            <td>${escapeHtml(item.setorNotificado)}</td>
-            <td>${escapeHtml(item.tipoClassificacao)}</td>
-            <td>${escapeHtml(item.natureza)}</td>
-            <td>${escapeHtml(item.afetouPaciente)}</td>
-            <td>${escapeHtml(item.status)}</td>
-            <td>${escapeHtml(item.statusResposta)}</td>
-          </tr>
-        `).join('')
-        : '<tr><td colspan="8">Sem notificações no filtro atual.</td></tr>';
-
       criarGraficoRosca(data.afetouSim || 0, data.afetouNao || 0);
     }
 
