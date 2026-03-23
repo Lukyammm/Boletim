@@ -658,6 +658,129 @@
       }
     }
 
+    @media (max-width: 768px) {
+      body::before,
+      body::after {
+        display: none;
+      }
+
+      .app-shell {
+        padding: 12px 10px 24px;
+      }
+
+      .header,
+      .filters,
+      .status-box,
+      .loading-box,
+      .document-page,
+      .filter-group,
+      .panel,
+      .metric-card,
+      .meta-card {
+        border-radius: 16px;
+      }
+
+      .header {
+        padding: 18px 16px;
+      }
+
+      .header h1 {
+        font-size: 24px;
+      }
+
+      .filters {
+        padding: 14px;
+      }
+
+      .filters-grid,
+      .fields,
+      .actions,
+      .metrics,
+      .section-grid-2,
+      .section-grid-3,
+      .meta-grid {
+        gap: 12px;
+      }
+
+      .filter-group {
+        padding: 14px;
+      }
+
+      .fields {
+        grid-template-columns: 1fr;
+      }
+
+      .actions {
+        grid-template-columns: 1fr;
+      }
+
+      .btn,
+      .field select {
+        min-height: 46px;
+      }
+
+      .status-box,
+      .loading-box {
+        padding: 14px;
+      }
+
+      .report-stack {
+        gap: 12px;
+      }
+
+      .document-page {
+        padding: 16px;
+        gap: 12px;
+        overflow: visible;
+      }
+
+      .page-header h2 {
+        font-size: 18px;
+      }
+
+      .page-header p,
+      .page-meta,
+      .footer-note {
+        font-size: 11px;
+      }
+
+      .metric-card {
+        min-height: auto;
+        padding: 12px;
+      }
+
+      .metric-card strong {
+        font-size: 22px;
+      }
+
+      .chart-box {
+        height: 190px;
+      }
+
+      .chart-box.compact,
+      .pie-chart-box {
+        height: 210px;
+      }
+
+      .panel {
+        padding: 12px;
+        overflow-x: auto;
+      }
+
+      table {
+        min-width: 320px;
+      }
+
+      .meta-card-header {
+        padding: 8px;
+      }
+
+      .meta-card-title span,
+      .meta-item-label {
+        white-space: normal;
+      }
+    }
+
     @media print {
       body { background: #fff; }
       .header, .filters, .status-box, .loading-box { display: none !important; }
