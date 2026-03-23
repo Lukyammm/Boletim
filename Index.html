@@ -465,7 +465,9 @@
     }
 
     .meta-card {
+      --meta-color: var(--blue);
       border: 1px solid #dce7f5;
+      border-left: 4px solid var(--meta-color);
       border-radius: 12px;
       overflow: hidden;
       background: linear-gradient(180deg, #f9fbff 0%, #f4f8ff 100%);
@@ -478,7 +480,7 @@
       align-items: flex-start;
       gap: 8px;
       padding: 7px 8px;
-      background: #edf4ff;
+      background: var(--meta-soft, #edf4ff);
       border-bottom: 1px solid #dce7f5;
       font-size: 10px;
       font-weight: 700;
@@ -490,18 +492,34 @@
       gap: 2px;
     }
 
-    .meta-card-header-text span {
+    .meta-card-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .meta-card-icon {
+      width: 18px;
+      height: 18px;
+      min-width: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--meta-color);
+    }
+
+    .meta-card-icon svg {
+      width: 18px;
+      height: 18px;
+      display: block;
+    }
+
+    .meta-card-title span {
       display: block;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-    }
-
-    .meta-card-header-text small {
-      color: var(--muted);
-      font-size: 9px;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
     }
 
     .meta-card-header strong {
@@ -737,7 +755,7 @@
             <strong id="cosep-avaliacoes">0</strong>
             <small>Formulários considerados na página 1.</small>
           </div>
-          <div class="metric-card amber">
+          <div class="metric-card amber" id="card-cosep-unidades">
             <span>Unidades</span>
             <strong id="cosep-unidades">0</strong>
             <small>Total de unidades identificadas no recorte.</small>
@@ -949,6 +967,57 @@
         unidade: filtro.unidade || (tipo === 'cosep' ? 'Todas as unidades' : 'Todos os setores')
       };
     }
+
+    const META_VISUAL = {
+      'Identificação Segura': {
+        color: '#D6A521',
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 4v5c0 4.5-3 7.7-7 9-4-1.3-7-4.5-7-9V7l7-4z"></path><path d="M9.5 12l1.7 1.7L14.8 10"></path></svg>'
+      },
+      'Comunicação Efetiva': {
+        color: '#C62839',
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v7A2.5 2.5 0 0 1 17.5 15H9l-5 4v-4.5z"></path><path d="M8 8h8"></path><path d="M8 11h5"></path></svg>'
+      },
+      'Segurança da Cadeia Medicamentosa': {
+        color: '#2E7DBF',
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 5.5l8 8a2.5 2.5 0 1 1-3.5 3.5l-8-8a2.5 2.5 0 0 1 3.5-3.5z"></path><path d="M8 8l8 8"></path><path d="M13 3l8 8"></path></svg>'
+      },
+      'Segurança na Prescrição / Uso de Medicamentos': {
+        color: '#2E7DBF',
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 5.5l8 8a2.5 2.5 0 1 1-3.5 3.5l-8-8a2.5 2.5 0 0 1 3.5-3.5z"></path><path d="M8 8l8 8"></path><path d="M13 3l8 8"></path></svg>'
+      },
+      'Cirurgia Segura': {
+        color: '#6E9E3A',
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 4.5l5 5"></path><path d="M12.5 6.5l5 5"></path><path d="M4 20l6.5-6.5"></path><path d="M8.5 15.5l-2-2a3 3 0 0 1 0-4.2l1.3-1.3"></path><path d="M12.7 11.3l4-4a3 3 0 0 0 0-4.2"></path></svg>'
+      },
+      'Prevenção de Quedas': {
+        color: '#8A5A2B',
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="14" cy="5" r="2"></circle><path d="M12 21l1-6-3-2 2-3 3 2h3"></path><path d="M8 11l-3 2"></path></svg>'
+      },
+      'Prevenção de Lesão por Pressão': {
+        color: '#8E4FA3',
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 12c0-3.3 2.7-6 6-6 2.6 0 4.8 1.6 5.6 4"></path><path d="M7 15c1.2 1.8 3 3 5 3 3.3 0 6-2.7 6-6"></path><path d="M4 13h4"></path><path d="M16 11h4"></path></svg>'
+      },
+      'Higienização das Mãos': {
+        color: '#E07B22',
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 11V5a1 1 0 0 1 2 0v5"></path><path d="M11 11V4.5a1 1 0 0 1 2 0V11"></path><path d="M14 11V6a1 1 0 0 1 2 0v6"></path><path d="M17 11V8a1 1 0 0 1 2 0v5c0 4-2.5 7-6.5 7S6 17 6 13v-2a1.5 1.5 0 0 1 3 0v1"></path></svg>'
+      }
+    };
+
+    function hexToRgba(hex, alpha) {
+      const valor = String(hex || '').replace('#', '').trim();
+      if (![3, 6].includes(valor.length)) return `rgba(237, 244, 255, ${alpha})`;
+      const normalizado = valor.length === 3 ? valor.split('').map(char => char + char).join('') : valor;
+      const numero = parseInt(normalizado, 16);
+      const r = (numero >> 16) & 255;
+      const g = (numero >> 8) & 255;
+      const b = numero & 255;
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    function getMetaVisual(nomeMeta) {
+      return META_VISUAL[nomeMeta] || { color: '#1f5fbf', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l2.5 2.5"></path></svg>' };
+    }
+
     function renderTabelaMetas(lista) {
       const alvo = document.getElementById('tb-metas');
       if (!lista || !lista.length) {
@@ -957,6 +1026,7 @@
       }
 
       alvo.innerHTML = lista.map(meta => {
+        const visual = getMetaVisual(meta.nome);
         const linhasItens = (meta.itens || []).map(item => {
           const legendaItem = `${item.codigo} ${item.nome || ''}`.trim();
           return `
@@ -968,11 +1038,13 @@
         }).join('');
 
         return `
-          <section class="meta-card">
+          <section class="meta-card" style="--meta-color: ${escapeHtml(visual.color)}; --meta-soft: ${escapeHtml(hexToRgba(visual.color, 0.12))};">
             <div class="meta-card-header">
               <div class="meta-card-header-text">
-                <small>Código ${escapeHtml(meta.codigo)}</small>
-                <span title="${escapeHtml(meta.nome || '')}">${escapeHtml(meta.nome || `Meta ${meta.codigo}`)}</span>
+                <div class="meta-card-title" title="${escapeHtml(meta.nome || '')}">
+                  <span class="meta-card-icon">${visual.icon}</span>
+                  <span>${escapeHtml(meta.nome || `Meta ${meta.codigo}`)}</span>
+                </div>
               </div>
               <strong>${formatPct(meta.percentual)}</strong>
             </div>
@@ -1085,6 +1157,12 @@
       });
     }
 
+    function toggleCosepUnidadesCard(filtro) {
+      const cardUnidades = document.getElementById('card-cosep-unidades');
+      if (!cardUnidades) return;
+      cardUnidades.classList.toggle('hidden', Boolean(filtro && filtro.unidade));
+    }
+
     function renderCosep(data, filtro, geradoEm) {
       const periodo = formatPeriodo(filtro, 'cosep');
       document.getElementById('periodo-cosep').innerHTML = `
@@ -1096,6 +1174,7 @@
       document.getElementById('cosep-conformidade').textContent = formatPct(data.conformidadeGeral);
       document.getElementById('cosep-avaliacoes').textContent = data.totalAvaliacoes || 0;
       document.getElementById('cosep-unidades').textContent = data.totalUnidades || 0;
+      toggleCosepUnidadesCard(filtro);
       document.getElementById('cosep-diferenca').textContent = `${data.diferencaMeta >= 0 ? '+' : ''}${formatPct(data.diferencaMeta)}`;
       document.getElementById('cosep-meta-note').textContent = `Meta institucional de ${formatPct(data.metaInstitucional)}.`;
       renderTabelaMetas(data.metas || []);
