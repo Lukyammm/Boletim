@@ -1333,8 +1333,8 @@
 
       document.getElementById('tb-tipo').innerHTML = renderRows(Object.entries(data.porTipo || {}));
       document.getElementById('tb-setor').innerHTML = renderRows(topEntries(data.porSetor, 5));
-      document.getElementById('tb-status').innerHTML = renderRows(topEntries(data.porStatus, 5));
-      document.getElementById('tb-status-resposta').innerHTML = renderRows(topEntries(data.porStatusResposta, 5));
+      document.getElementById('tb-status').innerHTML = renderRows(Object.entries(data.porStatus || {}));
+      document.getElementById('tb-status-resposta').innerHTML = renderRows(Object.entries(data.porStatusResposta || {}));
       criarGraficoRosca(data.afetouSim || 0, data.afetouNao || 0);
     }
 
