@@ -658,10 +658,15 @@
     }
 
     .meta-card.best-meta {
-      border: 1px solid rgba(201, 162, 39, 0.45);
-      border-left: 4px solid #c9a227;
+      border: 2px solid rgba(201, 162, 39, 0.75);
+      border-left: 5px solid #c9a227;
       box-shadow: inset 0 0 0 1px rgba(255, 215, 106, 0.28);
       background: linear-gradient(180deg, #fffdf5 0%, #fff9e9 100%);
+    }
+
+    .meta-card.best-meta .meta-card-header {
+      background: var(--meta-soft, #edf4ff);
+      border-bottom: 1px solid #dce7f5;
     }
 
     .meta-card-header {
@@ -706,8 +711,16 @@
     }
 
     .meta-card-icon.star-highlight {
+      width: 22px;
+      height: 22px;
+      min-width: 22px;
       color: #c9a227;
       filter: drop-shadow(0 0 2px rgba(255, 215, 106, 0.9));
+    }
+
+    .meta-card-icon.star-highlight svg {
+      width: 22px;
+      height: 22px;
     }
 
     .meta-card-title span {
@@ -792,6 +805,13 @@
       background: rgba(251, 253, 255, 0.96);
       display: grid;
       gap: 6px;
+    }
+
+    .ranking-setores-box.grid-slot {
+      margin-top: 0;
+      grid-column: span 2;
+      min-height: 100%;
+      align-content: start;
     }
 
     .ranking-setores-head {
@@ -963,6 +983,10 @@
 
       .actions {
         min-width: 0;
+      }
+
+      .ranking-setores-box.grid-slot {
+        grid-column: span 1;
       }
 
       .document-page {
@@ -1291,10 +1315,6 @@
 
         <section class="panel panel-metas">
           <div class="meta-grid" id="tb-metas"></div>
-          <div class="ranking-setores-box hidden" id="ranking-setores-conformidade">
-            <p class="ranking-setores-head">Setores por conformidade (maior para menor)</p>
-            <div class="ranking-setores-lista" id="ranking-setores-lista"></div>
-          </div>
         </section>
 
         <footer class="footer-note">
@@ -1633,7 +1653,7 @@
               <thead>
                 <tr>
                   <th>Subitem</th>
-                  <th>Conformidade</th>
+                  <th>%</th>
                 </tr>
               </thead>
               <tbody>
@@ -1653,14 +1673,28 @@
     }
 
     function renderRankingSetoresConformidade(ranking, filtro) {
-      const box = document.getElementById('ranking-setores-conformidade');
-      const lista = document.getElementById('ranking-setores-lista');
+      const metasGrid = document.getElementById('tb-metas');
+      if (!metasGrid) return;
+
+      let box = document.getElementById('ranking-setores-conformidade');
+      if (!box) {
+        box = document.createElement('div');
+        box.id = 'ranking-setores-conformidade';
+        box.className = 'ranking-setores-box grid-slot hidden';
+        box.innerHTML = `
+          <p class="ranking-setores-head">Setores por conformidade (maior para menor)</p>
+          <div class="ranking-setores-lista" id="ranking-setores-lista"></div>
+        `;
+      }
+
+      const lista = box.querySelector('#ranking-setores-lista');
       if (!box || !lista) return;
 
       const unidadesSelecionadas = ((filtro && filtro.unidades) || []).length;
       if (unidadesSelecionadas < 2) {
         box.classList.add('hidden');
         lista.innerHTML = '';
+        if (box.parentElement === metasGrid) box.remove();
         return;
       }
 
@@ -1679,6 +1713,7 @@
 
       lista.innerHTML = linhas || '<div class="ranking-setor-item"><span class="ranking-setor-nome-texto">Sem dados no filtro atual.</span></div>';
       box.classList.remove('hidden');
+      metasGrid.appendChild(box);
     }
 
     function criarGraficoLinha(labels, valores) {
