@@ -657,6 +657,13 @@
       min-width: 0;
     }
 
+    .meta-card.best-meta {
+      border: 1px solid rgba(201, 162, 39, 0.45);
+      border-left: 4px solid #c9a227;
+      box-shadow: inset 0 0 0 1px rgba(255, 215, 106, 0.28);
+      background: linear-gradient(180deg, #fffdf5 0%, #fff9e9 100%);
+    }
+
     .meta-card-header {
       display: flex;
       justify-content: space-between;
@@ -696,6 +703,11 @@
       width: 18px;
       height: 18px;
       display: block;
+    }
+
+    .meta-card-icon.star-highlight {
+      color: #c9a227;
+      filter: drop-shadow(0 0 2px rgba(255, 215, 106, 0.9));
     }
 
     .meta-card-title span {
@@ -770,6 +782,78 @@
       color: var(--muted);
       text-align: center;
       background: #fbfcfe;
+    }
+
+    .ranking-setores-box {
+      margin-top: 8px;
+      border: 1px solid rgba(215, 222, 232, 0.95);
+      border-radius: 12px;
+      padding: 8px;
+      background: rgba(251, 253, 255, 0.96);
+      display: grid;
+      gap: 6px;
+    }
+
+    .ranking-setores-head {
+      margin: 0;
+      font-size: 11px;
+      color: #4f5f78;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .ranking-setores-lista {
+      max-height: 82px;
+      overflow-y: auto;
+      padding-right: 4px;
+      display: grid;
+      gap: 4px;
+    }
+
+    .ranking-setor-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 4px 6px;
+      border: 1px solid #e4e9f1;
+      border-radius: 8px;
+      background: #ffffff;
+      font-size: 10px;
+      line-height: 1.3;
+    }
+
+    .ranking-setor-nome {
+      min-width: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .ranking-setor-nome-texto {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 700;
+      color: #2b3a52;
+    }
+
+    .flag-status {
+      width: 8px;
+      height: 12px;
+      border-radius: 2px;
+      display: inline-block;
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+    }
+
+    .flag-status.verde { background: #1f8f5f; }
+    .flag-status.laranja { background: #d4881a; }
+    .flag-status.vermelha { background: #c05621; }
+
+    .ranking-setor-valor {
+      font-weight: 800;
+      color: #1f2937;
+      white-space: nowrap;
     }
 
     .compact-panel p {
@@ -1207,6 +1291,10 @@
 
         <section class="panel panel-metas">
           <div class="meta-grid" id="tb-metas"></div>
+          <div class="ranking-setores-box hidden" id="ranking-setores-conformidade">
+            <p class="ranking-setores-head">Setores por conformidade (maior para menor)</p>
+            <div class="ranking-setores-lista" id="ranking-setores-lista"></div>
+          </div>
         </section>
 
         <footer class="footer-note">
@@ -1507,7 +1595,7 @@
       return META_VISUAL[nomeMeta] || { color: '#1f5fbf', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l2.5 2.5"></path></svg>' };
     }
 
-    function renderTabelaMetas(lista) {
+    function renderTabelaMetas(lista, metasEmDestaque = new Set()) {
       const alvo = document.getElementById('tb-metas');
       if (!lista || !lista.length) {
         alvo.innerHTML = '<div class="meta-card-empty">Sem metas avaliadas no filtro atual.</div>';
@@ -1516,6 +1604,10 @@
 
       alvo.innerHTML = lista.map(meta => {
         const visual = getMetaVisual(meta.nome);
+        const destaqueMelhorMeta = metasEmDestaque.has(meta.nome);
+        const iconeMeta = destaqueMelhorMeta
+          ? '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.7l2.9 5.88 6.49.94-4.7 4.58 1.11 6.46L12 17.52 6.2 20.56l1.11-6.46L2.6 9.52l6.49-.94L12 2.7z"></path></svg>'
+          : visual.icon;
         const linhasItens = (meta.itens || []).map(item => {
           const legendaItem = `${item.codigo} ${item.nome || ''}`.trim();
           return `
@@ -1527,11 +1619,11 @@
         }).join('');
 
         return `
-          <section class="meta-card" style="--meta-color: ${escapeHtml(visual.color)}; --meta-soft: ${escapeHtml(hexToRgba(visual.color, 0.12))};">
+          <section class="meta-card ${destaqueMelhorMeta ? 'best-meta' : ''}" style="--meta-color: ${escapeHtml(visual.color)}; --meta-soft: ${escapeHtml(hexToRgba(visual.color, 0.12))};">
             <div class="meta-card-header">
               <div class="meta-card-header-text">
                 <div class="meta-card-title" title="${escapeHtml(meta.nome || '')}">
-                  <span class="meta-card-icon">${visual.icon}</span>
+                  <span class="meta-card-icon ${destaqueMelhorMeta ? 'star-highlight' : ''}">${iconeMeta}</span>
                   <span>${escapeHtml(`${meta.codigo}. ${meta.nome || `Meta ${meta.codigo}`}`)}</span>
                 </div>
               </div>
@@ -1551,6 +1643,42 @@
           </section>
         `;
       }).join('');
+    }
+
+    function classificarStatusConformidade(percentual) {
+      const valor = Number(percentual || 0);
+      if (valor >= 80) return 'verde';
+      if (valor >= 60) return 'laranja';
+      return 'vermelha';
+    }
+
+    function renderRankingSetoresConformidade(ranking, filtro) {
+      const box = document.getElementById('ranking-setores-conformidade');
+      const lista = document.getElementById('ranking-setores-lista');
+      if (!box || !lista) return;
+
+      const unidadesSelecionadas = ((filtro && filtro.unidades) || []).length;
+      if (unidadesSelecionadas < 2) {
+        box.classList.add('hidden');
+        lista.innerHTML = '';
+        return;
+      }
+
+      const linhas = (ranking || []).map(item => {
+        const classe = classificarStatusConformidade(item.percentual);
+        return `
+          <div class="ranking-setor-item">
+            <div class="ranking-setor-nome">
+              <span class="flag-status ${classe}" aria-hidden="true"></span>
+              <span class="ranking-setor-nome-texto" title="${escapeHtml(item.setor || '')}">${escapeHtml(item.setor || 'Não informado')}</span>
+            </div>
+            <span class="ranking-setor-valor">${formatPct(item.percentual)}</span>
+          </div>
+        `;
+      }).join('');
+
+      lista.innerHTML = linhas || '<div class="ranking-setor-item"><span class="ranking-setor-nome-texto">Sem dados no filtro atual.</span></div>';
+      box.classList.remove('hidden');
     }
 
     function criarGraficoLinha(labels, valores) {
@@ -1579,11 +1707,11 @@
             y: {
               beginAtZero: true,
               max: 100,
-              ticks: { callback: value => `${value}%`, font: { size: 10 } },
+              ticks: { callback: value => `${value}%`, font: { size: 11 }, padding: 8 },
               grid: { color: 'rgba(148, 163, 184, 0.3)' }
             },
             x: {
-              ticks: { font: { size: 10 }, maxRotation: 0, minRotation: 0 },
+              ticks: { font: { size: 11 }, maxRotation: 0, minRotation: 0, padding: 6 },
               grid: { display: false }
             }
           }
@@ -1603,12 +1731,13 @@
         meta.data.forEach((point, index) => {
           const valor = Number((dataset.data || [])[index] || 0);
           const texto = `${valor.toFixed(1).replace('.', ',')}%`;
+          const ajusteEixoVertical = index === 0 ? 14 : 0;
           ctx.save();
           ctx.fillStyle = '#1f2937';
-          ctx.font = '700 10px Assistant, sans-serif';
+          ctx.font = '700 11px Assistant, sans-serif';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'bottom';
-          ctx.fillText(texto, point.x, point.y - 6);
+          ctx.fillText(texto, point.x + ajusteEixoVertical, point.y - 8);
           ctx.restore();
         });
       }
@@ -1789,7 +1918,19 @@
       toggleCosepUnidadesCard(filtro);
       document.getElementById('cosep-diferenca').textContent = `${data.diferencaMeta >= 0 ? '+' : ''}${formatPct(data.diferencaMeta)}`;
       document.getElementById('cosep-meta-note').textContent = `Meta institucional de ${formatPct(data.metaInstitucional)}.`;
-      renderTabelaMetas(data.metas || []);
+      const unidadesSelecionadas = (filtro && filtro.unidades) || [];
+      const metasComMelhorSetorSelecionado = new Set();
+      if (unidadesSelecionadas.length === 1) {
+        const setorSelecionado = unidadesSelecionadas[0];
+        const melhores = data.melhoresSetoresPorMeta || {};
+        Object.entries(melhores).forEach(([nomeMeta, info]) => {
+          const setores = (info && info.setores) || [];
+          if (setores.includes(setorSelecionado)) metasComMelhorSetorSelecionado.add(nomeMeta);
+        });
+      }
+
+      renderTabelaMetas(data.metas || [], metasComMelhorSetorSelecionado);
+      renderRankingSetoresConformidade(data.rankingSetoresConformidade || [], filtro || {});
       criarGraficoLinha((data.evolucaoMensal || []).map(item => item.mes), (data.evolucaoMensal || []).map(item => item.percentual));
     }
 
