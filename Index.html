@@ -620,7 +620,7 @@
     th, td {
       border: 1px solid var(--line);
       padding: 5px 6px;
-      font-size: 10px;
+      font-size: 13px;
       vertical-align: top;
       word-break: break-word;
     }
@@ -630,7 +630,7 @@
       text-transform: uppercase;
       letter-spacing: 0.04em;
       color: var(--muted);
-      font-size: 9px;
+      font-size: 13px;
       text-align: left;
     }
 
@@ -744,7 +744,7 @@
     .meta-card td {
       border: 1px solid var(--line);
       padding: 3px 5px;
-      font-size: 10px;
+      font-size: 13px;
       text-align: left;
       line-height: 1.2;
     }
@@ -781,7 +781,7 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      font-size: 10px;
+      font-size: 13px;
       line-height: 1.2;
     }
 
@@ -789,7 +789,7 @@
       padding: 10px;
       border: 1px dashed var(--line);
       border-radius: 12px;
-      font-size: 10px;
+      font-size: 13px;
       color: var(--muted);
       text-align: center;
       background: #fbfcfe;
@@ -808,6 +808,7 @@
     .ranking-setores-box.grid-slot {
       margin-top: 0;
       grid-column: span 2;
+      width: 66.67%;
       min-height: 100%;
       align-content: start;
     }
@@ -857,16 +858,39 @@
     }
 
     .flag-status {
-      width: 8px;
+      width: 12px;
       height: 12px;
-      border-radius: 2px;
+      position: relative;
       display: inline-block;
-      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+      border-radius: 0;
+      box-shadow: none;
     }
 
-    .flag-status.verde { background: #1f8f5f; }
-    .flag-status.laranja { background: #d4881a; }
-    .flag-status.vermelha { background: #c05621; }
+    .flag-status::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 2px;
+      height: 100%;
+      background: #8f99a8;
+      border-radius: 999px;
+    }
+
+    .flag-status::after {
+      content: "";
+      position: absolute;
+      left: 2px;
+      top: 1px;
+      width: 9px;
+      height: 7px;
+      border-radius: 0 3px 3px 0;
+      clip-path: polygon(0 0, 100% 10%, 88% 50%, 100% 90%, 0 100%);
+    }
+
+    .flag-status.verde::after { background: #1f8f5f; }
+    .flag-status.laranja::after { background: #d4881a; }
+    .flag-status.vermelha::after { background: #c05621; }
 
     .ranking-setor-valor {
       font-weight: 800;
@@ -881,7 +905,7 @@
     .compact-table th,
     .compact-table td {
       padding: 4px 5px;
-      font-size: 9px;
+      font-size: 13px;
     }
 
     .pie-chart-box {
@@ -957,6 +981,11 @@
       padding-bottom: 24mm;
     }
 
+    #pagina-notifica table th,
+    #pagina-notifica table td {
+      font-size: 12px;
+    }
+
     #pagina-notifica .footer-note {
       position: absolute;
       left: 10mm;
@@ -985,6 +1014,7 @@
 
       .ranking-setores-box.grid-slot {
         grid-column: span 1;
+        width: 100%;
       }
 
       .document-page {
