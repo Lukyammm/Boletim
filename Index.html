@@ -225,6 +225,12 @@
       padding-right: 48px;
     }
 
+    .field select[multiple] {
+      min-height: 130px;
+      padding: 10px 12px;
+      background-image: none;
+    }
+
     .actions {
       display: grid;
       gap: 20px;
@@ -1066,15 +1072,15 @@
           <div class="fields">
             <div class="field">
               <label for="ano-cosep">Ano</label>
-              <select id="ano-cosep"></select>
+              <select id="ano-cosep" multiple></select>
             </div>
             <div class="field">
               <label for="mes-cosep">Mês</label>
-              <select id="mes-cosep"></select>
+              <select id="mes-cosep" multiple></select>
             </div>
             <div class="field">
               <label for="unidade-cosep">Setor</label>
-              <select id="unidade-cosep"></select>
+              <select id="unidade-cosep" multiple></select>
             </div>
           </div>
         </div>
@@ -1089,15 +1095,15 @@
           <div class="fields">
             <div class="field">
               <label for="ano-notifica">Ano</label>
-              <select id="ano-notifica"></select>
+              <select id="ano-notifica" multiple></select>
             </div>
             <div class="field">
               <label for="mes-notifica">Mês</label>
-              <select id="mes-notifica"></select>
+              <select id="mes-notifica" multiple></select>
             </div>
             <div class="field">
               <label for="unidade-notifica">Setor</label>
-              <select id="unidade-notifica"></select>
+              <select id="unidade-notifica" multiple></select>
             </div>
           </div>
         </div>
@@ -1321,7 +1327,14 @@
     }
 
     async function fetchViaHttp(params = {}) {
-      const query = new URLSearchParams({ api: '1', ...params });
+      const query = new URLSearchParams({ api: '1' });
+      Object.entries(params || {}).forEach(([chave, valor]) => {
+        if (Array.isArray(valor)) {
+          if (valor.length) query.set(chave, valor.join('|'));
+          return;
+        }
+        if (valor != null && String(valor).trim() !== '') query.set(chave, String(valor));
+      });
       const resposta = await fetch(`${location.pathname}?${query.toString()}`, { cache: 'no-store' });
       if (!resposta.ok) throw new Error('Falha ao buscar dados do Apps Script.');
       return resposta.json();
@@ -1347,27 +1360,27 @@
       return `<option value="${escapeHtml(value)}" ${selected ? 'selected' : ''}>${escapeHtml(text)}</option>`;
     }
 
-    function preencherSelect(id, opcoes, vazioLabel) {
+    function preencherSelect(id, opcoes) {
       const elemento = document.getElementById(id);
-      elemento.innerHTML = optionHTML('', vazioLabel, false) + (opcoes || []).map(item => optionHTML(item, item)).join('');
+      elemento.innerHTML = (opcoes || []).map(item => optionHTML(item, item)).join('');
     }
 
     function preencherFiltros(filtros) {
       const filtrosCosep = (filtros && filtros.caminhadas) || {};
       const filtrosNotifica = (filtros && filtros.notificacoes) || {};
 
-      preencherSelect('ano-cosep', filtrosCosep.anos, 'Todos');
-      preencherSelect('mes-cosep', filtrosCosep.meses, 'Todos');
-      preencherSelect('unidade-cosep', filtrosCosep.unidades, 'Todos');
+      preencherSelect('ano-cosep', filtrosCosep.anos);
+      preencherSelect('mes-cosep', filtrosCosep.meses);
+      preencherSelect('unidade-cosep', filtrosCosep.unidades);
 
-      preencherSelect('ano-notifica', filtrosNotifica.anos, 'Todos');
-      preencherSelect('mes-notifica', filtrosNotifica.meses, 'Todos');
-      preencherSelect('unidade-notifica', filtrosNotifica.unidades, 'Todos');
+      preencherSelect('ano-notifica', filtrosNotifica.anos);
+      preencherSelect('mes-notifica', filtrosNotifica.meses);
+      preencherSelect('unidade-notifica', filtrosNotifica.unidades);
 
       const ultimoAnoCosep = (filtrosCosep.anos || []).slice(-1)[0] || '';
       const ultimoAnoNotifica = (filtrosNotifica.anos || []).slice(-1)[0] || '';
-      document.getElementById('ano-cosep').value = ultimoAnoCosep;
-      document.getElementById('ano-notifica').value = ultimoAnoNotifica;
+      selecionarValores('ano-cosep', ultimoAnoCosep ? [ultimoAnoCosep] : []);
+      selecionarValores('ano-notifica', ultimoAnoNotifica ? [ultimoAnoNotifica] : []);
     }
 
     function formatPct(value) {
@@ -1393,14 +1406,29 @@
       return entries.map(([chave, valor]) => `<tr><td>${escapeHtml(chave)}</td><td>${escapeHtml(valor)}</td></tr>`).join('');
     }
 
+    function selecionarValores(id, valores) {
+      const campo = document.getElementById(id);
+      if (!campo) return;
+      const conjunto = new Set((valores || []).map(item => String(item)));
+      Array.from(campo.options).forEach(opcao => {
+        opcao.selected = conjunto.has(opcao.value);
+      });
+    }
+
+    function obterValoresSelecionados(id) {
+      const campo = document.getElementById(id);
+      if (!campo) return [];
+      return Array.from(campo.selectedOptions).map(option => String(option.value || '').trim()).filter(Boolean);
+    }
+
     function obterFiltrosTela() {
       return {
-        anoCosep: document.getElementById('ano-cosep').value,
-        mesCosep: document.getElementById('mes-cosep').value,
-        unidadeCosep: document.getElementById('unidade-cosep').value,
-        anoNotifica: document.getElementById('ano-notifica').value,
-        mesNotifica: document.getElementById('mes-notifica').value,
-        unidadeNotifica: document.getElementById('unidade-notifica').value
+        anosCosep: obterValoresSelecionados('ano-cosep'),
+        mesesCosep: obterValoresSelecionados('mes-cosep'),
+        unidadesCosep: obterValoresSelecionados('unidade-cosep'),
+        anosNotifica: obterValoresSelecionados('ano-notifica'),
+        mesesNotifica: obterValoresSelecionados('mes-notifica'),
+        unidadesNotifica: obterValoresSelecionados('unidade-notifica')
       };
     }
 
@@ -1408,23 +1436,24 @@
       const filtrosTela = obterFiltrosTela();
       atualizarStatus({
         caminhadas: {
-          ano: filtrosTela.anoCosep,
-          mes: filtrosTela.mesCosep,
-          unidade: filtrosTela.unidadeCosep
+          anos: filtrosTela.anosCosep,
+          meses: filtrosTela.mesesCosep,
+          unidades: filtrosTela.unidadesCosep
         },
         notificacoes: {
-          ano: filtrosTela.anoNotifica,
-          mes: filtrosTela.mesNotifica,
-          unidade: filtrosTela.unidadeNotifica
+          anos: filtrosTela.anosNotifica,
+          meses: filtrosTela.mesesNotifica,
+          unidades: filtrosTela.unidadesNotifica
         }
       }, 'não realizada');
     }
 
     function formatPeriodo(filtro, tipo) {
+      const formatLista = (lista, vazioTexto) => (lista && lista.length ? lista.join(', ') : vazioTexto);
       return {
-        ano: filtro.ano || 'Todos os anos',
-        mes: filtro.mes || 'Todos os meses',
-        unidade: filtro.unidade || 'Todos os setores'
+        ano: formatLista(filtro.anos, 'Todos os anos'),
+        mes: formatLista(filtro.meses, 'Todos os meses'),
+        unidade: formatLista(filtro.unidades, 'Todos os setores')
       };
     }
 
@@ -1558,9 +1587,32 @@
               grid: { display: false }
             }
           }
-        }
+        },
+        plugins: [pluginRotuloPontos]
       });
     }
+
+    const pluginRotuloPontos = {
+      id: 'rotuloPontos',
+      afterDatasetsDraw(chart) {
+        const { ctx } = chart;
+        const meta = chart.getDatasetMeta(0);
+        const dataset = chart.data.datasets[0];
+        if (!meta || !dataset) return;
+
+        meta.data.forEach((point, index) => {
+          const valor = Number((dataset.data || [])[index] || 0);
+          const texto = `${valor.toFixed(1).replace('.', ',')}%`;
+          ctx.save();
+          ctx.fillStyle = '#1f2937';
+          ctx.font = '700 10px Assistant, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'bottom';
+          ctx.fillText(texto, point.x, point.y - 6);
+          ctx.restore();
+        });
+      }
+    };
 
     const pluginLegendaInternaPizza = {
       id: 'legendaInternaPizza',
@@ -1708,19 +1760,19 @@
     function toggleCosepUnidadesCard(filtro) {
       const cardUnidades = document.getElementById('card-cosep-unidades');
       if (!cardUnidades) return;
-      cardUnidades.classList.toggle('hidden', Boolean(filtro && filtro.unidade));
+      cardUnidades.classList.toggle('hidden', Boolean(filtro && (filtro.unidades || []).length));
     }
 
     function toggleNotificaSetoresCard(filtro) {
       const cardSetores = document.getElementById('card-notifica-setores');
       if (!cardSetores) return;
-      cardSetores.classList.toggle('hidden', Boolean(filtro && filtro.unidade));
+      cardSetores.classList.toggle('hidden', Boolean(filtro && (filtro.unidades || []).length));
     }
 
     function toggleTopSetoresPanel(filtro, totalSetores) {
       const panelTopSetores = document.getElementById('panel-top-setores');
       if (!panelTopSetores) return;
-      panelTopSetores.classList.toggle('hidden', Boolean((filtro && filtro.unidade) || Number(totalSetores || 0) <= 1));
+      panelTopSetores.classList.toggle('hidden', Boolean((filtro && (filtro.unidades || []).length) || Number(totalSetores || 0) <= 1));
     }
 
     function renderCosep(data, filtro, geradoEm) {
@@ -1834,7 +1886,11 @@
     function baixarPDF() {
       const elemento = document.getElementById('boletim');
       const filtros = obterFiltrosTela();
-      const nomeArquivo = `boletim-seguranca-paciente-${filtros.mesCosep || 'todos'}-${filtros.anoCosep || 'todos'}-notifica-${filtros.mesNotifica || 'todos'}-${filtros.anoNotifica || 'todos'}.pdf`;
+      const anoCosepArquivo = filtros.anosCosep.length ? filtros.anosCosep.join('-') : 'todos';
+      const mesCosepArquivo = filtros.mesesCosep.length ? filtros.mesesCosep.join('-') : 'todos';
+      const anoNotificaArquivo = filtros.anosNotifica.length ? filtros.anosNotifica.join('-') : 'todos';
+      const mesNotificaArquivo = filtros.mesesNotifica.length ? filtros.mesesNotifica.join('-') : 'todos';
+      const nomeArquivo = `boletim-seguranca-paciente-${mesCosepArquivo}-${anoCosepArquivo}-notifica-${mesNotificaArquivo}-${anoNotificaArquivo}.pdf`;
 
       html2pdf().set({
         margin: [0, 0, 0, 0],

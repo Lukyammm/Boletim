@@ -1,7 +1,7 @@
 const ID_PLANILHA = '1XUtI9TSMJmTpbtfLjZbJ-uarRN94lu_Aqpsc46Lxmt4';
 const ABA_CAMINHADAS = 'BASE DE DADOS CAMINHADAS';
 const ABA_NOTIFICA = 'NOTIFICA - BASE';
-const META_INSTITUCIONAL = 85;
+const META_INSTITUCIONAL = 80;
 const FUSO_HORARIO = 'America/Fortaleza';
 const ORDEM_MESES = {
   'JANEIRO': 1,
@@ -149,16 +149,28 @@ function extrairFiltros(params) {
   const bruto = params || {};
   return {
     caminhadas: {
-      ano: String(bruto.anoCosep || bruto.ano || '').trim(),
-      mes: normalizarMes(bruto.mesCosep || bruto.mes || ''),
-      unidade: String(bruto.unidadeCosep || bruto.unidade || '').trim()
+      anos: extrairListaFiltros(bruto.anosCosep || bruto.anoCosep || bruto.ano || '', normalizarAno),
+      meses: extrairListaFiltros(bruto.mesesCosep || bruto.mesCosep || bruto.mes || '', normalizarMes),
+      unidades: extrairListaFiltros(bruto.unidadesCosep || bruto.unidadeCosep || bruto.unidade || '', value => String(value || '').trim())
     },
     notificacoes: {
-      ano: String(bruto.anoNotifica || bruto.ano || '').trim(),
-      mes: normalizarMes(bruto.mesNotifica || bruto.mes || ''),
-      unidade: String(bruto.unidadeNotifica || bruto.unidade || '').trim()
+      anos: extrairListaFiltros(bruto.anosNotifica || bruto.anoNotifica || bruto.ano || '', normalizarAno),
+      meses: extrairListaFiltros(bruto.mesesNotifica || bruto.mesNotifica || bruto.mes || '', normalizarMes),
+      unidades: extrairListaFiltros(bruto.unidadesNotifica || bruto.unidadeNotifica || bruto.unidade || '', value => String(value || '').trim())
     }
   };
+}
+
+function extrairListaFiltros(rawValue, normalizerFn) {
+  const brutoLista = Array.isArray(rawValue) ? rawValue : String(rawValue || '').split(/[|,]/);
+
+  const valores = brutoLista
+    .map(item => String(item || '').trim())
+    .filter(Boolean)
+    .map(item => normalizerFn ? normalizerFn(item) : item)
+    .filter(Boolean);
+
+  return [...new Set(valores)];
 }
 
 function montarPayload(ss, filtros) {
@@ -324,14 +336,18 @@ function processarCaminhadas(ss, filtros) {
   let totalComObservacao = 0;
   let totalComFoto = 0;
 
+  const anosFiltro = new Set((filtros.anos || []).map(normalizarAno).filter(Boolean));
+  const mesesFiltro = new Set((filtros.meses || []).map(normalizarMes).filter(Boolean));
+  const unidadesFiltro = new Set((filtros.unidades || []).map(item => String(item || '').trim()).filter(Boolean));
+
   const linhasFiltradas = linhas.filter(row => {
     const ano = normalizarAno(row[3]);
     const mes = normalizarMes(row[2]);
     const unidade = getUnidade(row);
 
-    if (filtros.ano && ano !== filtros.ano) return false;
-    if (filtros.mes && mes !== filtros.mes) return false;
-    if (filtros.unidade && unidade !== filtros.unidade) return false;
+    if (anosFiltro.size && !anosFiltro.has(ano)) return false;
+    if (mesesFiltro.size && !mesesFiltro.has(mes)) return false;
+    if (unidadesFiltro.size && !unidadesFiltro.has(unidade)) return false;
     return true;
   });
 
@@ -395,8 +411,8 @@ function processarCaminhadas(ss, filtros) {
 
   const evolucaoMensalMap = {};
   linhas
-    .filter(row => !filtros.ano || normalizarAno(row[3]) === filtros.ano)
-    .filter(row => !filtros.unidade || getUnidade(row) === filtros.unidade)
+    .filter(row => !anosFiltro.size || anosFiltro.has(normalizarAno(row[3])))
+    .filter(row => !unidadesFiltro.size || unidadesFiltro.has(getUnidade(row)))
     .forEach(row => {
       const mes = normalizarMes(row[2]) || 'Sem mês';
       if (!evolucaoMensalMap[mes]) {
@@ -462,14 +478,18 @@ function processarNotificacoes(ss, filtros) {
     meta10: criarResumoPrazoResposta(10)
   };
 
+  const anosFiltro = new Set((filtros.anos || []).map(normalizarAno).filter(Boolean));
+  const mesesFiltro = new Set((filtros.meses || []).map(normalizarMes).filter(Boolean));
+  const unidadesFiltro = new Set((filtros.unidades || []).map(item => String(item || '').trim()).filter(Boolean));
+
   const filtradas = linhas.filter(row => {
     const mes = normalizarMes(row[2]);
     const ano = normalizarAno(row[3]);
     const setor = String(row[6] || '').trim();
 
-    if (filtros.ano && ano !== filtros.ano) return false;
-    if (filtros.mes && mes !== filtros.mes) return false;
-    if (filtros.unidade && setor !== filtros.unidade) return false;
+    if (anosFiltro.size && !anosFiltro.has(ano)) return false;
+    if (mesesFiltro.size && !mesesFiltro.has(mes)) return false;
+    if (unidadesFiltro.size && !unidadesFiltro.has(setor)) return false;
     return true;
   });
 
@@ -509,7 +529,7 @@ function processarNotificacoes(ss, filtros) {
     if (afetou === 'SIM') afetouSim++;
     else afetouNao++;
 
-    if (normalizarTexto(status) === 'CONCLUÍDO' || normalizarTexto(status) === 'CONCLUIDO') concluidas++;
+    if (normalizarTexto(status).indexOf('CONCLU') === 0) concluidas++;
     else pendentes++;
   });
 
