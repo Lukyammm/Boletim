@@ -247,6 +247,13 @@
       box-shadow: 0 14px 28px rgba(148, 163, 184, 0.18);
     }
 
+    .btn:disabled {
+      cursor: not-allowed;
+      transform: none;
+      opacity: 0.72;
+      box-shadow: none;
+    }
+
     .btn svg {
       width: 22px;
       height: 22px;
@@ -1103,11 +1110,11 @@
         </div>
 
         <div class="actions">
-          <button type="button" class="btn btn-primary" onclick="carregarDados()">
+          <button id="btn-gerar-boletim" type="button" class="btn btn-primary" onclick="carregarDados()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path><path d="M9 13h6"></path><path d="M9 17h6"></path><path d="M9 9h1"></path></svg>
             <span>Gerar boletim</span>
           </button>
-          <button type="button" class="btn" onclick="baixarPDF()">
+          <button id="btn-baixar-pdf" type="button" class="btn" onclick="baixarPDF()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>
             <span>Baixar PDF</span>
           </button>
@@ -1305,6 +1312,8 @@
     let chartAfetou = null;
     let chartRespostaMeta5 = null;
     let chartRespostaMeta10 = null;
+    let geracaoEmAndamento = false;
+    let downloadEmAndamento = false;
 
     function fetchViaGoogleScript(params = {}) {
       return new Promise((resolve, reject) => {
@@ -1789,11 +1798,33 @@
       `;
     }
 
+    function setEstadoBotao(botao, carregando, textoCarregando) {
+      if (!botao) return;
+
+      if (!botao.dataset.labelOriginal) {
+        const textoSpan = botao.querySelector('span');
+        botao.dataset.labelOriginal = textoSpan ? textoSpan.textContent : botao.textContent;
+      }
+
+      botao.disabled = carregando;
+      const alvoTexto = botao.querySelector('span');
+      if (alvoTexto) {
+        alvoTexto.textContent = carregando ? textoCarregando : botao.dataset.labelOriginal;
+      } else {
+        botao.textContent = carregando ? textoCarregando : botao.dataset.labelOriginal;
+      }
+    }
+
     async function carregarDados() {
+      if (geracaoEmAndamento) return;
+
+      geracaoEmAndamento = true;
       const loading = document.getElementById('loading');
       const boletim = document.getElementById('boletim');
+      const botaoGerar = document.getElementById('btn-gerar-boletim');
 
       try {
+        setEstadoBotao(botaoGerar, true, 'Gerando...');
         loading.classList.remove('hidden');
         boletim.classList.add('hidden');
         loading.textContent = 'Gerando boletim com os filtros selecionados...';
@@ -1810,6 +1841,9 @@
         boletim.classList.add('hidden');
         loading.textContent = 'Erro ao carregar os dados. Verifique a implantação do Apps Script, a planilha e as permissões do Web App.';
         console.error(erro);
+      } finally {
+        setEstadoBotao(botaoGerar, false, '');
+        geracaoEmAndamento = false;
       }
     }
 
@@ -1831,19 +1865,31 @@
       }
     }
 
-    function baixarPDF() {
+    async function baixarPDF() {
+      if (downloadEmAndamento) return;
+
       const elemento = document.getElementById('boletim');
+      if (elemento.classList.contains('hidden')) return;
+
+      downloadEmAndamento = true;
+      const botaoBaixar = document.getElementById('btn-baixar-pdf');
       const filtros = obterFiltrosTela();
       const nomeArquivo = `boletim-seguranca-paciente-${filtros.mesCosep || 'todos'}-${filtros.anoCosep || 'todos'}-notifica-${filtros.mesNotifica || 'todos'}-${filtros.anoNotifica || 'todos'}.pdf`;
 
-      html2pdf().set({
-        margin: [0, 0, 0, 0],
-        filename: nomeArquivo,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak: { mode: ['css', 'legacy'] }
-      }).from(elemento).save();
+      try {
+        setEstadoBotao(botaoBaixar, true, 'Baixando...');
+        await html2pdf().set({
+          margin: [0, 0, 0, 0],
+          filename: nomeArquivo,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+          pagebreak: { mode: ['css', 'legacy'] }
+        }).from(elemento).save();
+      } finally {
+        setEstadoBotao(botaoBaixar, false, '');
+        downloadEmAndamento = false;
+      }
     }
 
     init();
