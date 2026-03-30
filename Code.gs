@@ -449,6 +449,96 @@ function processarCaminhadas(ss, filtros) {
     .slice(0, 3)
     .map(meta => ({ codigo: meta.codigo, nome: meta.nome, percentual: meta.percentual }));
 
+  const rankingSetoresConformidade = Object.values(linhasFiltradas.reduce((acc, row) => {
+    const unidade = getUnidade(row);
+    if (!acc[unidade]) {
+      acc[unidade] = {
+        setor: unidade,
+        conformes: 0,
+        naoConformes: 0,
+        avaliados: 0,
+        percentual: 0
+      };
+    }
+
+    METAS_CAMINHADAS.forEach(meta => {
+      meta.itens.forEach(item => {
+        const valor = row[item.idx];
+        if (ehSim(valor)) {
+          acc[unidade].conformes++;
+          acc[unidade].avaliados++;
+        } else if (ehNao(valor)) {
+          acc[unidade].naoConformes++;
+          acc[unidade].avaliados++;
+        }
+      });
+    });
+
+    return acc;
+  }, {}))
+    .map(item => ({
+      setor: item.setor,
+      conformes: item.conformes,
+      naoConformes: item.naoConformes,
+      avaliados: item.avaliados,
+      percentual: item.avaliados ? Number(((item.conformes / item.avaliados) * 100).toFixed(1)) : 0
+    }))
+    .sort((a, b) => b.percentual - a.percentual || a.setor.localeCompare(b.setor, 'pt-BR'));
+
+  const baseComparativaMelhorSetor = linhas
+    .filter(row => !anosFiltro.size || anosFiltro.has(normalizarAno(row[3])))
+    .filter(row => !mesesFiltro.size || mesesFiltro.has(normalizarMes(row[2])));
+
+  const desempenhoSetorMeta = {};
+  baseComparativaMelhorSetor.forEach(row => {
+    const unidade = getUnidade(row);
+    if (!desempenhoSetorMeta[unidade]) desempenhoSetorMeta[unidade] = {};
+
+    METAS_CAMINHADAS.forEach(metaDef => {
+      if (!desempenhoSetorMeta[unidade][metaDef.nome]) {
+        desempenhoSetorMeta[unidade][metaDef.nome] = { conformes: 0, avaliados: 0 };
+      }
+      metaDef.itens.forEach(itemDef => {
+        const valor = row[itemDef.idx];
+        if (ehSim(valor)) {
+          desempenhoSetorMeta[unidade][metaDef.nome].conformes++;
+          desempenhoSetorMeta[unidade][metaDef.nome].avaliados++;
+        } else if (ehNao(valor)) {
+          desempenhoSetorMeta[unidade][metaDef.nome].avaliados++;
+        }
+      });
+    });
+  });
+
+  const melhoresSetoresPorMeta = {};
+  METAS_CAMINHADAS.forEach(metaDef => {
+    const candidatos = Object.keys(desempenhoSetorMeta)
+      .map(unidade => {
+        const registro = desempenhoSetorMeta[unidade][metaDef.nome] || { conformes: 0, avaliados: 0 };
+        const percentual = registro.avaliados ? Number(((registro.conformes / registro.avaliados) * 100).toFixed(1)) : null;
+        return {
+          setor: unidade,
+          percentual: percentual,
+          avaliados: registro.avaliados
+        };
+      })
+      .filter(item => item.avaliados > 0 && item.percentual != null);
+
+    if (!candidatos.length) {
+      melhoresSetoresPorMeta[metaDef.nome] = { percentual: null, setores: [] };
+      return;
+    }
+
+    const melhorPercentual = Math.max(...candidatos.map(item => item.percentual));
+    melhoresSetoresPorMeta[metaDef.nome] = {
+      percentual: melhorPercentual,
+      setores: candidatos
+        .filter(item => item.percentual === melhorPercentual)
+        .map(item => item.setor)
+        .sort((a, b) => a.localeCompare(b, 'pt-BR'))
+    };
+  });
+
   return {
     totalAvaliacoes: totalAvaliacoes,
     totalUnidades: unidadesOrdenadas.length,
@@ -463,6 +553,8 @@ function processarCaminhadas(ss, filtros) {
     diferencaMeta: Number((conformidadeGeral - META_INSTITUCIONAL).toFixed(1)),
     metas: metas,
     porUnidade: unidadesOrdenadas,
+    rankingSetoresConformidade: rankingSetoresConformidade,
+    melhoresSetoresPorMeta: melhoresSetoresPorMeta,
     evolucaoMensal: evolucaoMensal,
     metasCriticas: metasCriticas,
     observacoesGerais: observacoesGerais.slice(0, 5)
