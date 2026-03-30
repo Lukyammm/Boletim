@@ -1742,8 +1742,10 @@
             y: {
               min: 0,
               max: 100,
+              afterBuildTicks: axis => {
+                axis.ticks = [0, 20, 50, 80, 100].map(value => ({ value }));
+              },
               ticks: {
-                stepSize: 10,
                 autoSkip: false,
                 callback: value => `${value}%`,
                 font: { size: 11 },
