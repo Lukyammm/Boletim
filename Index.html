@@ -822,7 +822,7 @@
 
     .ranking-setores-box.grid-slot {
       margin-top: 0;
-      grid-column: span 2;
+      grid-column: span 1;
       min-height: auto;
       align-content: start;
     }
@@ -910,6 +910,42 @@
       font-weight: 800;
       color: #1f2937;
       white-space: nowrap;
+    }
+
+    .legenda-melhor-meta {
+      margin-top: 8px;
+      padding: 6px 10px;
+      border: 1px solid rgba(201, 162, 39, 0.55);
+      border-radius: 10px;
+      background: rgba(255, 249, 233, 0.9);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      max-width: 560px;
+      width: fit-content;
+      font-size: 12px;
+      color: #5b4a18;
+      line-height: 1.3;
+    }
+
+    .legenda-melhor-meta.hidden {
+      display: none;
+    }
+
+    .legenda-melhor-meta-icone {
+      width: 16px;
+      height: 16px;
+      min-width: 16px;
+      color: #c9a227;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .legenda-melhor-meta-icone svg {
+      width: 16px;
+      height: 16px;
+      display: block;
     }
 
     .compact-panel p {
@@ -1376,6 +1412,13 @@
           <div class="chart-box compact"><canvas id="graficoEvolucao"></canvas></div>
         </section>
 
+        <div class="legenda-melhor-meta hidden" id="legenda-melhor-meta">
+          <span class="legenda-melhor-meta-icone" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.7l2.9 5.88 6.49.94-4.7 4.58 1.11 6.46L12 17.52 6.2 20.56l1.11-6.46L2.6 9.52l6.49-.94L12 2.7z"></path></svg>
+          </span>
+          <span>= Setor com maior conformidade na meta de segurança destacada</span>
+        </div>
+
         <section class="panel panel-metas">
           <div class="meta-grid" id="tb-metas"></div>
         </section>
@@ -1754,7 +1797,7 @@
         box.id = 'ranking-setores-conformidade';
         box.className = 'ranking-setores-box grid-slot hidden';
         box.innerHTML = `
-          <p class="ranking-setores-head">Setores por conformidade (maior para menor)</p>
+          <p class="ranking-setores-head">Setores por conformidade</p>
           <div class="ranking-setores-lista" id="ranking-setores-lista"></div>
         `;
       }
@@ -1786,6 +1829,16 @@
       lista.innerHTML = linhas || '<div class="ranking-setor-item"><span class="ranking-setor-nome-texto">Sem dados no filtro atual.</span></div>';
       box.classList.remove('hidden');
       metasGrid.appendChild(box);
+    }
+
+    function renderLegendaMelhorMeta(metasEmDestaque = new Set()) {
+      const legenda = document.getElementById('legenda-melhor-meta');
+      if (!legenda) return;
+      if ((metasEmDestaque && metasEmDestaque.size) > 0) {
+        legenda.classList.remove('hidden');
+        return;
+      }
+      legenda.classList.add('hidden');
     }
 
     function criarGraficoLinha(labels, valores) {
@@ -2048,6 +2101,7 @@
       }
 
       renderTabelaMetas(data.metas || [], metasComMelhorSetorSelecionado);
+      renderLegendaMelhorMeta(metasComMelhorSetorSelecionado);
       renderRankingSetoresConformidade(data.rankingSetoresConformidade || [], filtro || {});
       criarGraficoLinha((data.evolucaoMensal || []).map(item => item.mes), (data.evolucaoMensal || []).map(item => item.percentual));
     }
