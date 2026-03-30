@@ -423,6 +423,20 @@
       border-bottom: 1px solid rgba(31, 41, 55, 0.12);
     }
 
+    .page-header-main {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .page-logo {
+      width: 34px;
+      height: auto;
+      flex: 0 0 34px;
+      object-fit: contain;
+    }
+
     .page-header h2 {
       margin: 0 0 4px;
       font-size: 20px;
@@ -1030,6 +1044,11 @@
       .page-meta {
         text-align: left;
       }
+
+      .page-logo {
+        width: 30px;
+        flex-basis: 30px;
+      }
     }
 
     @media (max-width: 768px) {
@@ -1126,6 +1145,10 @@
 
       .page-header h2 {
         font-size: 18px;
+      }
+
+      .page-header-main {
+        gap: 8px;
       }
 
       .page-header p,
@@ -1314,9 +1337,11 @@
     <section id="boletim" class="report-stack hidden">
       <article class="document-page page-break" id="pagina-cosep">
         <header class="page-header">
-          <div>
-            <h2>Boletim da Segurança do Paciente · Caminhadas de Segurança</h2>
-            <p>Consolidação das metas de segurança do paciente no recorte selecionado.</p>
+          <div class="page-header-main">
+            <img class="page-logo" src="https://i.ibb.co/ccny4xx5/NGQS-Caminhada-Pela-Seguran-a-Mascote-Toten-Mandala-24-x-25cm-final-1.png" alt="Logo">
+            <div>
+              <h2>Boletim da Segurança do Paciente · Caminhadas de Segurança</h2>
+            </div>
           </div>
           <div class="page-meta" id="periodo-cosep"></div>
         </header>
@@ -1362,9 +1387,12 @@
 
       <article class="document-page" id="pagina-notifica">
         <header class="page-header">
-          <div>
-            <h2>Boletim da Segurança do Paciente · Notificações</h2>
-            <p>Consolidação da aba de notificações com filtro independente da página 1.</p>
+          <div class="page-header-main">
+            <img class="page-logo" src="https://i.ibb.co/ccny4xx5/NGQS-Caminhada-Pela-Seguran-a-Mascote-Toten-Mandala-24-x-25cm-final-1.png" alt="Logo">
+            <div>
+              <h2>Boletim da Segurança do Paciente · Notificações</h2>
+              <p>Consolidação da aba de notificações com filtro independente da página 1.</p>
+            </div>
           </div>
           <div class="page-meta" id="periodo-notifica"></div>
         </header>
