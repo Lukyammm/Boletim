@@ -671,9 +671,9 @@
     }
 
     .meta-card.best-meta {
-      border: 2px solid rgba(201, 162, 39, 0.75);
-      border-left: 5px solid #c9a227;
-      box-shadow: inset 0 0 0 1px rgba(255, 215, 106, 0.28);
+      border: 3px dotted #d4af37;
+      border-left: 6px dotted #d4af37;
+      box-shadow: inset 0 0 0 1px rgba(255, 215, 106, 0.32);
       background: linear-gradient(180deg, #fffdf5 0%, #fff9e9 100%);
     }
 
@@ -1019,12 +1019,28 @@
     .footer-note {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       gap: 8px;
       padding-top: 4px;
       margin-top: auto;
       border-top: 1px solid var(--line);
       color: var(--muted);
       font-size: 12px;
+    }
+
+    .footer-brand {
+      display: block;
+      width: auto;
+      height: 20px;
+      max-width: 78%;
+      object-fit: contain;
+    }
+
+    .footer-page {
+      margin-left: auto;
+      font-weight: 700;
+      white-space: nowrap;
+      color: #4c596b;
     }
 
     #pagina-notifica {
@@ -1425,8 +1441,8 @@
         </section>
 
         <footer class="footer-note">
-          <span>Fonte: BASE DE DADOS CAMINHADAS.</span>
-          <span>Página 1 de 2.</span>
+          <img class="footer-brand" src="https://i.ibb.co/VYv0RyF3/Rodape-1.png" alt="Rodapé institucional">
+          <span class="footer-page">Página 1 de 2.</span>
         </footer>
       </article>
 
@@ -1517,8 +1533,8 @@
         </section>
 
         <footer class="footer-note">
-          <span>Fonte: NOTIFICA - BASE.</span>
-          <span>Página 2 de 2.</span>
+          <img class="footer-brand" src="https://i.ibb.co/VYv0RyF3/Rodape-1.png" alt="Rodapé institucional">
+          <span class="footer-page">Página 2 de 2.</span>
         </footer>
       </article>
     </section>
