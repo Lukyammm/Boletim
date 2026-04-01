@@ -2647,6 +2647,28 @@
       return blob;
     }
 
+    async function gerarBlobPdfComTentativaExtra(elemento, opcoesPdf, tentativas = 2) {
+      let ultimoErro = null;
+
+      for (let tentativaAtual = 1; tentativaAtual <= tentativas; tentativaAtual++) {
+        try {
+          const blob = await gerarBlobPdfComFallback(elemento, opcoesPdf);
+          if (!(blob instanceof Blob) || blob.size === 0) {
+            throw new Error('Blob de PDF vazio após geração.');
+          }
+          return blob;
+        } catch (erroTentativa) {
+          ultimoErro = erroTentativa;
+          console.warn(`Falha ao gerar PDF (tentativa ${tentativaAtual}/${tentativas}).`, erroTentativa);
+          if (tentativaAtual < tentativas) {
+            await aguardarRender(120);
+          }
+        }
+      }
+
+      throw ultimoErro || new Error('Falha ao gerar PDF após tentativas extras.');
+    }
+
     async function baixarPDF() {
       if (gerandoPdf) return;
 
@@ -2694,7 +2716,7 @@
           pagebreak: { mode: ['css', 'legacy'] }
         };
 
-        const blobFallback = await gerarBlobPdfComFallback(elemento, opcoesPdf);
+        const blobFallback = await gerarBlobPdfComTentativaExtra(elemento, opcoesPdf);
         acionarDownloadBlob(blobFallback, nomeArquivo);
       } catch (erro) {
         window.alert('Falha ao gerar o PDF. Tente novamente.');
