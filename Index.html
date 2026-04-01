@@ -227,8 +227,9 @@
       letter-spacing: 0.04em;
     }
 
-    .field select,
-    .btn {
+    .multiselect-toggle,
+    .btn,
+    .field select {
       width: 100%;
       min-height: 52px;
       border-radius: 14px;
@@ -243,28 +244,105 @@
     }
 
     .field select {
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%2327364f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 7 5 5 5-5'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 14px center;
-      background-size: 18px;
-      padding-right: 42px;
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+      white-space: nowrap;
     }
 
-    .field select[multiple] {
-      min-height: 132px;
-      padding: 10px 12px;
-      background-image: none;
+    .multiselect {
+      position: relative;
     }
 
-    .field select:hover {
+    .multiselect-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      text-align: left;
+      font-weight: 600;
+      cursor: pointer;
+      background: #fbfdff;
+    }
+
+    .multiselect-toggle:hover {
       border-color: #b6c8e0;
     }
 
-    .field select:focus-visible {
+    .multiselect-toggle:focus-visible,
+    .multiselect.open .multiselect-toggle {
       outline: none;
       border-color: #2e63d8;
       box-shadow: 0 0 0 4px rgba(46, 99, 216, 0.14);
+      background: #ffffff;
+    }
+
+    .multiselect-count {
+      color: #5a6b84;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .multiselect-panel {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      right: 0;
+      border: 1px solid #cfdbeb;
+      border-radius: 14px;
+      background: #ffffff;
+      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.14);
+      max-height: 280px;
+      overflow: auto;
+      padding: 8px;
+      z-index: 20;
+      display: none;
+    }
+
+    .multiselect.open .multiselect-panel {
+      display: grid;
+      gap: 4px;
+    }
+
+    .multiselect-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-radius: 10px;
+      padding: 8px 10px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #334763;
+    }
+
+    .multiselect-option:hover {
+      background: #f4f8ff;
+    }
+
+    .multiselect-option input {
+      width: 16px;
+      height: 16px;
+      accent-color: #2e63d8;
+      cursor: pointer;
+    }
+
+    .multiselect-option span {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .multiselect-empty {
+      padding: 10px;
+      font-size: 13px;
+      color: #6d7b91;
     }
 
     .actions {
@@ -1706,6 +1784,90 @@
     function preencherSelect(id, opcoes) {
       const elemento = document.getElementById(id);
       elemento.innerHTML = (opcoes || []).map(item => optionHTML(item, item)).join('');
+      renderMultiselect(id);
+    }
+
+    function getPlaceholderMultiselect(id) {
+      if (id.includes('ano')) return 'Selecione ano(s)';
+      if (id.includes('mes')) return 'Selecione mês(es)';
+      return 'Selecione setor(es)';
+    }
+
+    function atualizarResumoMultiselect(id) {
+      const select = document.getElementById(id);
+      if (!select) return;
+      const raiz = select.closest('.multiselect');
+      if (!raiz) return;
+      const count = raiz.querySelector('.multiselect-count');
+      if (!count) return;
+
+      const selecionados = Array.from(select.selectedOptions).map(option => option.textContent.trim()).filter(Boolean);
+      if (!selecionados.length) {
+        count.textContent = getPlaceholderMultiselect(id);
+        return;
+      }
+
+      if (selecionados.length === 1) {
+        count.textContent = selecionados[0];
+        return;
+      }
+
+      count.textContent = `${selecionados.length} selecionados`;
+    }
+
+    function renderMultiselect(id) {
+      const select = document.getElementById(id);
+      if (!select) return;
+
+      let raiz = select.closest('.multiselect');
+      if (!raiz) {
+        raiz = document.createElement('div');
+        raiz.className = 'multiselect';
+        const toggle = document.createElement('button');
+        toggle.type = 'button';
+        toggle.className = 'multiselect-toggle';
+        toggle.innerHTML = `<span class="multiselect-count"></span><span aria-hidden="true">▾</span>`;
+        const painel = document.createElement('div');
+        painel.className = 'multiselect-panel';
+        const parent = select.parentNode;
+        parent.insertBefore(raiz, select);
+        raiz.appendChild(toggle);
+        raiz.appendChild(select);
+        raiz.appendChild(painel);
+      }
+
+      const selectAtual = document.getElementById(id);
+      const painel = raiz.querySelector('.multiselect-panel');
+      const toggle = raiz.querySelector('.multiselect-toggle');
+      if (!selectAtual || !painel || !toggle) return;
+
+      painel.innerHTML = '';
+      if (!selectAtual.options.length) {
+        painel.innerHTML = '<div class="multiselect-empty">Sem opções disponíveis.</div>';
+      } else {
+        Array.from(selectAtual.options).forEach(opcao => {
+          const item = document.createElement('label');
+          item.className = 'multiselect-option';
+          const checked = opcao.selected ? 'checked' : '';
+          item.innerHTML = `<input type="checkbox" value="${escapeHtml(opcao.value)}" ${checked}><span>${escapeHtml(opcao.textContent || '')}</span>`;
+          const checkbox = item.querySelector('input');
+          checkbox.addEventListener('change', () => {
+            opcao.selected = checkbox.checked;
+            atualizarResumoMultiselect(id);
+            atualizarResumoParcial();
+          });
+          painel.appendChild(item);
+        });
+      }
+
+      toggle.onclick = () => {
+        document.querySelectorAll('.multiselect.open').forEach(el => {
+          if (el !== raiz) el.classList.remove('open');
+        });
+        raiz.classList.toggle('open');
+      };
+
+      atualizarResumoMultiselect(id);
     }
 
     function preencherFiltros(filtros) {
@@ -1756,6 +1918,7 @@
       Array.from(campo.options).forEach(opcao => {
         opcao.selected = conjunto.has(opcao.value);
       });
+      renderMultiselect(id);
     }
 
     function setSelecionarTudo(id) {
@@ -1764,6 +1927,7 @@
       Array.from(campo.options).forEach(opcao => {
         opcao.selected = true;
       });
+      renderMultiselect(id);
     }
 
     function setLimparSelecao(id) {
@@ -1772,6 +1936,7 @@
       Array.from(campo.options).forEach(opcao => {
         opcao.selected = false;
       });
+      renderMultiselect(id);
     }
 
     function obterValoresSelecionados(id) {
@@ -2323,6 +2488,11 @@
     }
 
     function configurarAcoes() {
+      document.addEventListener('click', event => {
+        if (event.target.closest('.multiselect')) return;
+        document.querySelectorAll('.multiselect.open').forEach(el => el.classList.remove('open'));
+      });
+
       const btnGerarBoletim = document.getElementById('btn-gerar-boletim');
       if (btnGerarBoletim) {
         btnGerarBoletim.addEventListener('click', () => {
@@ -2378,18 +2548,35 @@
       return new Promise(resolve => setTimeout(resolve, ms));
     }
 
+    function sanitizarParteArquivo(valor) {
+      return String(valor || 'todos')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-zA-Z0-9-]+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '')
+        .toLowerCase() || 'todos';
+    }
+
     async function baixarPDF() {
       const elemento = document.getElementById('boletim');
       if (!elemento || elemento.classList.contains('hidden')) {
+        window.alert('Boletim indisponível para exportação em PDF. Gere o boletim antes de baixar.');
         console.error('Boletim indisponível para exportação em PDF. Gere o boletim antes de baixar.');
         return;
       }
 
+      if (typeof html2pdf !== 'function') {
+        window.alert('Biblioteca de exportação indisponível. Recarregue a página e tente novamente.');
+        console.error('html2pdf não carregado.');
+        return;
+      }
+
       const filtros = obterFiltrosTela();
-      const anoCosepArquivo = filtros.anosCosep.length ? filtros.anosCosep.join('-') : 'todos';
-      const mesCosepArquivo = filtros.mesesCosep.length ? filtros.mesesCosep.join('-') : 'todos';
-      const anoNotificaArquivo = filtros.anosNotifica.length ? filtros.anosNotifica.join('-') : 'todos';
-      const mesNotificaArquivo = filtros.mesesNotifica.length ? filtros.mesesNotifica.join('-') : 'todos';
+      const anoCosepArquivo = sanitizarParteArquivo(filtros.anosCosep.length ? filtros.anosCosep.join('-') : 'todos');
+      const mesCosepArquivo = sanitizarParteArquivo(filtros.mesesCosep.length ? filtros.mesesCosep.join('-') : 'todos');
+      const anoNotificaArquivo = sanitizarParteArquivo(filtros.anosNotifica.length ? filtros.anosNotifica.join('-') : 'todos');
+      const mesNotificaArquivo = sanitizarParteArquivo(filtros.mesesNotifica.length ? filtros.mesesNotifica.join('-') : 'todos');
       const nomeArquivo = `boletim-seguranca-paciente-${mesCosepArquivo}-${anoCosepArquivo}-notifica-${mesNotificaArquivo}-${anoNotificaArquivo}.pdf`;
 
       document.body.classList.add('pdf-export');
@@ -2404,6 +2591,9 @@
           jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
           pagebreak: { mode: ['css', 'legacy'] }
         }).from(elemento).save();
+      } catch (erro) {
+        window.alert('Falha ao gerar o PDF. Tente novamente após clicar em "Gerar boletim".');
+        console.error('Falha ao baixar PDF:', erro);
       } finally {
         document.body.classList.remove('pdf-export');
       }
