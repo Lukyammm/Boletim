@@ -1039,12 +1039,23 @@
     .footer-note {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       gap: 8px;
       padding-top: 4px;
       margin-top: auto;
       border-top: 1px solid var(--line);
       color: var(--muted);
       font-size: 12px;
+      overflow: hidden;
+    }
+
+    .footer-brand {
+      height: 16px;
+      width: auto;
+      max-width: 78mm;
+      object-fit: contain;
+      object-position: center;
+      flex: 0 1 auto;
     }
 
     #pagina-notifica {
@@ -1446,6 +1457,7 @@
 
         <footer class="footer-note">
           <span>Fonte: BASE DE DADOS CAMINHADAS.</span>
+          <img class="footer-brand" src="https://i.ibb.co/VYv0RyF3/Rodape-1.png" alt="Rodapé institucional">
           <span>Página 1 de 2.</span>
         </footer>
       </article>
@@ -1538,6 +1550,7 @@
 
         <footer class="footer-note">
           <span>Fonte: NOTIFICA - BASE.</span>
+          <img class="footer-brand" src="https://i.ibb.co/VYv0RyF3/Rodape-1.png" alt="Rodapé institucional">
           <span>Página 2 de 2.</span>
         </footer>
       </article>
