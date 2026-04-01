@@ -1023,11 +1023,20 @@
       gap: 8px;
       padding-top: 4px;
       margin-top: auto;
-      border-top: 1px solid var(--line);
       color: var(--muted);
       font-size: 12px;
       position: relative;
       min-height: 24px;
+    }
+
+    .footer-note::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(215, 222, 232, 0), rgba(215, 222, 232, 0.9) 18%, rgba(215, 222, 232, 0.9) 82%, rgba(215, 222, 232, 0));
     }
 
     .footer-brand {
@@ -1038,7 +1047,7 @@
       object-fit: contain;
       position: absolute;
       left: 50%;
-      transform: translate(-50%, 4px);
+      transform: translate(-50%, 8px);
     }
 
     .footer-page {
