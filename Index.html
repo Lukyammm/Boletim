@@ -130,12 +130,13 @@
 
     .filters-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 300px;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(220px, 280px);
       gap: 20px;
-      align-items: stretch;
+      align-items: start;
     }
 
     .filter-group {
+      min-width: 0;
       padding: 20px;
       border-radius: 18px;
       border: 1px solid #d7e1ef;
@@ -210,11 +211,12 @@
 
     .fields {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
       gap: 16px;
     }
 
     .field {
+      min-width: 0;
       display: grid;
       gap: 9px;
     }
@@ -293,6 +295,7 @@
       top: calc(100% + 8px);
       left: 0;
       right: 0;
+      max-width: 100%;
       border: 1px solid #cfdbeb;
       border-radius: 14px;
       background: #ffffff;
@@ -346,6 +349,7 @@
     }
 
     .actions {
+      min-width: 0;
       display: grid;
       gap: 14px;
       align-self: stretch;
@@ -1318,7 +1322,7 @@
 
       .filter-group,
       .filter-group.filter-group-right {
-        padding: 0;
+        padding: 14px;
         border-left: none;
       }
 
