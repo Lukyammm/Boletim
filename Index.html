@@ -2560,7 +2560,19 @@
         .toLowerCase() || 'todos';
     }
 
+    let gerandoPdf = false;
+
+    function limparEstadoExportacaoPdf() {
+      document.body.classList.remove('pdf-export');
+      document.body.style.pointerEvents = '';
+      document.querySelectorAll('.html2pdf__overlay, .html2pdf__container').forEach(el => el.remove());
+      const btnBaixarPdf = document.getElementById('btn-baixar-pdf');
+      if (btnBaixarPdf) btnBaixarPdf.disabled = false;
+    }
+
     async function baixarPDF() {
+      if (gerandoPdf) return;
+
       const elemento = document.getElementById('boletim');
       if (!elemento || elemento.classList.contains('hidden')) {
         window.alert('Boletim indisponível para exportação em PDF. Gere o boletim antes de baixar.');
@@ -2574,6 +2586,10 @@
         return;
       }
 
+      const btnBaixarPdf = document.getElementById('btn-baixar-pdf');
+      if (btnBaixarPdf) btnBaixarPdf.disabled = true;
+      gerandoPdf = true;
+
       const filtros = obterFiltrosTela();
       const anoCosepArquivo = sanitizarParteArquivo(filtros.anosCosep.length ? filtros.anosCosep.join('-') : 'todos');
       const mesCosepArquivo = sanitizarParteArquivo(filtros.mesesCosep.length ? filtros.mesesCosep.join('-') : 'todos');
@@ -2581,10 +2597,10 @@
       const mesNotificaArquivo = sanitizarParteArquivo(filtros.mesesNotifica.length ? filtros.mesesNotifica.join('-') : 'todos');
       const nomeArquivo = `boletim-seguranca-paciente-${mesCosepArquivo}-${anoCosepArquivo}-notifica-${mesNotificaArquivo}-${anoNotificaArquivo}.pdf`;
 
-      document.body.classList.add('pdf-export');
-      await aguardarRender();
-
       try {
+        document.body.classList.add('pdf-export');
+        await aguardarRender();
+
         await html2pdf().set({
           margin: [0, 0, 0, 0],
           filename: nomeArquivo,
@@ -2597,7 +2613,8 @@
         window.alert('Falha ao gerar o PDF. Tente novamente após clicar em "Gerar boletim".');
         console.error('Falha ao baixar PDF:', erro);
       } finally {
-        document.body.classList.remove('pdf-export');
+        limparEstadoExportacaoPdf();
+        gerandoPdf = false;
       }
     }
 
