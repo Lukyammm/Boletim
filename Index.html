@@ -2605,7 +2605,13 @@
           margin: [0, 0, 0, 0],
           filename: nomeArquivo,
           image: { type: 'png', quality: 1 },
-          html2canvas: { scale: 2, useCORS: true, scrollY: 0, backgroundColor: '#ffffff' },
+          html2canvas: {
+            scale: 2,
+            useCORS: true,
+            scrollY: 0,
+            backgroundColor: '#ffffff',
+            ignoreElements: elementoAtual => elementoAtual.classList && elementoAtual.classList.contains('footer-brand')
+          },
           jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
           pagebreak: { mode: ['css', 'legacy'] }
         };
