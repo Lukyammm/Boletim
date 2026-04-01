@@ -2635,15 +2635,27 @@
     async function gerarBlobPdfComFallback(elemento, opcoesPdf) {
       try {
         const blob = await html2pdf().set(opcoesPdf).from(elemento).outputPdf('blob');
-        if (blob) return blob;
+        if (blob instanceof Blob && blob.size > 0) return blob;
       } catch (erroBlobDireto) {
-        console.warn('Falha ao gerar blob diretamente. Tentando bloburl.', erroBlobDireto);
+        console.warn('Falha ao gerar blob diretamente. Tentando arraybuffer.', erroBlobDireto);
+      }
+
+      try {
+        const arrayBuffer = await html2pdf().set(opcoesPdf).from(elemento).outputPdf('arraybuffer');
+        if (arrayBuffer && arrayBuffer.byteLength > 0) {
+          return new Blob([arrayBuffer], { type: 'application/pdf' });
+        }
+      } catch (erroArrayBuffer) {
+        console.warn('Falha ao gerar arraybuffer. Tentando bloburl.', erroArrayBuffer);
       }
 
       const blobUrl = await html2pdf().set(opcoesPdf).from(elemento).outputPdf('bloburl');
       const resposta = await fetch(blobUrl);
       const blob = await resposta.blob();
       setTimeout(() => URL.revokeObjectURL(blobUrl), 15000);
+      if (!(blob instanceof Blob) || blob.size === 0) {
+        throw new Error('Blob de PDF inválido após fallback.');
+      }
       return blob;
     }
 
