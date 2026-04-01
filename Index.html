@@ -1173,9 +1173,9 @@
     }
 
     .footer-note {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: end;
       gap: 8px;
       padding-top: 4px;
       margin-top: auto;
@@ -1198,12 +1198,10 @@
     .footer-brand {
       display: block;
       width: auto;
-      height: 50px;
-      max-width: 78%;
+      height: 36px;
+      max-width: 72%;
       object-fit: contain;
-      position: absolute;
-      left: 50%;
-      transform: translate(-50%, 11px);
+      justify-self: center;
     }
 
     .footer-page {
@@ -1211,6 +1209,7 @@
       font-weight: 700;
       white-space: nowrap;
       color: #4c596b;
+      align-self: end;
     }
 
     #pagina-notifica {
@@ -1424,6 +1423,7 @@
     }
 
     @media print {
+      @page { size: A4; margin: 0; }
       body { background: #fff; }
       .hero-card, .loading-box { display: none !important; }
       .app-shell { padding: 0; }
@@ -1435,6 +1435,7 @@
         margin: 0;
         background: #fff;
         backdrop-filter: none;
+        overflow: hidden;
       }
     }
 
@@ -2530,9 +2531,29 @@
       });
     }
 
+    function imprimirRelatorio() {
+      const elemento = document.getElementById('boletim');
+      if (!elemento || elemento.classList.contains('hidden')) {
+        window.alert('Boletim indisponível para impressão. Gere o boletim antes de usar Ctrl + P.');
+        return;
+      }
+      window.print();
+    }
+
+    function configurarAtalhoImpressao() {
+      document.addEventListener('keydown', event => {
+        const teclaP = String(event.key || '').toLowerCase() === 'p';
+        if (!teclaP) return;
+        if (!(event.ctrlKey || event.metaKey)) return;
+        event.preventDefault();
+        imprimirRelatorio();
+      });
+    }
+
     async function init() {
       try {
         configurarAcoes();
+        configurarAtalhoImpressao();
         const payload = await fetchAPI();
         preencherFiltros(payload.filtros || {});
         ['ano-cosep', 'mes-cosep', 'unidade-cosep', 'ano-notifica', 'mes-notifica', 'unidade-notifica'].forEach(id => {
@@ -2667,8 +2688,7 @@
             scale: 2,
             useCORS: true,
             scrollY: 0,
-            backgroundColor: '#ffffff',
-            ignoreElements: elementoAtual => elementoAtual.classList && elementoAtual.classList.contains('footer-brand')
+            backgroundColor: '#ffffff'
           },
           jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
           pagebreak: { mode: ['css', 'legacy'] }
