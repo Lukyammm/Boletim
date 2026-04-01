@@ -2473,8 +2473,11 @@
         if (btnBaixarPdf) btnBaixarPdf.disabled = true;
 
         const payload = await fetchAPI(obterFiltrosTela());
+        boletim.classList.remove('hidden');
+        await aguardarRender();
         renderCosep(payload.caminhadas || {}, (payload.aplicado || {}).caminhadas || {}, payload.geradoEm || '');
         renderNotifica(payload.notificacoes || {}, (payload.aplicado || {}).notificacoes || {}, payload.geradoEm || '');
+        sincronizarCanvasesDoBoletim();
         atualizarStatus(payload.aplicado || {}, payload.geradoEm || '');
         if (btnBaixarPdf) btnBaixarPdf.disabled = false;
 
@@ -2548,6 +2551,21 @@
 
     function aguardarRender(ms = 80) {
       return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function sincronizarCanvasesDoBoletim() {
+      const boletim = document.getElementById('boletim');
+      if (!boletim) return;
+
+      boletim.querySelectorAll('canvas').forEach(canvas => {
+        const rect = canvas.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0) return;
+        const parentRect = canvas.parentElement ? canvas.parentElement.getBoundingClientRect() : null;
+        const largura = Math.max(1, Math.round((parentRect && parentRect.width) || 900));
+        const altura = Math.max(1, Math.round((parentRect && parentRect.height) || 320));
+        canvas.width = largura;
+        canvas.height = altura;
+      });
     }
 
     function sanitizarParteArquivo(valor) {
@@ -2638,6 +2656,8 @@
       try {
         document.body.classList.add('pdf-export');
         await aguardarRender();
+        sincronizarCanvasesDoBoletim();
+        await aguardarRender(40);
 
         const opcoesPdf = {
           margin: [0, 0, 0, 0],
