@@ -2595,13 +2595,6 @@
 
     async function gerarBlobPdfComFallback(elemento, opcoesPdf) {
       try {
-        await html2pdf().set(opcoesPdf).from(elemento).save();
-        return null;
-      } catch (erroSave) {
-        console.warn('Falha no método save do html2pdf. Tentando gerar Blob.', erroSave);
-      }
-
-      try {
         const blob = await html2pdf().set(opcoesPdf).from(elemento).outputPdf('blob');
         if (blob) return blob;
       } catch (erroBlobDireto) {
@@ -2662,11 +2655,9 @@
         };
 
         const blobFallback = await gerarBlobPdfComFallback(elemento, opcoesPdf);
-        if (blobFallback) {
-          acionarDownloadBlob(blobFallback, nomeArquivo);
-        }
+        acionarDownloadBlob(blobFallback, nomeArquivo);
       } catch (erro) {
-        window.alert('Falha ao gerar o PDF. Tente novamente após clicar em "Gerar boletim".');
+        window.alert('Falha ao gerar o PDF. Tente novamente.');
         console.error('Falha ao baixar PDF:', erro);
       } finally {
         limparEstadoExportacaoPdf();
