@@ -2570,6 +2570,51 @@
       if (btnBaixarPdf) btnBaixarPdf.disabled = false;
     }
 
+    function acionarDownloadBlob(blob, nomeArquivo) {
+      if (!(blob instanceof Blob)) {
+        throw new Error('Blob de PDF inválido para download.');
+      }
+
+      const navegacao = window.navigator || {};
+      if (typeof navegacao.msSaveOrOpenBlob === 'function') {
+        navegacao.msSaveOrOpenBlob(blob, nomeArquivo);
+        return;
+      }
+
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = nomeArquivo;
+      link.rel = 'noopener';
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 15000);
+    }
+
+    async function gerarBlobPdfComFallback(elemento, opcoesPdf) {
+      try {
+        await html2pdf().set(opcoesPdf).from(elemento).save();
+        return null;
+      } catch (erroSave) {
+        console.warn('Falha no método save do html2pdf. Tentando gerar Blob.', erroSave);
+      }
+
+      try {
+        const blob = await html2pdf().set(opcoesPdf).from(elemento).outputPdf('blob');
+        if (blob) return blob;
+      } catch (erroBlobDireto) {
+        console.warn('Falha ao gerar blob diretamente. Tentando bloburl.', erroBlobDireto);
+      }
+
+      const blobUrl = await html2pdf().set(opcoesPdf).from(elemento).outputPdf('bloburl');
+      const resposta = await fetch(blobUrl);
+      const blob = await resposta.blob();
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 15000);
+      return blob;
+    }
+
     async function baixarPDF() {
       if (gerandoPdf) return;
 
@@ -2616,18 +2661,9 @@
           pagebreak: { mode: ['css', 'legacy'] }
         };
 
-        try {
-          await html2pdf().set(opcoesPdf).from(elemento).save();
-        } catch (erroSave) {
-          console.warn('Falha no método save do html2pdf. Tentando fallback com blob.', erroSave);
-          const blobUrl = await html2pdf().set(opcoesPdf).from(elemento).outputPdf('bloburl');
-          const link = document.createElement('a');
-          link.href = blobUrl;
-          link.download = nomeArquivo;
-          document.body.appendChild(link);
-          link.click();
-          link.remove();
-          setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+        const blobFallback = await gerarBlobPdfComFallback(elemento, opcoesPdf);
+        if (blobFallback) {
+          acionarDownloadBlob(blobFallback, nomeArquivo);
         }
       } catch (erro) {
         window.alert('Falha ao gerar o PDF. Tente novamente após clicar em "Gerar boletim".');
