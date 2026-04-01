@@ -2601,14 +2601,28 @@
         document.body.classList.add('pdf-export');
         await aguardarRender();
 
-        await html2pdf().set({
+        const opcoesPdf = {
           margin: [0, 0, 0, 0],
           filename: nomeArquivo,
           image: { type: 'png', quality: 1 },
-          html2canvas: { scale: 3, useCORS: true, scrollY: 0, backgroundColor: '#ffffff' },
+          html2canvas: { scale: 2, useCORS: true, scrollY: 0, backgroundColor: '#ffffff' },
           jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
           pagebreak: { mode: ['css', 'legacy'] }
-        }).from(elemento).save();
+        };
+
+        try {
+          await html2pdf().set(opcoesPdf).from(elemento).save();
+        } catch (erroSave) {
+          console.warn('Falha no método save do html2pdf. Tentando fallback com blob.', erroSave);
+          const blobUrl = await html2pdf().set(opcoesPdf).from(elemento).outputPdf('bloburl');
+          const link = document.createElement('a');
+          link.href = blobUrl;
+          link.download = nomeArquivo;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+        }
       } catch (erro) {
         window.alert('Falha ao gerar o PDF. Tente novamente após clicar em "Gerar boletim".');
         console.error('Falha ao baixar PDF:', erro);
