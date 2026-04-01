@@ -1393,11 +1393,11 @@
         </div>
 
         <div class="actions">
-          <button type="button" class="btn btn-primary" onclick="carregarDados()">
+          <button type="button" id="btn-gerar-boletim" class="btn btn-primary">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path><path d="M9 13h6"></path><path d="M9 17h6"></path><path d="M9 9h1"></path></svg>
             <span>Gerar boletim</span>
           </button>
-          <button type="button" class="btn" onclick="baixarPDF()">
+          <button type="button" id="btn-baixar-pdf" class="btn">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>
             <span>Baixar PDF</span>
           </button>
@@ -2257,8 +2257,25 @@
       }
     }
 
+    function configurarAcoes() {
+      const btnGerarBoletim = document.getElementById('btn-gerar-boletim');
+      if (btnGerarBoletim) {
+        btnGerarBoletim.addEventListener('click', () => {
+          carregarDados();
+        });
+      }
+
+      const btnBaixarPdf = document.getElementById('btn-baixar-pdf');
+      if (btnBaixarPdf) {
+        btnBaixarPdf.addEventListener('click', () => {
+          baixarPDF();
+        });
+      }
+    }
+
     async function init() {
       try {
+        configurarAcoes();
         const payload = await fetchAPI();
         preencherFiltros(payload.filtros || {});
         ['ano-cosep', 'mes-cosep', 'unidade-cosep', 'ano-notifica', 'mes-notifica', 'unidade-notifica'].forEach(id => {
@@ -2281,6 +2298,11 @@
 
     async function baixarPDF() {
       const elemento = document.getElementById('boletim');
+      if (!elemento || elemento.classList.contains('hidden')) {
+        console.error('Boletim indisponível para exportação em PDF. Gere o boletim antes de baixar.');
+        return;
+      }
+
       const filtros = obterFiltrosTela();
       const anoCosepArquivo = filtros.anosCosep.length ? filtros.anosCosep.join('-') : 'todos';
       const mesCosepArquivo = filtros.mesesCosep.length ? filtros.mesesCosep.join('-') : 'todos';
