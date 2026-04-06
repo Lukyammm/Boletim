@@ -1068,6 +1068,17 @@
       font-size: 12px;
     }
 
+    #pagina-notifica .compact-table {
+      table-layout: fixed;
+      width: 100%;
+    }
+
+    #pagina-notifica .cell-nowrap-ellipsis {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     #pagina-notifica .footer-note {
       position: absolute;
       left: 10mm;
@@ -1648,11 +1659,37 @@
       return ordenarEntriesDesc(Object.entries(obj || {})).slice(0, limit);
     }
 
-    function renderRows(entries, colSpan = 2) {
+    function renderRows(entries, colSpan = 2, options = {}) {
       if (!entries.length) {
         return `<tr><td colspan="${colSpan}">Sem dados no filtro atual.</td></tr>`;
       }
-      return entries.map(([chave, valor]) => `<tr><td>${escapeHtml(chave)}</td><td>${escapeHtml(valor)}</td></tr>`).join('');
+
+      const firstCellClass = options.firstCellClass || '';
+      const firstCellClassAttr = firstCellClass ? ` class="${escapeHtml(firstCellClass)}"` : '';
+      const keyFormatter = typeof options.keyFormatter === 'function'
+        ? options.keyFormatter
+        : value => value;
+
+      return entries
+        .map(([chave, valor]) => `<tr><td${firstCellClassAttr}>${escapeHtml(keyFormatter(chave))}</td><td>${escapeHtml(valor)}</td></tr>`)
+        .join('');
+    }
+
+    function abreviarClassificacaoNotifica(valor) {
+      const chave = String(valor == null ? '' : valor)
+        .trim()
+        .replace(/\s+/g, ' ')
+        .toUpperCase();
+
+      const mapa = {
+        'EVENTO ADVERSO MODERADO': 'E.A Moderado',
+        'EVENTO ADVERSO LEVE': 'E.A Leve',
+        'EVENTO ADVERSO GRAVE': 'E.A Grave',
+        'EVENTO ADVERSO ÓBITO': 'E.A Óbito',
+        'EVENTO ADVERSO OBITO': 'E.A Óbito'
+      };
+
+      return mapa[chave] || valor;
     }
 
     function selecionarValores(id, valores) {
@@ -2158,8 +2195,16 @@
       toggleNotificaSetoresCard(filtro);
       toggleTopSetoresPanel(filtro, data.totalSetores);
 
-      document.getElementById('tb-tipo').innerHTML = renderRows(ordenarEntriesDesc(Object.entries(data.porTipo || {})));
-      document.getElementById('tb-setor').innerHTML = renderRows(topEntries(data.porSetor, 5));
+      document.getElementById('tb-tipo').innerHTML = renderRows(
+        ordenarEntriesDesc(Object.entries(data.porTipo || {})),
+        2,
+        { firstCellClass: 'cell-nowrap-ellipsis', keyFormatter: abreviarClassificacaoNotifica }
+      );
+      document.getElementById('tb-setor').innerHTML = renderRows(
+        topEntries(data.porSetor, 5),
+        2,
+        { firstCellClass: 'cell-nowrap-ellipsis' }
+      );
       document.getElementById('tb-status').innerHTML = renderRows(ordenarEntriesDesc(Object.entries(data.porStatus || {})));
       criarGraficoRosca(data.afetouSim || 0, data.afetouNao || 0);
       chartRespostaMeta5 = criarGraficoPrazoResposta('graficoRespostaMeta5', chartRespostaMeta5, (data.desempenhoResposta || {}).meta5 || {}, true);
