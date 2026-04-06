@@ -679,10 +679,10 @@
     }
 
     .meta-card.best-meta {
-      border: 2px solid rgba(201, 162, 39, 0.75);
-      border-left: 5px solid #c9a227;
-      box-shadow: inset 0 0 0 1px rgba(255, 215, 106, 0.28);
-      background: linear-gradient(180deg, #fffdf5 0%, #fff9e9 100%);
+      border: 2px dotted #d9a500;
+      border-left: 5px dotted #e0ad00;
+      box-shadow: inset 0 0 0 1px rgba(255, 224, 130, 0.36);
+      background: linear-gradient(180deg, #fffef6 0%, #fff6d6 100%);
     }
 
     .meta-card.best-meta .meta-card-header {
@@ -739,16 +739,16 @@
       width: 22px;
       height: 22px;
       min-width: 22px;
-      color: #c9a227;
-      filter: drop-shadow(0 0 2px rgba(255, 215, 106, 0.9));
+      color: #e0ad00;
+      filter: drop-shadow(0 0 3px rgba(255, 210, 85, 1));
     }
 
     .meta-card-icon.star-highlight svg {
       width: 22px;
       height: 22px;
       display: block;
-      fill: #c9a227;
-      stroke: #8f6f16;
+      fill: #f0be23;
+      stroke: #aa7f00;
       stroke-width: 0.8;
     }
 
@@ -936,16 +936,16 @@
     .legenda-melhor-meta {
       margin-top: 8px;
       padding: 4px 8px;
-      border: 1px solid rgba(201, 162, 39, 0.55);
+      border: 2px dotted rgba(217, 165, 0, 0.8);
       border-radius: 10px;
-      background: rgba(255, 249, 233, 0.9);
+      background: rgba(255, 247, 214, 0.95);
       display: inline-flex;
       align-items: center;
       gap: 5px;
       max-width: 560px;
       width: fit-content;
       font-size: 11px;
-      color: #5b4a18;
+      color: #6a4f00;
       line-height: 1.2;
     }
 
@@ -957,7 +957,7 @@
       width: 14px;
       height: 14px;
       min-width: 14px;
-      color: #c9a227;
+      color: #e0ad00;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -1308,8 +1308,8 @@
       }
 
       .meta-card-icon.star-highlight svg {
-        fill: #c9a227 !important;
-        stroke: #8f6f16 !important;
+        fill: #f0be23 !important;
+        stroke: #aa7f00 !important;
       }
     }
 
@@ -1318,8 +1318,8 @@
     }
 
     body.pdf-export .meta-card-icon.star-highlight svg {
-      fill: #c9a227 !important;
-      stroke: #8f6f16 !important;
+      fill: #f0be23 !important;
+      stroke: #aa7f00 !important;
     }
   </style>
 </head>
@@ -1509,7 +1509,7 @@
 
         <section class="metrics">
           <div class="metric-card blue">
-            <span>Total de notificações</span>
+            <span>NOTIFICAÇÕES RECEBIDAS</span>
             <strong id="notifica-total">0</strong>
             <small>Registros encontrados para a página 2.</small>
           </div>
@@ -1829,6 +1829,7 @@
     }
 
     function renderTabelaMetas(lista, metasEmDestaque = new Set()) {
+      const metaMinimaDestaque = 80;
       const alvo = document.getElementById('tb-metas');
       if (!lista || !lista.length) {
         alvo.innerHTML = '<div class="meta-card-empty">Sem metas avaliadas no filtro atual.</div>';
@@ -1837,9 +1838,10 @@
 
       alvo.innerHTML = lista.map(meta => {
         const visual = getMetaVisual(meta.nome);
-        const destaqueMelhorMeta = metasEmDestaque.has(meta.nome);
+        const percentualMeta = Number(meta.percentual || 0);
+        const destaqueMelhorMeta = metasEmDestaque.has(meta.nome) && percentualMeta > metaMinimaDestaque;
         const iconeMeta = destaqueMelhorMeta
-          ? '<svg viewBox="0 0 24 24" fill="#c9a227" aria-hidden="true"><path d="M12 2.7l2.9 5.88 6.49.94-4.7 4.58 1.11 6.46L12 17.52 6.2 20.56l1.11-6.46L2.6 9.52l6.49-.94L12 2.7z"></path></svg>'
+          ? '<svg viewBox="0 0 24 24" fill="#f0be23" aria-hidden="true"><path d="M12 2.7l2.9 5.88 6.49.94-4.7 4.58 1.11 6.46L12 17.52 6.2 20.56l1.11-6.46L2.6 9.52l6.49-.94L12 2.7z"></path></svg>'
           : definirCorIcone(visual.icon, visual.color);
         const linhasItens = (meta.itens || []).map(item => {
           const legendaItem = `${item.codigo} ${item.nome || ''}`.trim();
@@ -2189,13 +2191,17 @@
       document.getElementById('cosep-diferenca').textContent = `${data.diferencaMeta >= 0 ? '+' : ''}${formatPct(data.diferencaMeta)}`;
       document.getElementById('cosep-meta-note').textContent = `Meta institucional de ${formatPct(data.metaInstitucional)}.`;
       const unidadesSelecionadas = (filtro && filtro.unidades) || [];
+      const metaMinimaDestaque = 80;
       const metasComMelhorSetorSelecionado = new Set();
       if (unidadesSelecionadas.length === 1) {
         const setorSelecionado = unidadesSelecionadas[0];
         const melhores = data.melhoresSetoresPorMeta || {};
+        const percentualPorMeta = new Map((data.metas || []).map(meta => [meta.nome, Number(meta.percentual || 0)]));
         Object.entries(melhores).forEach(([nomeMeta, info]) => {
           const setores = (info && info.setores) || [];
-          if (setores.includes(setorSelecionado)) metasComMelhorSetorSelecionado.add(nomeMeta);
+          if (setores.includes(setorSelecionado) && Number(percentualPorMeta.get(nomeMeta) || 0) > metaMinimaDestaque) {
+            metasComMelhorSetorSelecionado.add(nomeMeta);
+          }
         });
       }
 
