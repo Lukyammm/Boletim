@@ -895,37 +895,18 @@
     .flag-status {
       width: 12px;
       height: 12px;
-      position: relative;
-      display: inline-block;
-      border-radius: 0;
-      box-shadow: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 12px;
+      color: #8f99a8;
     }
 
-    .flag-status::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 2px;
-      height: 100%;
-      background: #8f99a8;
-      border-radius: 999px;
+    .flag-status svg {
+      width: 12px;
+      height: 12px;
+      display: block;
     }
-
-    .flag-status::after {
-      content: "";
-      position: absolute;
-      left: 2px;
-      top: 1px;
-      width: 9px;
-      height: 7px;
-      border-radius: 0 3px 3px 0;
-      clip-path: polygon(0 0, 100% 10%, 88% 50%, 100% 90%, 0 100%);
-    }
-
-    .flag-status.verde::after { background: #1f8f5f; }
-    .flag-status.laranja::after { background: #d4881a; }
-    .flag-status.vermelha::after { background: #c05621; }
 
     .ranking-setor-valor {
       font-weight: 800;
@@ -1887,6 +1868,20 @@
       return 'vermelha';
     }
 
+    function obterIconeStatusConformidade(classeStatus) {
+      const corFaixa = '#8f99a8';
+      const corBandeira = classeStatus === 'verde'
+        ? '#1f8f5f'
+        : (classeStatus === 'laranja' ? '#d4881a' : '#c05621');
+
+      return `
+        <svg viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+          <rect x="0" y="0.5" width="2" height="11" rx="1" fill="${corFaixa}"></rect>
+          <path d="M2.2 1.4H11L9.7 3.2L11 5L2.2 5.4V1.4z" fill="${corBandeira}"></path>
+        </svg>
+      `;
+    }
+
     function renderRankingSetoresConformidade(ranking, filtro) {
       const metasGrid = document.getElementById('tb-metas');
       if (!metasGrid) return;
@@ -1918,7 +1913,7 @@
         return `
           <div class="ranking-setor-item">
             <div class="ranking-setor-nome">
-              <span class="flag-status ${classe}" aria-hidden="true"></span>
+              <span class="flag-status" aria-hidden="true">${obterIconeStatusConformidade(classe)}</span>
               <span class="ranking-setor-nome-texto" title="${escapeHtml(item.setor || '')}">${escapeHtml(item.setor || 'Não informado')}</span>
             </div>
             <span class="ranking-setor-valor">${formatPct(item.percentual)}</span>
