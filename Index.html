@@ -1540,7 +1540,7 @@
         </section>
 
         <section class="section-grid-2">
-          <div class="panel compact-panel">
+          <div class="panel compact-panel" id="panel-tempo-resposta-gestor">
             <h3>Status das notificações</h3>
             <p>Situação dos registros no período filtrado.</p>
             <table class="compact-table">
@@ -1548,7 +1548,7 @@
               <tbody id="tb-status"></tbody>
             </table>
           </div>
-          <div class="panel compact-panel">
+          <div class="panel compact-panel" id="panel-tempo-resposta-gestor">
             <h3>Tempo médio de resposta do gestor</h3>
             <p>Prazo calculado entre DAT. CLASSIFICAÇÃO e DAT. RESPOSTA no período filtrado.</p>
             <div class="response-panels">
@@ -2157,6 +2157,12 @@
       });
     }
 
+    function resumoPrazoRespostaVazio(resumo) {
+      if (!resumo || typeof resumo !== 'object') return true;
+      const campos = ['dentroPrazo', 'foraPrazo', 'metaDias', 'mediaDias'];
+      return campos.every((campo) => resumo[campo] === null || resumo[campo] === undefined || resumo[campo] === '');
+    }
+
     function toggleCosepUnidadesCard(filtro) {
       const cardUnidades = document.getElementById('card-cosep-unidades');
       if (!cardUnidades) return;
@@ -2237,8 +2243,30 @@
       );
       document.getElementById('tb-status').innerHTML = renderRows(ordenarEntriesDesc(Object.entries(data.porStatus || {})));
       criarGraficoRosca(data.afetouSim || 0, data.afetouNao || 0);
-      chartRespostaMeta5 = criarGraficoPrazoResposta('graficoRespostaMeta5', chartRespostaMeta5, (data.desempenhoResposta || {}).meta5 || {}, true);
-      chartRespostaMeta10 = criarGraficoPrazoResposta('graficoRespostaMeta10', chartRespostaMeta10, (data.desempenhoResposta || {}).meta10 || {}, true);
+      const desempenhoResposta = data.desempenhoResposta || {};
+      const resumoMeta5 = desempenhoResposta.meta5 || {};
+      const resumoMeta10 = desempenhoResposta.meta10 || {};
+      const painelTempoResposta = document.getElementById('panel-tempo-resposta-gestor');
+      const ocultarPainelTempoResposta = resumoPrazoRespostaVazio(resumoMeta5) || resumoPrazoRespostaVazio(resumoMeta10);
+
+      if (painelTempoResposta) {
+        painelTempoResposta.classList.toggle('hidden', ocultarPainelTempoResposta);
+      }
+
+      if (ocultarPainelTempoResposta) {
+        if (chartRespostaMeta5) {
+          chartRespostaMeta5.destroy();
+          chartRespostaMeta5 = null;
+        }
+        if (chartRespostaMeta10) {
+          chartRespostaMeta10.destroy();
+          chartRespostaMeta10 = null;
+        }
+        return;
+      }
+
+      chartRespostaMeta5 = criarGraficoPrazoResposta('graficoRespostaMeta5', chartRespostaMeta5, resumoMeta5, true);
+      chartRespostaMeta10 = criarGraficoPrazoResposta('graficoRespostaMeta10', chartRespostaMeta10, resumoMeta10, true);
     }
 
     function renderSummaryRow(id, titulo, periodo, destaque = '') {
