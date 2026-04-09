@@ -1552,12 +1552,12 @@
             <h3>Tempo médio de resposta do gestor</h3>
             <p>Prazo calculado entre DAT. CLASSIFICAÇÃO e DAT. RESPOSTA no período filtrado.</p>
             <div class="response-panels">
-              <section class="response-panel">
+              <section class="response-panel" id="response-panel-meta5">
                 <h4>Meta de 5 dias</h4>
                 <p>EVENTO ADVERSO GRAVE, EVENTO ADVERSO ÓBITO e NEVER EVENT.</p>
                 <div class="response-chart-box"><canvas id="graficoRespostaMeta5"></canvas></div>
               </section>
-              <section class="response-panel">
+              <section class="response-panel" id="response-panel-meta10">
                 <h4>Meta de 10 dias</h4>
                 <p>Demais classificações do filtro selecionado.</p>
                 <div class="response-chart-box"><canvas id="graficoRespostaMeta10"></canvas></div>
@@ -2247,10 +2247,22 @@
       const resumoMeta5 = desempenhoResposta.meta5 || {};
       const resumoMeta10 = desempenhoResposta.meta10 || {};
       const painelTempoResposta = document.getElementById('panel-tempo-resposta-gestor');
-      const ocultarPainelTempoResposta = resumoPrazoRespostaVazio(resumoMeta5) || resumoPrazoRespostaVazio(resumoMeta10);
+      const painelMeta5 = document.getElementById('response-panel-meta5');
+      const painelMeta10 = document.getElementById('response-panel-meta10');
+      const ocultarMeta5 = resumoPrazoRespostaVazio(resumoMeta5);
+      const ocultarMeta10 = resumoPrazoRespostaVazio(resumoMeta10);
+      const ocultarPainelTempoResposta = ocultarMeta5 && ocultarMeta10;
 
       if (painelTempoResposta) {
         painelTempoResposta.classList.toggle('hidden', ocultarPainelTempoResposta);
+      }
+
+      if (painelMeta5) {
+        painelMeta5.classList.toggle('hidden', ocultarMeta5);
+      }
+
+      if (painelMeta10) {
+        painelMeta10.classList.toggle('hidden', ocultarMeta10);
       }
 
       if (ocultarPainelTempoResposta) {
@@ -2265,8 +2277,23 @@
         return;
       }
 
-      chartRespostaMeta5 = criarGraficoPrazoResposta('graficoRespostaMeta5', chartRespostaMeta5, resumoMeta5, true);
-      chartRespostaMeta10 = criarGraficoPrazoResposta('graficoRespostaMeta10', chartRespostaMeta10, resumoMeta10, true);
+      if (ocultarMeta5) {
+        if (chartRespostaMeta5) {
+          chartRespostaMeta5.destroy();
+          chartRespostaMeta5 = null;
+        }
+      } else {
+        chartRespostaMeta5 = criarGraficoPrazoResposta('graficoRespostaMeta5', chartRespostaMeta5, resumoMeta5, true);
+      }
+
+      if (ocultarMeta10) {
+        if (chartRespostaMeta10) {
+          chartRespostaMeta10.destroy();
+          chartRespostaMeta10 = null;
+        }
+      } else {
+        chartRespostaMeta10 = criarGraficoPrazoResposta('graficoRespostaMeta10', chartRespostaMeta10, resumoMeta10, true);
+      }
     }
 
     function renderSummaryRow(id, titulo, periodo, destaque = '') {
