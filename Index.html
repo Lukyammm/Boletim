@@ -65,51 +65,66 @@
       background: rgba(20, 184, 166, 0.2);
     }
 
+    .top-menu-wrap {
+      display: flex;
+      justify-content: flex-end;
+      margin: 8px 0 10px;
+    }
+
     .top-menu {
-      position: sticky;
-      top: 8px;
+      position: relative;
       z-index: 10;
-      width: 68px;
-      margin: 8px auto 0;
-      transition: width 0.25s ease;
+      width: 52px;
+      transition: width 0.22s ease;
     }
 
     .top-menu:hover,
     .top-menu:focus-within {
-      width: 270px;
+      width: 335px;
     }
 
     .top-menu-inner {
-      border: 1px solid rgba(196, 211, 218, 0.8);
-      border-radius: 14px;
-      background: rgba(255, 255, 255, 0.9);
-      box-shadow: 0 8px 20px rgba(16, 40, 52, 0.08);
+      border: 1px solid rgba(191, 206, 213, 0.88);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 8px 22px rgba(22, 52, 63, 0.1);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
       display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 6px;
+      gap: 8px;
+      padding: 5px;
       overflow: hidden;
     }
 
-    .top-menu-label {
-      min-width: 24px;
-      text-align: center;
-      color: #466069;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
+    .top-menu-toggle {
+      width: 40px;
+      height: 32px;
+      border-radius: 999px;
+      border: 1px solid rgba(176, 194, 203, 0.9);
+      background: #f5fafb;
+      color: #4b6770;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 40px;
+      font-size: 14px;
+    }
+
+    .top-menu-links {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
     }
 
     .top-menu-link {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-height: 34px;
-      border-radius: 10px;
-      border: 1px solid rgba(187, 204, 212, 0.9);
+      min-height: 32px;
+      border-radius: 999px;
+      border: 1px solid rgba(187, 204, 212, 0.92);
       color: #36515b;
       text-decoration: none;
       font-size: 13px;
@@ -117,7 +132,7 @@
       padding: 0 12px;
       white-space: nowrap;
       background: #fff;
-      transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+      transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
     }
 
     .top-menu-link:hover,
@@ -126,6 +141,17 @@
       border-color: #0f766e;
       color: #0f766e;
       outline: none;
+    }
+
+    @media (max-width: 680px) {
+      .top-menu-wrap {
+        justify-content: center;
+      }
+
+      .top-menu:hover,
+      .top-menu:focus-within {
+        width: min(335px, calc(100vw - 24px));
+      }
     }
 
     .app-shell {
@@ -1693,6 +1719,17 @@
     </div>
   </nav>
   <main class="app-shell">
+    <div class="top-menu-wrap">
+      <nav class="top-menu" aria-label="Menu superior">
+        <div class="top-menu-inner">
+          <span class="top-menu-toggle" aria-hidden="true"><i class="fa-solid fa-bars"></i></span>
+          <div class="top-menu-links">
+            <a class="top-menu-link" href="#pagina-cosep">COSEP</a>
+            <a class="top-menu-link" href="https://script.google.com/macros/s/AKfycbyrFcu7qj-Ydr2nwWqaaYpzntLct0jjN2ylXnrL5hXP5vWuiYcG_c4LYVVilFvJy-tadg/exec" target="_blank" rel="noopener noreferrer">Painel NUGESP</a>
+          </div>
+        </div>
+      </nav>
+    </div>
     <section class="hero-card">
       <header class="hero-header">
         <h1>Boletim da Segurança do Paciente</h1>
