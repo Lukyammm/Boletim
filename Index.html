@@ -127,26 +127,54 @@
     }
 
     .section-divider {
-      height: 1px;
-      margin: 28px 0;
-      background: linear-gradient(90deg, rgba(190, 203, 222, 0.9), rgba(190, 203, 222, 0.5));
+      height: 2px;
+      margin: 34px 0;
+      background: linear-gradient(90deg, rgba(154, 170, 192, 0.95), rgba(154, 170, 192, 0.62));
     }
 
     .filters-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 310px;
+      grid-template-columns: minmax(0, 1fr) 310px;
       gap: 28px;
-      align-items: center;
+      align-items: start;
     }
 
-    .filter-group {
-      padding: 4px 0;
+    .filters-main {
+      border: 1px solid rgba(183, 195, 212, 0.9);
+      border-radius: 22px;
+      padding: 18px;
+      background: rgba(255, 255, 255, 0.66);
     }
 
-    .filter-group.filter-group-right {
-      padding-left: 28px;
-      border-left: 1px solid rgba(190, 203, 222, 0.88);
+    .filter-tabs {
+      display: inline-flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+      width: 100%;
+      border-bottom: 2px solid rgba(183, 195, 212, 0.6);
     }
+
+    .tab-btn {
+      border: 1px solid rgba(199, 210, 224, 0.95);
+      background: #f8fbff;
+      color: #3a4d68;
+      border-radius: 14px;
+      padding: 10px 14px;
+      font: inherit;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      background: #1f5fbf;
+      border-color: #1f5fbf;
+      color: #fff;
+    }
+
+    .filter-panel { display: none; }
+    .filter-panel.active { display: block; }
 
     .filter-group-head {
       display: flex;
@@ -170,18 +198,18 @@
       display: block;
     }
 
-    .filter-icon.blue { color: #2563eb; }
-    .filter-icon.orange { color: #ff8a1f; }
+    .filter-icon.blue { color: #184ea1; }
+    .filter-icon.orange { color: #c75a00; }
     .filter-icon.indigo { color: #2563eb; }
     .filter-icon.slate { color: #7d8ea7; }
 
     .filter-group h2 {
       margin: 0;
-      font-size: 22px;
-      line-height: 1.2;
+      font-size: 28px;
+      line-height: 1.1;
       font-weight: 800;
       letter-spacing: -0.03em;
-      color: #22324c;
+      color: #11253f;
     }
 
     .fields {
@@ -192,71 +220,91 @@
 
     .field {
       display: grid;
-      gap: 10px;
+      gap: 8px;
     }
 
     .field label {
-      font-size: 17px;
-      color: #5f7088;
-      font-weight: 700;
+      font-size: 14px;
+      color: #4c5d77;
+      font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.03em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
     }
 
+    .field label small {
+      text-transform: none;
+      letter-spacing: normal;
+      font-size: 12px;
+      color: #6a7c96;
+      font-weight: 700;
+    }
+
+    .filter-search,
     .field select,
     .btn {
       width: 100%;
-      min-height: 66px;
-      border-radius: 18px;
+      border-radius: 14px;
       border: 1px solid rgba(199, 210, 224, 0.95);
       background: rgba(255, 255, 255, 0.96);
       color: #27364f;
       font: inherit;
-      font-size: 17px;
-      padding: 0 22px;
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.85), 0 8px 18px rgba(148, 163, 184, 0.08);
     }
 
-    .field select {
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%2327364f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 7 5 5 5-5'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 18px center;
-      background-size: 18px;
-      padding-right: 48px;
+    .filter-search {
+      min-height: 44px;
+      padding: 0 12px;
+      font-size: 15px;
     }
 
-    .field select[multiple] {
-      min-height: 130px;
-      padding: 10px 12px;
+    .field select {
+      min-height: 120px;
+      padding: 8px 10px;
+      font-size: 15px;
       background-image: none;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #b7c3d4 #f3f7fc;
     }
 
     .actions {
       display: grid;
-      gap: 20px;
-      align-self: center;
+      gap: 14px;
+      align-self: start;
     }
 
     .btn {
+      min-height: 54px;
       cursor: pointer;
       font-weight: 800;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 14px;
-      font-size: 17px;
+      font-size: 16px;
+      padding: 0 16px;
       transition: transform 0.18s ease, box-shadow 0.18s ease;
     }
 
-    .btn:hover {
+    .btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn:hover:not(:disabled) {
       transform: translateY(-1px);
       box-shadow: 0 14px 28px rgba(148, 163, 184, 0.18);
     }
 
     .btn svg {
-      width: 22px;
-      height: 22px;
+      width: 20px;
+      height: 20px;
       display: block;
     }
 
@@ -265,6 +313,25 @@
       border-color: rgba(47, 109, 246, 0.95);
       color: #fff;
       box-shadow: 0 16px 30px rgba(47, 109, 246, 0.24);
+    }
+
+    .preview-box {
+      border: 1px solid rgba(183, 195, 212, 0.88);
+      border-radius: 16px;
+      padding: 14px 16px;
+      background: rgba(246, 250, 255, 0.9);
+      color: #2a3a55;
+    }
+
+    .preview-box strong {
+      font-size: 15px;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .preview-box p {
+      margin: 0;
+      font-size: 14px;
     }
 
     .summary-header {
@@ -296,7 +363,7 @@
       align-items: center;
       gap: 10px;
       color: #7c8ca4;
-      font-size: 17px;
+      font-size: 14px;
       flex-wrap: wrap;
       justify-content: flex-end;
     }
@@ -333,12 +400,17 @@
     .summary-pill.primary {
       font-weight: 800;
       background: #dfeafd;
-      color: #2563eb;
+      color: #0f4cad;
     }
 
-    .summary-pill.orange {
-      background: #fff0e3;
-      color: #ef7d16;
+    .summary-pill.page-caminhadas {
+      background: #dce9ff;
+      color: #123f87;
+    }
+
+    .summary-pill.page-notificacoes {
+      background: #ffe6cf;
+      color: #a74600;
     }
 
     .info-strip {
@@ -1313,66 +1385,87 @@
     <section class="hero-card">
       <header class="hero-header">
         <h1>Boletim da Segurança do Paciente</h1>
-        <p>Prévia em A4 com uma página para Caminhadas de Segurança e outra para Notificações, cada uma com filtros independentes.</p>
+        <p>Selecione os filtros e gere o boletim em duas páginas (Caminhadas e Notificações).</p>
       </header>
 
       <div class="section-divider"></div>
 
       <section class="filters-grid">
-        <div class="filter-group">
-          <div class="filter-group-head">
-            <span class="filter-icon blue" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.25c.3 0 .6.08.87.23l6.75 3.75c.54.3.88.87.88 1.49v4.6c0 4.86-2.95 9.24-7.45 11.04a2.2 2.2 0 0 1-1.64 0c-4.5-1.8-7.46-6.18-7.46-11.03v-4.61c0-.62.34-1.19.88-1.49l6.75-3.75c.27-.15.57-.23.87-.23Zm3.2 7.95a.75.75 0 0 0-1.08-.03l-2.86 2.71-1.08-1.08a.75.75 0 1 0-1.06 1.06l1.6 1.6c.56.56 1.46.58 2.05.03l3.46-3.22a.75.75 0 0 0 .03-1.07Z"></path></svg>
-            </span>
-            <h2>Caminhadas de Segurança</h2>
+        <div class="filters-main">
+          <div class="filter-tabs" role="tablist" aria-label="Tipo de boletim">
+            <button type="button" class="tab-btn active" id="tab-caminhadas" data-tab="caminhadas" role="tab" aria-selected="true">Caminhadas</button>
+            <button type="button" class="tab-btn" id="tab-notificacoes" data-tab="notificacoes" role="tab" aria-selected="false">Notificações</button>
           </div>
-          <div class="fields">
-            <div class="field">
-              <label for="ano-cosep">Ano</label>
-              <select id="ano-cosep" multiple></select>
-            </div>
-            <div class="field">
-              <label for="mes-cosep">Mês</label>
-              <select id="mes-cosep" multiple></select>
-            </div>
-            <div class="field">
-              <label for="unidade-cosep">Setor</label>
-              <select id="unidade-cosep" multiple></select>
-            </div>
-          </div>
-        </div>
 
-        <div class="filter-group filter-group-right">
-          <div class="filter-group-head">
-            <span class="filter-icon orange" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.25a4.75 4.75 0 0 0-4.75 4.75v1.06c0 .62-.2 1.22-.58 1.72l-1.17 1.56a3.25 3.25 0 0 0 2.6 5.2h7.8a3.25 3.25 0 0 0 2.6-5.2l-1.17-1.56c-.38-.5-.58-1.1-.58-1.72V8A4.75 4.75 0 0 0 12 3.25Zm0 18a2.74 2.74 0 0 0 2.58-1.85H9.42A2.74 2.74 0 0 0 12 21.25Z"></path></svg>
-            </span>
-            <h2>Notificações</h2>
+          <div class="filter-panel active" data-panel="caminhadas">
+            <div class="filter-group">
+              <div class="filter-group-head">
+                <span class="filter-icon blue" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.25c.3 0 .6.08.87.23l6.75 3.75c.54.3.88.87.88 1.49v4.6c0 4.86-2.95 9.24-7.45 11.04a2.2 2.2 0 0 1-1.64 0c-4.5-1.8-7.46-6.18-7.46-11.03v-4.61c0-.62.34-1.19.88-1.49l6.75-3.75c.27-.15.57-.23.87-.23Zm3.2 7.95a.75.75 0 0 0-1.08-.03l-2.86 2.71-1.08-1.08a.75.75 0 1 0-1.06 1.06l1.6 1.6c.56.56 1.46.58 2.05.03l3.46-3.22a.75.75 0 0 0 .03-1.07Z"></path></svg>
+                </span>
+                <h2>Caminhadas</h2>
+              </div>
+              <div class="fields">
+                <div class="field searchable-field">
+                  <label for="ano-cosep">Ano</label>
+                  <input id="busca-ano-cosep" class="filter-search" type="search" placeholder="Buscar ano..." data-target="ano-cosep">
+                  <select id="ano-cosep" multiple></select>
+                </div>
+                <div class="field searchable-field">
+                  <label for="mes-cosep">Mês</label>
+                  <input id="busca-mes-cosep" class="filter-search" type="search" placeholder="Buscar mês..." data-target="mes-cosep">
+                  <select id="mes-cosep" multiple></select>
+                </div>
+                <div class="field searchable-field">
+                  <label for="unidade-cosep">Setor <small id="contador-unidade-cosep">0 selecionados</small></label>
+                  <input id="busca-unidade-cosep" class="filter-search" type="search" placeholder="Buscar setor..." data-target="unidade-cosep">
+                  <select id="unidade-cosep" multiple></select>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="fields">
-            <div class="field">
-              <label for="ano-notifica">Ano</label>
-              <select id="ano-notifica" multiple></select>
-            </div>
-            <div class="field">
-              <label for="mes-notifica">Mês</label>
-              <select id="mes-notifica" multiple></select>
-            </div>
-            <div class="field">
-              <label for="unidade-notifica">Setor</label>
-              <select id="unidade-notifica" multiple></select>
+
+          <div class="filter-panel" data-panel="notificacoes">
+            <div class="filter-group">
+              <div class="filter-group-head">
+                <span class="filter-icon orange" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.25a4.75 4.75 0 0 0-4.75 4.75v1.06c0 .62-.2 1.22-.58 1.72l-1.17 1.56a3.25 3.25 0 0 0 2.6 5.2h7.8a3.25 3.25 0 0 0 2.6-5.2l-1.17-1.56c-.38-.5-.58-1.1-.58-1.72V8A4.75 4.75 0 0 0 12 3.25Zm0 18a2.74 2.74 0 0 0 2.58-1.85H9.42A2.74 2.74 0 0 0 12 21.25Z"></path></svg>
+                </span>
+                <h2>Notificações</h2>
+              </div>
+              <div class="fields">
+                <div class="field searchable-field">
+                  <label for="ano-notifica">Ano</label>
+                  <input id="busca-ano-notifica" class="filter-search" type="search" placeholder="Buscar ano..." data-target="ano-notifica">
+                  <select id="ano-notifica" multiple></select>
+                </div>
+                <div class="field searchable-field">
+                  <label for="mes-notifica">Mês</label>
+                  <input id="busca-mes-notifica" class="filter-search" type="search" placeholder="Buscar mês..." data-target="mes-notifica">
+                  <select id="mes-notifica" multiple></select>
+                </div>
+                <div class="field searchable-field">
+                  <label for="unidade-notifica">Setor <small id="contador-unidade-notifica">0 selecionados</small></label>
+                  <input id="busca-unidade-notifica" class="filter-search" type="search" placeholder="Buscar setor..." data-target="unidade-notifica">
+                  <select id="unidade-notifica" multiple></select>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         <div class="actions">
-          <button type="button" class="btn btn-primary" onclick="carregarDados()">
+          <button type="button" class="btn btn-primary" id="btn-gerar" onclick="carregarDados()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path><path d="M9 13h6"></path><path d="M9 17h6"></path><path d="M9 9h1"></path></svg>
             <span>Gerar boletim</span>
           </button>
-          <button type="button" class="btn" onclick="baixarPDF()">
+          <button type="button" class="btn" id="btn-baixar" onclick="baixarPDF()" disabled>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>
             <span>Baixar PDF</span>
+          </button>
+          <button type="button" class="btn" id="btn-limpar" onclick="limparFiltros()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="m19 6-1 14H6L5 6"></path></svg>
+            <span>Limpar filtros</span>
           </button>
         </div>
       </section>
@@ -1397,18 +1490,23 @@
 
         <div class="summary-rows">
           <div class="summary-row" id="status-cosep">
-            <span class="summary-pill primary">Página 1 · Caminhadas</span>
+            <span class="summary-pill primary page-caminhadas">Página 1 · Caminhadas</span>
             <span class="summary-pill">Todos os anos</span>
             <span class="summary-pill">Todos os meses</span>
             <span class="summary-pill">Todos os setores</span>
           </div>
           <div class="summary-row" id="status-notifica">
-            <span class="summary-pill primary orange">Página 2 · Notificações</span>
+            <span class="summary-pill primary page-notificacoes">Página 2 · Notificações</span>
             <span class="summary-pill">Todos os anos</span>
             <span class="summary-pill">Todos os meses</span>
             <span class="summary-pill">Todos os setores</span>
           </div>
         </div>
+      </section>
+
+      <section class="preview-box" id="preview-geracao">
+        <strong>Preview rápido</strong>
+        <p>Aguardando geração do boletim.</p>
       </section>
 
       <div class="section-divider"></div>
@@ -1578,8 +1676,10 @@
     let chartAfetou = null;
     let chartRespostaMeta5 = null;
     let chartRespostaMeta10 = null;
+    let boletimGerado = false;
 
     const CHART_DEVICE_PIXEL_RATIO_PDF = 3;
+    const IDS_FILTROS = ['ano-cosep', 'mes-cosep', 'unidade-cosep', 'ano-notifica', 'mes-notifica', 'unidade-notifica'];
 
     function fetchViaGoogleScript(params = {}) {
       return new Promise((resolve, reject) => {
@@ -1646,10 +1746,19 @@
       preencherSelect('mes-notifica', filtrosNotifica.meses);
       preencherSelect('unidade-notifica', filtrosNotifica.unidades);
 
-      const ultimoAnoCosep = (filtrosCosep.anos || []).slice(-1)[0] || '';
-      const ultimoAnoNotifica = (filtrosNotifica.anos || []).slice(-1)[0] || '';
-      selecionarValores('ano-cosep', ultimoAnoCosep ? [ultimoAnoCosep] : []);
-      selecionarValores('ano-notifica', ultimoAnoNotifica ? [ultimoAnoNotifica] : []);
+      const hoje = new Date();
+      const anoAtual = String(hoje.getFullYear());
+      const mesAtual = hoje.toLocaleDateString('pt-BR', { month: 'long' });
+      const mesAtualCapitalizado = mesAtual.charAt(0).toUpperCase() + mesAtual.slice(1);
+
+      selecionarValores('ano-cosep', [anoAtual]);
+      selecionarValores('ano-notifica', [anoAtual]);
+      selecionarValores('mes-cosep', [mesAtualCapitalizado]);
+      selecionarValores('mes-notifica', [mesAtualCapitalizado]);
+
+      restaurarUltimosFiltros();
+      atualizarContadoresFiltros();
+      atualizarEstadoAcoes();
     }
 
     function formatPct(value) {
@@ -1727,6 +1836,64 @@
       };
     }
 
+    function atualizarContadoresFiltros() {
+      const contCosep = document.getElementById('contador-unidade-cosep');
+      const contNotifica = document.getElementById('contador-unidade-notifica');
+      const qtdCosep = obterValoresSelecionados('unidade-cosep').length;
+      const qtdNotifica = obterValoresSelecionados('unidade-notifica').length;
+      if (contCosep) contCosep.textContent = `${qtdCosep} ${qtdCosep === 1 ? 'setor selecionado' : 'setores selecionados'}`;
+      if (contNotifica) contNotifica.textContent = `${qtdNotifica} ${qtdNotifica === 1 ? 'setor selecionado' : 'setores selecionados'}`;
+    }
+
+    function existeFiltroMinimo() {
+      const filtros = obterFiltrosTela();
+      return Boolean(
+        filtros.anosCosep.length && filtros.mesesCosep.length &&
+        filtros.anosNotifica.length && filtros.mesesNotifica.length
+      );
+    }
+
+    function atualizarEstadoAcoes() {
+      const btnGerar = document.getElementById('btn-gerar');
+      const btnBaixar = document.getElementById('btn-baixar');
+      if (btnGerar) btnGerar.disabled = !existeFiltroMinimo();
+      if (btnBaixar) btnBaixar.disabled = !boletimGerado;
+    }
+
+    function salvarUltimosFiltros() {
+      localStorage.setItem('boletim_ultimos_filtros', JSON.stringify(obterFiltrosTela()));
+    }
+
+    function restaurarUltimosFiltros() {
+      try {
+        const dados = JSON.parse(localStorage.getItem('boletim_ultimos_filtros') || '{}');
+        if (!dados || typeof dados !== 'object') return;
+        selecionarValores('ano-cosep', dados.anosCosep || []);
+        selecionarValores('mes-cosep', dados.mesesCosep || []);
+        selecionarValores('unidade-cosep', dados.unidadesCosep || []);
+        selecionarValores('ano-notifica', dados.anosNotifica || []);
+        selecionarValores('mes-notifica', dados.mesesNotifica || []);
+        selecionarValores('unidade-notifica', dados.unidadesNotifica || []);
+      } catch (_) {}
+    }
+
+    function limparFiltros() {
+      const hoje = new Date();
+      const anoAtual = String(hoje.getFullYear());
+      const mesAtual = hoje.toLocaleDateString('pt-BR', { month: 'long' });
+      const mesAtualCapitalizado = mesAtual.charAt(0).toUpperCase() + mesAtual.slice(1);
+      selecionarValores('ano-cosep', [anoAtual]);
+      selecionarValores('mes-cosep', [mesAtualCapitalizado]);
+      selecionarValores('unidade-cosep', []);
+      selecionarValores('ano-notifica', [anoAtual]);
+      selecionarValores('mes-notifica', [mesAtualCapitalizado]);
+      selecionarValores('unidade-notifica', []);
+      salvarUltimosFiltros();
+      atualizarContadoresFiltros();
+      atualizarEstadoAcoes();
+      atualizarResumoParcial();
+    }
+
     function atualizarResumoParcial() {
       const filtrosTela = obterFiltrosTela();
       atualizarStatus({
@@ -1744,14 +1911,17 @@
     }
 
     function formatPeriodo(filtro, tipo) {
-      const formatLista = (lista, vazioTexto) => (lista && lista.length ? lista.join(', ') : vazioTexto);
+      const anos = (filtro && filtro.anos) || [];
+      const meses = (filtro && filtro.meses) || [];
       const unidades = (filtro && filtro.unidades) || [];
-      const unidadeResumo = unidades.length === 1
-        ? unidades[0]
-        : (unidades.length > 1 ? 'Vários' : 'Todos os setores');
+      const faixaMes = meses.length > 1 ? `${meses[0]}–${meses[meses.length - 1]}` : (meses[0] || 'Todos os meses');
+      const anoResumo = anos.length ? anos.join(', ') : 'Todos os anos';
+      const unidadeResumo = unidades.length
+        ? `${unidades.length} ${unidades.length === 1 ? 'setor' : 'setores'}`
+        : 'Todos os setores';
       return {
-        ano: formatLista(filtro.anos, 'Todos os anos'),
-        mes: formatLista(filtro.meses, 'Todos os meses'),
+        ano: anoResumo,
+        mes: faixaMes,
         unidade: unidadeResumo
       };
     }
@@ -2301,9 +2471,7 @@
       if (!alvo) return;
       alvo.innerHTML = `
         <span class="summary-pill primary ${destaque}">${escapeHtml(titulo)}</span>
-        <span class="summary-pill">${escapeHtml(periodo.ano)}</span>
-        <span class="summary-pill">${escapeHtml(periodo.mes)}</span>
-        <span class="summary-pill">${escapeHtml(periodo.unidade)}</span>
+        <span class="summary-pill">${escapeHtml(periodo.ano)} | ${escapeHtml(periodo.mes)} | ${escapeHtml(periodo.unidade)}</span>
       `;
     }
 
@@ -2311,8 +2479,8 @@
       const periodoCosep = formatPeriodo(filtrosAplicados.caminhadas || {}, 'cosep');
       const periodoNotifica = formatPeriodo(filtrosAplicados.notificacoes || {}, 'notifica');
 
-      renderSummaryRow('status-cosep', 'Página 1 · Caminhadas', periodoCosep);
-      renderSummaryRow('status-notifica', 'Página 2 · Notificações', periodoNotifica, 'orange');
+      renderSummaryRow('status-cosep', 'Página 1 · Caminhadas', periodoCosep, 'page-caminhadas');
+      renderSummaryRow('status-notifica', 'Página 2 · Notificações', periodoNotifica, 'page-notificacoes');
       document.getElementById('status-gerado').innerHTML = `
         <span class="icon-inline slate" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
@@ -2324,37 +2492,97 @@
     async function carregarDados() {
       const loading = document.getElementById('loading');
       const boletim = document.getElementById('boletim');
+      const preview = document.getElementById('preview-geracao');
 
       try {
         loading.classList.remove('hidden');
         boletim.classList.add('hidden');
-        loading.textContent = 'Gerando boletim com os filtros selecionados...';
+        loading.textContent = 'Gerando boletim...';
 
         const payload = await fetchAPI(obterFiltrosTela());
         renderCosep(payload.caminhadas || {}, (payload.aplicado || {}).caminhadas || {}, payload.geradoEm || '');
         renderNotifica(payload.notificacoes || {}, (payload.aplicado || {}).notificacoes || {}, payload.geradoEm || '');
         atualizarStatus(payload.aplicado || {}, payload.geradoEm || '');
+        if (preview) {
+          const c = payload.caminhadas || {};
+          const n = payload.notificacoes || {};
+          preview.innerHTML = `<strong>Preview rápido</strong><p>Caminhadas: ${escapeHtml(formatPct(c.conformidadeGeral))} de conformidade | Notificações: ${escapeHtml(String(n.total || 0))} registros.</p>`;
+        }
 
+        boletimGerado = true;
+        salvarUltimosFiltros();
+        atualizarEstadoAcoes();
         loading.classList.add('hidden');
         boletim.classList.remove('hidden');
       } catch (erro) {
+        boletimGerado = false;
+        atualizarEstadoAcoes();
         loading.classList.remove('hidden');
         boletim.classList.add('hidden');
-        loading.textContent = 'Erro ao carregar os dados. Verifique a implantação do Apps Script, a planilha e as permissões do Web App.';
+        loading.textContent = 'Não foi possível gerar o boletim agora. Confira as permissões do Apps Script e tente novamente.';
+        if (preview) {
+          preview.innerHTML = '<strong>Preview rápido</strong><p>Não foi possível atualizar o preview nesta tentativa.</p>';
+        }
         console.error(erro);
       }
+    }
+
+
+    function configurarBuscaFiltros() {
+      document.querySelectorAll('.filter-search').forEach((input) => {
+        input.addEventListener('input', () => {
+          const alvoId = input.dataset.target;
+          const select = document.getElementById(alvoId);
+          if (!select) return;
+          const termo = String(input.value || '').toLowerCase().trim();
+          Array.from(select.options).forEach((opt) => {
+            const visivel = !termo || String(opt.textContent || '').toLowerCase().includes(termo);
+            opt.hidden = !visivel;
+          });
+        });
+      });
+    }
+
+    function configurarTabs() {
+      document.querySelectorAll('.tab-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const aba = btn.dataset.tab;
+          document.querySelectorAll('.tab-btn').forEach((item) => {
+            const ativa = item.dataset.tab === aba;
+            item.classList.toggle('active', ativa);
+            item.setAttribute('aria-selected', ativa ? 'true' : 'false');
+          });
+          document.querySelectorAll('.filter-panel').forEach((panel) => {
+            panel.classList.toggle('active', panel.dataset.panel === aba);
+          });
+        });
+      });
     }
 
     async function init() {
       try {
         const payload = await fetchAPI();
         preencherFiltros(payload.filtros || {});
-        ['ano-cosep', 'mes-cosep', 'unidade-cosep', 'ano-notifica', 'mes-notifica', 'unidade-notifica'].forEach(id => {
+        configurarBuscaFiltros();
+        configurarTabs();
+        IDS_FILTROS.forEach(id => {
           const campo = document.getElementById(id);
-          if (campo) campo.addEventListener('change', atualizarResumoParcial);
+          if (campo) {
+            campo.addEventListener('change', () => {
+              atualizarResumoParcial();
+              atualizarContadoresFiltros();
+              atualizarEstadoAcoes();
+              salvarUltimosFiltros();
+            });
+          }
         });
         atualizarResumoParcial();
-        await carregarDados();
+        atualizarContadoresFiltros();
+        atualizarEstadoAcoes();
+
+        const loading = document.getElementById('loading');
+        loading.classList.remove('hidden');
+        loading.textContent = 'Selecione os filtros e clique em “Gerar boletim”.';
       } catch (erro) {
         const loading = document.getElementById('loading');
         loading.classList.remove('hidden');
@@ -2368,6 +2596,7 @@
     }
 
     async function baixarPDF() {
+      if (!boletimGerado) return;
       const elemento = document.getElementById('boletim');
       const filtros = obterFiltrosTela();
       const anoCosepArquivo = filtros.anosCosep.length ? filtros.anosCosep.join('-') : 'todos';
