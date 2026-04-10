@@ -2139,6 +2139,7 @@
       filaBoletins.push({
         filtros: obterFiltrosTela()
       });
+      fecharTodosMultiSelect();
       renderFila();
       atualizarEstadoAcoes();
     }
@@ -2888,6 +2889,19 @@
       atualizarTriggerMulti(id);
     }
 
+    function fecharTodosMultiSelect() {
+      document.querySelectorAll('.multi-select.open').forEach((el) => {
+        el.classList.remove('open');
+        const selectId = Object.keys(multiSelectRefs).find((key) => multiSelectRefs[key].root === el);
+        if (!selectId) return;
+        const ref = multiSelectRefs[selectId];
+        if (ref?.trigger) ref.trigger.setAttribute('aria-expanded', 'false');
+        if (ref?.search) ref.search.value = '';
+        montarOptionsMulti(selectId, '');
+        atualizarTriggerMulti(selectId);
+      });
+    }
+
     function configurarBuscaFiltros() {
       IDS_FILTROS.forEach((id) => {
         const select = document.getElementById(id);
@@ -2914,7 +2928,7 @@
 
         trigger.addEventListener('click', () => {
           const abrir = !root.classList.contains('open');
-          document.querySelectorAll('.multi-select.open').forEach(el => el.classList.remove('open'));
+          fecharTodosMultiSelect();
           root.classList.toggle('open', abrir);
           trigger.setAttribute('aria-expanded', abrir ? 'true' : 'false');
           if (abrir) {
@@ -2958,11 +2972,7 @@
         }
 
         if (!event.target.closest('.multi-select')) {
-          document.querySelectorAll('.multi-select.open').forEach((el) => {
-            el.classList.remove('open');
-            const selectId = Object.keys(multiSelectRefs).find(key => multiSelectRefs[key].root === el);
-            if (selectId) atualizarTriggerMulti(selectId);
-          });
+          fecharTodosMultiSelect();
         }
       });
 
