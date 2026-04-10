@@ -65,6 +65,69 @@
       background: rgba(20, 184, 166, 0.2);
     }
 
+    .top-menu {
+      position: sticky;
+      top: 8px;
+      z-index: 10;
+      width: 68px;
+      margin: 8px auto 0;
+      transition: width 0.25s ease;
+    }
+
+    .top-menu:hover,
+    .top-menu:focus-within {
+      width: 270px;
+    }
+
+    .top-menu-inner {
+      border: 1px solid rgba(196, 211, 218, 0.8);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 8px 20px rgba(16, 40, 52, 0.08);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px;
+      overflow: hidden;
+    }
+
+    .top-menu-label {
+      min-width: 24px;
+      text-align: center;
+      color: #466069;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .top-menu-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 34px;
+      border-radius: 10px;
+      border: 1px solid rgba(187, 204, 212, 0.9);
+      color: #36515b;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 0 12px;
+      white-space: nowrap;
+      background: #fff;
+      transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+
+    .top-menu-link:hover,
+    .top-menu-link:focus-visible {
+      background: #e7f4f2;
+      border-color: #0f766e;
+      color: #0f766e;
+      outline: none;
+    }
+
     .app-shell {
       position: relative;
       z-index: 1;
@@ -1622,6 +1685,13 @@
   </style>
 </head>
 <body>
+  <nav class="top-menu" aria-label="Menu superior">
+    <div class="top-menu-inner">
+      <span class="top-menu-label">Menu</span>
+      <a class="top-menu-link" href="#pagina-cosep">COSEP</a>
+      <a class="top-menu-link" href="https://script.google.com/macros/s/AKfycbyrFcu7qj-Ydr2nwWqaaYpzntLct0jjN2ylXnrL5hXP5vWuiYcG_c4LYVVilFvJy-tadg/exec" target="_blank" rel="noopener noreferrer">Painel NUGESP</a>
+    </div>
+  </nav>
   <main class="app-shell">
     <section class="hero-card">
       <header class="hero-header">
