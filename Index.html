@@ -271,6 +271,177 @@
       scrollbar-color: #b7c3d4 #f3f7fc;
     }
 
+
+    .field.searchable-field .filter-search,
+    .field.searchable-field select {
+      display: none;
+    }
+
+    .fields {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      align-items: end;
+    }
+
+    .multi-select {
+      position: relative;
+    }
+
+    .multi-select-trigger {
+      width: 100%;
+      min-height: 48px;
+      border-radius: 14px;
+      border: 1px solid rgba(176, 193, 214, 0.95);
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 12px;
+      cursor: pointer;
+      transition: border-color 0.18s ease, box-shadow 0.2s ease, transform 0.15s ease;
+    }
+
+    .multi-select.open .multi-select-trigger {
+      border-color: #1f5fbf;
+      box-shadow: 0 0 0 3px rgba(31, 95, 191, 0.12);
+    }
+
+    .multi-select-value {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .multi-select-summary {
+      font-size: 14px;
+      color: #4c5d77;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid #c7d6eb;
+      background: #edf3ff;
+      color: #20457f;
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1;
+      animation: chipIn 0.2s ease;
+    }
+
+    .chip-remove {
+      border: 0;
+      background: transparent;
+      color: #20457f;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      padding: 0;
+    }
+
+    .multi-select-arrow {
+      color: #5d718f;
+      font-size: 13px;
+      transition: transform 0.2s ease;
+    }
+
+    .multi-select.open .multi-select-arrow {
+      transform: rotate(180deg);
+    }
+
+    .multi-select-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      right: 0;
+      z-index: 20;
+      border: 1px solid #c8d6ea;
+      border-radius: 14px;
+      background: #fff;
+      padding: 10px;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.14);
+      opacity: 0;
+      transform: translateY(-4px);
+      pointer-events: none;
+      transition: opacity 0.16s ease, transform 0.16s ease;
+    }
+
+    .multi-select.open .multi-select-dropdown {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .multi-select-search {
+      width: 100%;
+      min-height: 40px;
+      border: 1px solid #d0dceb;
+      border-radius: 10px;
+      padding: 0 10px;
+      font: inherit;
+      margin-bottom: 8px;
+    }
+
+    .multi-select-options {
+      max-height: 230px;
+      overflow-y: auto;
+      display: grid;
+      gap: 4px;
+      padding-right: 2px;
+    }
+
+    .multi-group-title {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #5d718f;
+      margin: 6px 2px;
+    }
+
+    .multi-option {
+      border-radius: 10px;
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.16s ease;
+    }
+
+    .multi-option:hover {
+      background: #eef4ff;
+    }
+
+    .multi-option.selected {
+      background: #dfeafc;
+      color: #123d84;
+      font-weight: 700;
+    }
+
+    .multi-option mark {
+      background: #fff0b8;
+      padding: 0 2px;
+      border-radius: 3px;
+    }
+
+    @keyframes chipIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
     .actions {
       display: grid;
       gap: 14px;
@@ -1737,6 +1908,15 @@
 
     const CHART_DEVICE_PIXEL_RATIO_PDF = 3;
     const IDS_FILTROS = ['ano-cosep', 'mes-cosep', 'unidade-cosep', 'ano-notifica', 'mes-notifica', 'unidade-notifica'];
+    const MULTI_CONFIG = {
+      'ano-cosep': { label: 'Ano', tipo: 'ano' },
+      'mes-cosep': { label: 'Mês', tipo: 'mes' },
+      'unidade-cosep': { label: 'Setor', tipo: 'setor' },
+      'ano-notifica': { label: 'Ano', tipo: 'ano' },
+      'mes-notifica': { label: 'Mês', tipo: 'mes' },
+      'unidade-notifica': { label: 'Setor', tipo: 'setor' }
+    };
+    const multiSelectRefs = {};
 
     function fetchViaGoogleScript(params = {}) {
       return new Promise((resolve, reject) => {
@@ -1789,6 +1969,7 @@
     function preencherSelect(id, opcoes) {
       const elemento = document.getElementById(id);
       elemento.innerHTML = (opcoes || []).map(item => optionHTML(item, item)).join('');
+      atualizarMultiSelect(id);
     }
 
     function preencherFiltros(filtros) {
@@ -1874,6 +2055,7 @@
       Array.from(campo.options).forEach(opcao => {
         opcao.selected = conjunto.has(opcao.value);
       });
+      atualizarMultiSelect(id);
     }
 
     function obterValoresSelecionados(id) {
@@ -2635,19 +2817,156 @@
     }
 
 
-    function configurarBuscaFiltros() {
-      document.querySelectorAll('.filter-search').forEach((input) => {
-        input.addEventListener('input', () => {
-          const alvoId = input.dataset.target;
-          const select = document.getElementById(alvoId);
-          if (!select) return;
-          const termo = String(input.value || '').toLowerCase().trim();
-          Array.from(select.options).forEach((opt) => {
-            const visivel = !termo || String(opt.textContent || '').toLowerCase().includes(termo);
-            opt.hidden = !visivel;
-          });
-        });
+    function agruparSetor(setor) {
+      const valor = String(setor || '').toLowerCase();
+      if (valor.includes('cir')) return '🏥 Cirúrgico';
+      if (valor.includes('onco')) return '🎗️ Oncológico';
+      return '🧪 Clínico';
+    }
+
+    function getResumoInteligente(tipo, selecionados) {
+      if (!selecionados.length) {
+        if (tipo === 'ano') return 'Todos os anos';
+        if (tipo === 'mes') return 'Todos os meses';
+        return 'Todos os setores';
+      }
+      if (selecionados.length === 1) return selecionados[0];
+      if (tipo === 'setor') return `${selecionados.length} setores selecionados`;
+      return `${selecionados[0]} +${selecionados.length - 1}`;
+    }
+
+    function highlightTermo(texto, termo) {
+      if (!termo) return escapeHtml(texto);
+      const idx = texto.toLowerCase().indexOf(termo.toLowerCase());
+      if (idx < 0) return escapeHtml(texto);
+      const ini = escapeHtml(texto.slice(0, idx));
+      const meio = escapeHtml(texto.slice(idx, idx + termo.length));
+      const fim = escapeHtml(texto.slice(idx + termo.length));
+      return `${ini}<mark>${meio}</mark>${fim}`;
+    }
+
+    function montarOptionsMulti(id, termo = '') {
+      const ref = multiSelectRefs[id];
+      const select = document.getElementById(id);
+      if (!ref || !select) return;
+      const cfg = MULTI_CONFIG[id] || {};
+      const filtradas = Array.from(select.options).filter(opt => String(opt.textContent || '').toLowerCase().includes(termo.toLowerCase()));
+      const grupos = {};
+      filtradas.forEach((opt) => {
+        const chave = cfg.tipo === 'setor' ? agruparSetor(opt.value) : '';
+        if (!grupos[chave]) grupos[chave] = [];
+        grupos[chave].push(opt);
       });
+      ref.options.innerHTML = Object.entries(grupos).map(([grupo, opcoes]) => `
+        ${grupo ? `<div class="multi-group-title">${escapeHtml(grupo)}</div>` : ''}
+        ${opcoes.map((opt) => `
+          <label class="multi-option ${opt.selected ? 'selected' : ''}">
+            <input type="checkbox" data-id="${escapeHtml(id)}" value="${escapeHtml(opt.value)}" ${opt.selected ? 'checked' : ''}>
+            <span>${highlightTermo(String(opt.textContent || ''), termo)}</span>
+          </label>
+        `).join('')}
+      `).join('') || '<div class="multi-option">Nenhum resultado.</div>';
+    }
+
+    function atualizarTriggerMulti(id) {
+      const ref = multiSelectRefs[id];
+      const select = document.getElementById(id);
+      if (!ref || !select) return;
+      const cfg = MULTI_CONFIG[id] || {};
+      const selecionados = Array.from(select.selectedOptions).map(opt => opt.value);
+      if (ref.root.classList.contains('open')) {
+        ref.value.innerHTML = selecionados.length
+          ? selecionados.map(item => `<span class="chip">${escapeHtml(item)} <button type="button" class="chip-remove" data-remove-id="${escapeHtml(id)}" data-remove-value="${escapeHtml(item)}">✕</button></span>`).join('')
+          : `<span class="multi-select-summary">${escapeHtml(getResumoInteligente(cfg.tipo, selecionados))}</span>`;
+      } else {
+        ref.value.innerHTML = `<span class="multi-select-summary">${escapeHtml(getResumoInteligente(cfg.tipo, selecionados))}</span>`;
+      }
+    }
+
+    function atualizarMultiSelect(id) {
+      montarOptionsMulti(id, multiSelectRefs[id]?.search?.value || '');
+      atualizarTriggerMulti(id);
+    }
+
+    function configurarBuscaFiltros() {
+      IDS_FILTROS.forEach((id) => {
+        const select = document.getElementById(id);
+        if (!select || multiSelectRefs[id]) return;
+        const cfg = MULTI_CONFIG[id] || { label: 'Filtro', tipo: '' };
+        const root = document.createElement('div');
+        root.className = 'multi-select';
+        root.innerHTML = `
+          <button type="button" class="multi-select-trigger" aria-expanded="false">
+            <span class="multi-select-value"></span>
+            <span class="multi-select-arrow">▼</span>
+          </button>
+          <div class="multi-select-dropdown">
+            <input type="search" class="multi-select-search" placeholder="Buscar ${cfg.label.toLowerCase()}...">
+            <div class="multi-select-options"></div>
+          </div>
+        `;
+        select.insertAdjacentElement('afterend', root);
+        const trigger = root.querySelector('.multi-select-trigger');
+        const value = root.querySelector('.multi-select-value');
+        const search = root.querySelector('.multi-select-search');
+        const options = root.querySelector('.multi-select-options');
+        multiSelectRefs[id] = { root, trigger, value, search, options };
+
+        trigger.addEventListener('click', () => {
+          const abrir = !root.classList.contains('open');
+          document.querySelectorAll('.multi-select.open').forEach(el => el.classList.remove('open'));
+          root.classList.toggle('open', abrir);
+          trigger.setAttribute('aria-expanded', abrir ? 'true' : 'false');
+          if (abrir) {
+            montarOptionsMulti(id, search.value || '');
+            atualizarTriggerMulti(id);
+            search.focus();
+          } else {
+            atualizarTriggerMulti(id);
+          }
+        });
+
+        search.addEventListener('input', () => montarOptionsMulti(id, search.value || ''));
+      });
+
+      document.addEventListener('click', (event) => {
+        const checkbox = event.target.closest('.multi-option input[type=\"checkbox\"]');
+        if (checkbox) {
+          const id = checkbox.dataset.id;
+          const select = document.getElementById(id);
+          if (!select) return;
+          const option = Array.from(select.options).find(opt => opt.value === checkbox.value);
+          if (option) option.selected = checkbox.checked;
+          select.dispatchEvent(new Event('change'));
+          montarOptionsMulti(id, multiSelectRefs[id]?.search?.value || '');
+          atualizarTriggerMulti(id);
+          return;
+        }
+
+        const chipBtn = event.target.closest('.chip-remove');
+        if (chipBtn) {
+          const id = chipBtn.dataset.removeId;
+          const value = chipBtn.dataset.removeValue;
+          const select = document.getElementById(id);
+          if (!select) return;
+          const option = Array.from(select.options).find(opt => opt.value === value);
+          if (option) option.selected = false;
+          select.dispatchEvent(new Event('change'));
+          montarOptionsMulti(id, multiSelectRefs[id]?.search?.value || '');
+          atualizarTriggerMulti(id);
+          return;
+        }
+
+        if (!event.target.closest('.multi-select')) {
+          document.querySelectorAll('.multi-select.open').forEach((el) => {
+            el.classList.remove('open');
+            const selectId = Object.keys(multiSelectRefs).find(key => multiSelectRefs[key].root === el);
+            if (selectId) atualizarTriggerMulti(selectId);
+          });
+        }
+      });
+
+      IDS_FILTROS.forEach(atualizarMultiSelect);
     }
 
     function configurarTabs() {
