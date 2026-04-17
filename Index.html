@@ -1,3359 +1,896 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Boletim da Segurança do Paciente</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    :root {
-      --bg: #f3f7f8;
-      --page: #ffffff;
-      --line: #d7e1e5;
-      --line-strong: #b9c9cf;
-      --text: #1f2a30;
-      --muted: #5f6d75;
-      --blue: #0f766e;
-      --blue-soft: #e5f4f2;
-      --green: #1f8f5f;
-      --green-soft: #eaf7f0;
-      --amber: #b7791f;
-      --amber-soft: #fff5e5;
-      --red: #c05621;
-      --red-soft: #fff0eb;
-      --shadow: 0 12px 30px rgba(16, 40, 52, 0.08);
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      background: linear-gradient(180deg, #f7fafb 0%, #eef4f6 55%, #e8eff2 100%);
-      color: var(--text);
-      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-
-    body::before,
-    body::after {
-      content: '';
-      position: fixed;
-      inset: auto;
-      border-radius: 999px;
-      filter: blur(40px);
-      opacity: 0.22;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    body::before {
-      width: 280px;
-      height: 280px;
-      top: -80px;
-      left: -60px;
-      background: rgba(15, 118, 110, 0.22);
-    }
-
-    body::after {
-      width: 240px;
-      height: 240px;
-      right: -60px;
-      bottom: 80px;
-      background: rgba(20, 184, 166, 0.2);
-    }
-
-    .top-menu-wrap {
-      display: flex;
-      justify-content: flex-end;
-      margin: 8px 0 10px;
-    }
-
-    .top-menu {
-      position: relative;
-      z-index: 10;
-      width: 52px;
-      transition: width 0.22s ease;
-    }
-
-    .top-menu:hover,
-    .top-menu:focus-within {
-      width: 335px;
-    }
-
-    .top-menu-inner {
-      border: 1px solid rgba(191, 206, 213, 0.88);
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.95);
-      box-shadow: 0 8px 22px rgba(22, 52, 63, 0.1);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 5px;
-      overflow: hidden;
-    }
-
-    .top-menu-toggle {
-      width: 40px;
-      height: 32px;
-      border-radius: 999px;
-      border: 1px solid rgba(176, 194, 203, 0.9);
-      background: #f5fafb;
-      color: #4b6770;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      flex: 0 0 40px;
-      font-size: 14px;
-    }
-
-    .top-menu-links {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      min-width: 0;
-    }
-
-    .top-menu-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 32px;
-      border-radius: 999px;
-      border: 1px solid rgba(187, 204, 212, 0.92);
-      color: #36515b;
-      text-decoration: none;
-      font-size: 13px;
-      font-weight: 700;
-      padding: 0 12px;
-      white-space: nowrap;
-      background: #fff;
-      transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
-    }
-
-    .top-menu-link:hover,
-    .top-menu-link:focus-visible {
-      background: #e7f4f2;
-      border-color: #0f766e;
-      color: #0f766e;
-      outline: none;
-    }
-
-    @media (max-width: 680px) {
-      .top-menu-wrap {
-        justify-content: center;
-      }
-
-      .top-menu:hover,
-      .top-menu:focus-within {
-        width: min(335px, calc(100vw - 24px));
-      }
-    }
-
-    .app-shell {
-      position: relative;
-      z-index: 1;
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 24px 16px 40px;
-    }
-
-    .hero-card,
-    .loading-box {
-      background: rgba(255, 255, 255, 0.94);
-      border: 1px solid rgba(196, 211, 218, 0.72);
-      border-radius: 24px;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-    }
-
-    .hero-card {
-      padding: 30px 30px 24px;
-      margin-bottom: 20px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero-card::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(255,255,255,0.34), rgba(255,255,255,0));
-      pointer-events: none;
-    }
-
-    .hero-card > * {
-      position: relative;
-      z-index: 1;
-    }
-
-    .hero-header h1 {
-      margin: 0 0 10px;
-      font-size: 40px;
-      line-height: 1.12;
-      font-weight: 600;
-      letter-spacing: -0.025em;
-      color: #1e2f36;
-    }
-
-    .hero-header p {
-      margin: 0;
-      color: #5a6a72;
-      font-size: 17px;
-      line-height: 1.65;
-      font-weight: 400;
-      max-width: 1120px;
-    }
-
-    .section-divider {
-      height: 2px;
-      margin: 28px 0;
-      background: linear-gradient(90deg, rgba(156, 175, 184, 0.95), rgba(156, 175, 184, 0.35));
-    }
-
-    .filters-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 310px;
-      gap: 28px;
-      align-items: start;
-    }
-
-    .filters-main {
-      border: 1px solid rgba(186, 202, 209, 0.85);
-      border-radius: 18px;
-      padding: 18px;
-      background: #f8fbfc;
-    }
-
-    .filter-tabs {
-      display: inline-flex;
-      gap: 10px;
-      margin-bottom: 16px;
-      padding-bottom: 14px;
-      width: 100%;
-      border-bottom: 2px solid rgba(183, 195, 212, 0.6);
-    }
-
-    .tab-btn {
-      border: 1px solid rgba(193, 208, 214, 0.9);
-      background: #f8fcfc;
-      color: #3b4e56;
-      border-radius: 12px;
-      padding: 10px 14px;
-      font: inherit;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .tab-btn.active {
-      background: #0f766e;
-      border-color: #0f766e;
-      color: #fff;
-    }
-
-    .filter-panel { display: none; }
-    .filter-panel.active { display: block; }
-
-    .filter-group-head {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      margin-bottom: 18px;
-    }
-
-    .filter-icon {
-      width: 42px;
-      height: 42px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      flex: 0 0 42px;
-    }
-
-    .filter-icon svg {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-
-    .filter-icon.blue { color: #184ea1; }
-    .filter-icon.orange { color: #c75a00; }
-    .filter-icon.indigo { color: #2563eb; }
-    .filter-icon.slate { color: #7d8ea7; }
-
-    .filter-group h2 {
-      margin: 0;
-      font-size: 28px;
-      line-height: 1.1;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      color: #11253f;
-    }
-
-    .fields {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 22px;
-    }
-
-    .field {
-      display: grid;
-      gap: 8px;
-    }
-
-    .field label {
-      font-size: 14px;
-      color: #4b5f67;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .field label small {
-      text-transform: none;
-      letter-spacing: normal;
-      font-size: 12px;
-      color: #6a7c96;
-      font-weight: 700;
-    }
-
-    .filter-search,
-    .field select,
-    .btn {
-      width: 100%;
-      border-radius: 14px;
-      border: 1px solid rgba(193, 208, 214, 0.95);
-      background: rgba(255, 255, 255, 0.96);
-      color: #2b3b43;
-      font: inherit;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.85), 0 4px 12px rgba(84, 111, 125, 0.08);
-    }
-
-    .filter-search {
-      min-height: 44px;
-      padding: 0 12px;
-      font-size: 15px;
-    }
-
-    .field select {
-      min-height: 120px;
-      padding: 8px 10px;
-      font-size: 15px;
-      background-image: none;
-      overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: #b7c3d4 #f3f7fc;
-    }
-
-
-    .field.searchable-field .filter-search,
-    .field.searchable-field select {
-      display: none;
-    }
-
-    .fields {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-      align-items: end;
-    }
-
-    .multi-select {
-      position: relative;
-    }
-
-    .multi-select-trigger {
-      width: 100%;
-      min-height: 48px;
-      border-radius: 14px;
-      border: 1px solid rgba(180, 199, 207, 0.95);
-      background: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 8px 12px;
-      cursor: pointer;
-      transition: border-color 0.18s ease, box-shadow 0.2s ease, transform 0.15s ease;
-    }
-
-    .multi-select.open .multi-select-trigger {
-      border-color: #0f766e;
-      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.14);
-    }
-
-    .multi-select-value {
-      min-width: 0;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-
-    .multi-select-summary {
-      font-size: 14px;
-      color: #4c5d77;
-      font-weight: 700;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 100%;
-    }
-
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      border: 1px solid #c7d6eb;
-      background: #e7f4f2;
-      color: #0f5752;
-      border-radius: 999px;
-      padding: 4px 8px;
-      font-size: 13px;
-      font-weight: 700;
-      line-height: 1;
-      animation: chipIn 0.2s ease;
-    }
-
-    .chip-remove {
-      border: 0;
-      background: transparent;
-      color: #20457f;
-      cursor: pointer;
-      font-size: 14px;
-      line-height: 1;
-      padding: 0;
-    }
-
-    .multi-select-arrow {
-      color: #5d718f;
-      font-size: 13px;
-      transition: transform 0.2s ease;
-    }
-
-    .multi-select.open .multi-select-arrow {
-      transform: rotate(180deg);
-    }
-
-    .multi-select-dropdown {
-      position: absolute;
-      top: calc(100% + 8px);
-      left: 0;
-      right: 0;
-      z-index: 20;
-      border: 1px solid #c8d6ea;
-      border-radius: 14px;
-      background: #fff;
-      padding: 10px;
-      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.14);
-      opacity: 0;
-      transform: translateY(-4px);
-      pointer-events: none;
-      transition: opacity 0.16s ease, transform 0.16s ease;
-    }
-
-    .multi-select.open .multi-select-dropdown {
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
-    }
-
-    .multi-select-search {
-      width: 100%;
-      min-height: 40px;
-      border: 1px solid #d0dceb;
-      border-radius: 10px;
-      padding: 0 10px;
-      font: inherit;
-      margin-bottom: 8px;
-    }
-
-    .multi-select-options {
-      max-height: 230px;
-      overflow-y: auto;
-      display: grid;
-      gap: 4px;
-      padding-right: 2px;
-    }
-
-    .multi-group-title {
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      color: #5d718f;
-      margin: 6px 2px;
-    }
-
-    .multi-option {
-      border-radius: 10px;
-      padding: 8px 10px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background-color 0.16s ease;
-    }
-
-    .multi-option:hover {
-      background: #eef4ff;
-    }
-
-    .multi-option.selected {
-      background: #dfeafc;
-      color: #123d84;
-      font-weight: 700;
-    }
-
-    .multi-option mark {
-      background: #fff0b8;
-      padding: 0 2px;
-      border-radius: 3px;
-    }
-
-    @keyframes chipIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
-    }
-
-    .actions {
-      display: grid;
-      gap: 12px;
-      align-self: start;
-      border: 1px solid rgba(185, 203, 210, 0.9);
-      border-radius: 18px;
-      padding: 12px;
-      background: #f6fafb;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
-    }
-
-    .action-group {
-      display: grid;
-      gap: 10px;
-      padding: 8px;
-      border: 1px solid rgba(201, 214, 219, 0.82);
-      border-radius: 14px;
-      background: #ffffff;
-    }
-
-    .action-group h4 {
-      margin: 0;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      font-weight: 600;
-      color: #60717b;
-    }
-
-    .queue-box {
-      border: 1px solid rgba(185, 203, 210, 0.88);
-      border-radius: 16px;
-      padding: 12px;
-      background: #f8fbfc;
-      color: #30434d;
-      display: grid;
-      gap: 8px;
-    }
-
-    .queue-box strong {
-      font-size: 13px;
-    }
-
-    .queue-list {
-      margin: 0;
-      padding: 0;
-      list-style: none;
-      display: grid;
-      gap: 6px;
-      max-height: 220px;
-      overflow-y: auto;
-    }
-
-    .queue-item {
-      border: 1px solid rgba(192, 208, 214, 0.95);
-      border-radius: 10px;
-      padding: 8px 10px;
-      background: #fff;
-      font-size: 13px;
-      line-height: 1.4;
-    }
-
-    .btn {
-      min-height: 54px;
-      cursor: pointer;
-      font-weight: 500;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 14px;
-      font-size: 15px;
-      padding: 0 16px;
-      transition: transform 0.18s ease, box-shadow 0.18s ease;
-    }
-
-    .btn:disabled {
-      cursor: not-allowed;
-      opacity: 0.55;
-      transform: none;
-      box-shadow: none;
-    }
-
-    .btn:hover:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: 0 12px 22px rgba(76, 102, 114, 0.16);
-    }
-
-    .btn svg {
-      width: 20px;
-      height: 20px;
-      display: block;
-    }
-
-    .btn-primary {
-      min-height: 60px;
-      font-size: 16px;
-      font-weight: 600;
-      background: linear-gradient(180deg, #0f8c82 0%, #0f766e 100%);
-      border-color: rgba(15, 118, 110, 0.95);
-      color: #fff;
-      box-shadow: 0 16px 28px rgba(15, 118, 110, 0.28);
-    }
-
-    .btn:not(.btn-primary) {
-      background: #ffffff;
-      border-color: rgba(187, 204, 212, 0.95);
-      color: #33505a;
-    }
-
-    .preview-box {
-      border: 1px solid rgba(185, 203, 210, 0.88);
-      border-radius: 16px;
-      padding: 14px 16px;
-      background: #f8fbfc;
-      color: #2f444c;
-    }
-
-    .preview-box strong {
-      font-size: 15px;
-      display: block;
-      margin-bottom: 6px;
-    }
-
-    .preview-box p {
-      margin: 0;
-      font-size: 14px;
-    }
-
-    .summary-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 20px;
-      margin-bottom: 18px;
-    }
-
-    .summary-title {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      min-width: 0;
-    }
-
-    .summary-title h3 {
-      margin: 0;
-      font-size: 22px;
-      line-height: 1.2;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      color: #22324c;
-    }
-
-    .summary-updated {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      color: #7c8ca4;
-      font-size: 14px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    .summary-updated strong {
-      color: #25344d;
-    }
-
-    .summary-rows {
-      display: grid;
-      gap: 14px;
-    }
-
-    .summary-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .summary-pill {
-      display: inline-flex;
-      align-items: center;
-      min-height: 46px;
-      padding: 10px 18px;
-      border-radius: 999px;
-      background: #edf3fb;
-      color: #4e617d;
-      font-size: 17px;
-      font-weight: 600;
-      line-height: 1.2;
-    }
-
-    .summary-pill.primary {
-      font-weight: 800;
-      background: #dfeafd;
-      color: #0f4cad;
-    }
-
-    .summary-pill.page-caminhadas {
-      background: #dce9ff;
-      color: #123f87;
-    }
-
-    .summary-pill.page-notificacoes {
-      background: #ffe6cf;
-      color: #a74600;
-    }
-
-    .info-strip {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 18px 22px;
-      border-radius: 22px;
-      background: linear-gradient(180deg, #eef5ff 0%, #e7f0ff 100%);
-      color: #4f5f78;
-      font-size: 16px;
-      line-height: 1.6;
-      font-weight: 500;
-    }
-
-    .info-strip strong {
-      color: #2a3a55;
-    }
-
-    .icon-inline {
-      width: 32px;
-      height: 32px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      flex: 0 0 32px;
-    }
-
-    .icon-inline svg {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-
-    .loading-box {
-      padding: 28px;
-      text-align: center;
-      font-weight: 600;
-      color: var(--muted);
-    }
-
-    .report-stack {
-      display: grid;
-      gap: 0;
-    }
-
-    .hidden { display: none !important; }
-
-    .document-page {
-      width: 210mm;
-      height: 297mm;
-      margin: 0 auto;
-      padding: 10mm;
-      background: rgba(255, 255, 255, 0.84);
-      border: 1px solid rgba(255, 255, 255, 0.92);
-      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      overflow: hidden;
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-    }
-
-    #pagina-cosep {
-      display: grid;
-      align-content: start;
-      overflow: visible;
-    }
-
-    #pagina-cosep .footer-note {
-      margin-top: 0;
-    }
-
-    .page-break { break-after: page; }
-
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 12px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid rgba(31, 41, 55, 0.12);
-    }
-
-    .page-header-main {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      min-width: 0;
-    }
-
-    .page-logo {
-      width: 52px;
-      height: 52px;
-      flex: 0 0 52px;
-      object-fit: contain;
-      object-position: center;
-    }
-
-    .page-header h2 {
-      margin: 0 0 4px;
-      font-size: 20px;
-    }
-
-    .page-header p,
-    .page-meta {
-      margin: 0;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.5;
-    }
-
-    .page-meta {
-      min-width: 205px;
-      text-align: right;
-    }
-
-    .metrics {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 8px;
-    }
-
-    .metric-card {
-      border: 1px solid rgba(255, 255, 255, 0.86);
-      border-left: 4px solid var(--blue);
-      border-radius: 14px;
-      padding: 8px 10px;
-      background: rgba(255, 255, 255, 0.8);
-      min-height: 44px;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.75);
-    }
-
-    .metric-card.green { border-left-color: var(--green); background: var(--green-soft); }
-    .metric-card.amber { border-left-color: var(--amber); background: var(--amber-soft); }
-    .metric-card.red { border-left-color: var(--red); background: var(--red-soft); }
-    .metric-card.blue { background: var(--blue-soft); }
-
-    .metric-card span {
-      display: block;
-      font-size: 11px;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 0;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-    }
-
-    .metric-card strong {
-      font-size: 24px;
-      line-height: 1;
-      display: block;
-      margin-bottom: 0;
-    }
-
-    .metric-card small {
-      display: none;
-    }
-
-    .section-grid-2,
-    .section-grid-3 {
-      display: grid;
-      gap: 10px;
-    }
-
-    .section-grid-2 { grid-template-columns: 1fr 1fr; }
-    .section-grid-3 { grid-template-columns: 1.05fr 0.95fr 0.95fr; }
-    .panel {
-      border: 1px solid rgba(255, 255, 255, 0.86);
-      border-radius: 14px;
-      padding: 10px;
-      background: rgba(255, 255, 255, 0.78);
-      min-height: 100%;
-      overflow: hidden;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.72);
-    }
-
-    .panel h3 {
-      margin: 0 0 4px;
-      font-size: 15px;
-    }
-
-    .panel p {
-      margin: 0 0 8px;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.45;
-    }
-
-    .chart-box {
-      position: relative;
-      height: 150px;
-      width: 100%;
-    }
-
-    .chart-box canvas {
-      width: 100% !important;
-      height: 100% !important;
-      display: block;
-    }
-
-    .distribution-list,
-    .bullet-list {
-      margin: 0;
-      padding: 0;
-      list-style: none;
-      display: grid;
-      gap: 8px;
-    }
-
-    .distribution-item {
-      display: grid;
-      gap: 4px;
-    }
-
-    .distribution-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .bar-track {
-      height: 8px;
-      background: #e7edf5;
-      border-radius: 999px;
-      overflow: hidden;
-    }
-
-    .bar-track span {
-      display: block;
-      height: 100%;
-      background: var(--blue);
-      border-radius: inherit;
-    }
-
-    .bullet-list li {
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 8px 10px;
-      font-size: 12px;
-      line-height: 1.45;
-      background: #fbfcfe;
-    }
-
-    .bullet-list small {
-      display: block;
-      margin-top: 4px;
-      color: var(--muted);
-      font-size: 11px;
-    }
-
-    .badge-list {
-      display: grid;
-      gap: 8px;
-    }
-
-    .badge-item {
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 8px 10px;
-      background: #fbfcfe;
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      align-items: center;
-      font-size: 12px;
-    }
-
-    .badge-item strong {
-      font-size: 13px;
-    }
-
-    .badge-value {
-      min-width: 64px;
-      text-align: center;
-      border-radius: 999px;
-      padding: 4px 8px;
-      color: #fff;
-      background: var(--blue);
-      font-size: 11px;
-      font-weight: 700;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      table-layout: fixed;
-      border-radius: 14px;
-      overflow: hidden;
-    }
-
-    th, td {
-      border: 1px solid var(--line);
-      padding: 5px 6px;
-      font-size: 13px;
-      vertical-align: top;
-      word-break: break-word;
-    }
-
-    th {
-      background: #f4f7fb;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: var(--muted);
-      font-size: 13px;
-      text-align: left;
-    }
-
-    .panel-metas {
-      padding: 8px;
-    }
-
-    #pagina-cosep .panel-metas {
-      padding: 6px;
-    }
-
-    .meta-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 6px;
-      align-items: start;
-    }
-
-    #pagina-cosep .meta-grid {
-      gap: 5px;
-    }
-
-    .meta-card {
-      --meta-color: var(--blue);
-      border: 1px solid #dce7f5;
-      border-left: 4px solid var(--meta-color);
-      border-radius: 12px;
-      overflow: hidden;
-      background: linear-gradient(180deg, #f9fbff 0%, #f4f8ff 100%);
-      min-width: 0;
-    }
-
-    .meta-card.best-meta {
-      border: 2px dotted #d9a500;
-      border-left: 5px dotted #e0ad00;
-      box-shadow: inset 0 0 0 1px rgba(255, 224, 130, 0.36);
-      background: linear-gradient(180deg, #fffef6 0%, #fff6d6 100%);
-    }
-
-    .meta-card.best-meta .meta-card-header {
-      background: var(--meta-soft, #edf4ff);
-      border-bottom: 1px solid #dce7f5;
-    }
-
-    .meta-card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 8px;
-      padding: 8px 9px;
-      background: var(--meta-soft, #edf4ff);
-      border-bottom: 1px solid #dce7f5;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    #pagina-cosep .meta-card-header {
-      padding: 7px 8px;
-    }
-
-    .meta-card-header-text {
-      min-width: 0;
-      display: grid;
-      gap: 2px;
-    }
-
-    .meta-card-title {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      min-width: 0;
-    }
-
-    .meta-card-icon {
-      width: 18px;
-      height: 18px;
-      min-width: 18px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--meta-color);
-    }
-
-    .meta-card-icon svg,
-    .meta-card-icon i {
-      width: 18px;
-      height: 18px;
-      display: block;
-    }
-
-    .meta-card-icon.star-highlight {
-      width: 22px;
-      height: 22px;
-      min-width: 22px;
-      color: #e0ad00;
-      filter: drop-shadow(0 0 3px rgba(255, 210, 85, 1));
-    }
-
-    .meta-card-icon.star-highlight svg,
-    .meta-card-icon.star-highlight i {
-      width: 22px;
-      height: 22px;
-      display: block;
-      fill: #f0be23;
-      stroke: #aa7f00;
-      stroke-width: 0.8;
-    }
-
-    .meta-card-title span {
-      display: block;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      font-size: 12px;
-      line-height: 1.35;
-    }
-
-    .meta-card-header strong {
-      font-size: 14px;
-      white-space: nowrap;
-    }
-
-    .meta-card table {
-      border: none;
-      table-layout: fixed;
-    }
-
-    .meta-card th,
-    .meta-card td {
-      border: 1px solid var(--line);
-      padding: 3px 5px;
-      font-size: 13px;
-      text-align: left;
-      line-height: 1.2;
-    }
-
-    #pagina-cosep .meta-card th,
-    #pagina-cosep .meta-card td {
-      padding: 2px 4px;
-    }
-
-    .meta-card th:last-child,
-    .meta-card td:last-child {
-      text-align: right;
-      white-space: nowrap;
-      width: 27%;
-    }
-
-    .meta-card th:first-child,
-    .meta-card td:first-child {
-      width: 73%;
-    }
-
-    .meta-card tbody tr:last-child td {
-      border-bottom: none;
-    }
-
-    .meta-card td:first-child,
-    .meta-card th:first-child {
-      border-left: none;
-    }
-
-    .meta-card td:last-child,
-    .meta-card th:last-child {
-      border-right: none;
-    }
-
-
-    .meta-item-label {
-      display: block;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      font-size: 12px;
-      line-height: 1.2;
-    }
-
-    .meta-card-empty {
-      padding: 10px;
-      border: 1px dashed var(--line);
-      border-radius: 12px;
-      font-size: 13px;
-      color: var(--muted);
-      text-align: center;
-      background: #fbfcfe;
-    }
-
-    .ranking-setores-box {
-      margin-top: 8px;
-      border: 1px solid rgba(215, 222, 232, 0.95);
-      border-radius: 12px;
-      padding: 10px;
-      background: rgba(251, 253, 255, 0.96);
-      display: grid;
-      gap: 8px;
-    }
-
-    .ranking-setores-box.grid-slot {
-      margin-top: 0;
-      grid-column: span 1;
-      min-height: auto;
-      align-content: start;
-    }
-
-    .ranking-setores-head {
-      margin: 0;
-      font-size: 12px;
-      color: #4f5f78;
-      font-weight: 700;
-      line-height: 1.35;
-    }
-
-    .ranking-setores-lista {
-      max-height: 132px;
-      overflow-y: auto;
-      padding-right: 6px;
-      display: grid;
-      gap: 6px;
-    }
-
-    .ranking-setor-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 6px 8px;
-      border: 1px solid #e4e9f1;
-      border-radius: 8px;
-      background: #ffffff;
-      font-size: 11px;
-      line-height: 1.3;
-    }
-
-    .ranking-setor-nome {
-      min-width: 0;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .ranking-setor-nome-texto {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      font-weight: 700;
-      color: #2b3a52;
-    }
-
-    .flag-status {
-      width: 12px;
-      height: 12px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      flex: 0 0 12px;
-      color: #8f99a8;
-    }
-
-    .flag-status svg {
-      width: 12px;
-      height: 12px;
-      display: block;
-    }
-
-    .ranking-setor-valor {
-      font-weight: 800;
-      color: #1f2937;
-      white-space: nowrap;
-    }
-
-    .legenda-melhor-meta {
-      margin-top: 8px;
-      padding: 4px 8px;
-      border: 2px dotted rgba(217, 165, 0, 0.8);
-      border-radius: 10px;
-      background: rgba(255, 247, 214, 0.95);
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      max-width: 560px;
-      width: fit-content;
-      font-size: 11px;
-      color: #6a4f00;
-      line-height: 1.2;
-    }
-
-    .legenda-melhor-meta.hidden {
-      display: none;
-    }
-
-    .legenda-melhor-meta-icone {
-      width: 14px;
-      height: 14px;
-      min-width: 14px;
-      color: #e0ad00;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .legenda-melhor-meta-icone svg,
-    .legenda-melhor-meta-icone i {
-      width: 14px;
-      height: 14px;
-      display: block;
-    }
-
-    .compact-panel p {
-      margin-bottom: 6px;
-    }
-
-    .compact-table th,
-    .compact-table td {
-      padding: 4px 5px;
-      font-size: 13px;
-    }
-
-    .pie-chart-box {
-      height: 180px;
-    }
-
-    .chart-box.compact {
-      height: 115px;
-    }
-
-    #pagina-cosep .chart-box.compact {
-      height: 102px;
-    }
-
-    .response-panels {
-      display: grid;
-      gap: 8px;
-    }
-
-    .response-panel {
-      border: 1px solid rgba(215, 222, 232, 0.9);
-      border-radius: 12px;
-      padding: 8px;
-      background: rgba(250, 252, 255, 0.94);
-    }
-
-    .response-panel h4 {
-      margin: 0 0 3px;
-      font-size: 12px;
-      color: #22324c;
-    }
-
-    .response-panel p {
-      margin: 0 0 6px;
-      color: var(--muted);
-      font-size: 10px;
-      line-height: 1.35;
-    }
-
-    .response-chart-box {
-      position: relative;
-      height: 122px;
-      width: 100%;
-    }
-
-    .response-chart-box canvas {
-      width: 100% !important;
-      height: 100% !important;
-      display: block;
-    }
-
-    .panel,
-    .metrics,
-    .page-header,
-    .footer-note,
-    table,
-    tr,
-    td,
-    th {
-      break-inside: avoid;
-      page-break-inside: avoid;
-    }
-
-    .footer-note {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 0;
-      padding-top: 4px;
-      margin-top: auto;
-      border-top: 1px solid var(--line);
-      color: var(--muted);
-      font-size: 12px;
-      overflow: hidden;
-    }
-
-    .footer-brand {
-      height: 40px;
-      width: auto;
-      max-width: 156mm;
-      object-fit: contain;
-      object-position: center;
-      flex: 0 1 auto;
-    }
-
-    #pagina-notifica {
-      position: relative;
-      padding-bottom: 24mm;
-    }
-
-    #pagina-notifica table th,
-    #pagina-notifica table td {
-      font-size: 12px;
-    }
-
-    #pagina-notifica .compact-table {
-      table-layout: fixed;
-      width: 100%;
-    }
-
-    #pagina-notifica .cell-nowrap-ellipsis {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    #pagina-notifica .footer-note {
-      position: absolute;
-      left: 10mm;
-      right: 10mm;
-      bottom: 10mm;
-    }
-
-    a {
-      color: var(--blue);
-      text-decoration: none;
-    }
-
-    @media (max-width: 1240px) {
-      .filters-grid,
-      .fields,
-      .metrics,
-      .section-grid-2,
-      .section-grid-3,
-      .meta-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .actions {
-        min-width: 0;
-      }
-
-      .ranking-setores-box.grid-slot {
-        grid-column: span 1;
-        width: 100%;
-      }
-
-      .document-page {
-        width: 100%;
-        height: auto;
-      }
-
-      .page-header,
-      .footer-note {
-        flex-direction: column;
-      }
-
-      .page-meta {
-        text-align: left;
-      }
-
-      .page-logo {
-        width: 44px;
-        height: 44px;
-        flex-basis: 44px;
-      }
-    }
-
-    @media (max-width: 768px) {
-      body::before,
-      body::after {
-        display: none;
-      }
-
-      .app-shell {
-        padding: 12px 10px 24px;
-      }
-
-      .hero-card,
-      .loading-box,
-      .document-page,
-      .panel,
-      .metric-card,
-      .meta-card,
-      .info-strip {
-        border-radius: 16px;
-      }
-
-      .hero-card {
-        padding: 22px 16px 18px;
-      }
-
-      .hero-header h1 {
-        font-size: 30px;
-      }
-
-      .hero-header p {
-        font-size: 16px;
-      }
-
-      .filters-grid,
-      .fields,
-      .actions,
-      .metrics,
-      .section-grid-2,
-      .section-grid-3,
-      .meta-grid,
-      .summary-rows {
-        gap: 12px;
-      }
-
-      .filter-group,
-      .filter-group.filter-group-right {
-        padding: 0;
-        border-left: none;
-      }
-
-      .summary-header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .summary-updated {
-        justify-content: flex-start;
-        font-size: 15px;
-      }
-
-      .summary-pill,
-      .field label,
-      .info-strip {
-        font-size: 15px;
-      }
-
-      .fields {
-        grid-template-columns: 1fr;
-      }
-
-      .actions {
-        grid-template-columns: 1fr;
-      }
-
-      .btn,
-      .field select {
-        min-height: 46px;
-      }
-
-      .loading-box {
-        padding: 14px;
-      }
-
-      .report-stack {
-        gap: 12px;
-      }
-
-      .document-page {
-        padding: 16px;
-        gap: 12px;
-        overflow: visible;
-      }
-
-      .page-header h2 {
-        font-size: 18px;
-      }
-
-      .page-header-main {
-        gap: 8px;
-      }
-
-      .page-header p,
-      .page-meta,
-      .footer-note {
-        font-size: 11px;
-      }
-
-      .metric-card {
-        min-height: auto;
-        padding: 12px;
-      }
-
-      .metric-card strong {
-        font-size: 22px;
-      }
-
-      .chart-box {
-        height: 190px;
-      }
-
-      .chart-box.compact,
-      .pie-chart-box {
-        height: 210px;
-      }
-
-      .panel {
-        padding: 12px;
-        overflow-x: auto;
-      }
-
-      table {
-        min-width: 320px;
-      }
-
-      .meta-card-header {
-        padding: 8px;
-      }
-
-      .meta-card-title span,
-      .meta-item-label {
-        white-space: normal;
-      }
-    }
-
-    @media print {
-      body { background: #fff; }
-      .hero-card, .loading-box { display: none !important; }
-      .app-shell { padding: 0; }
-      .document-page {
-        box-shadow: none;
-        border: none;
-        width: 210mm;
-        height: 297mm;
-        margin: 0;
-        background: #fff;
-        backdrop-filter: none;
-      }
-    }
-
-    @media (max-width: 1024px) {
-      .filters-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .actions {
-        position: static;
-      }
-    }
-
-    body.pdf-export .document-page,
-    body.pdf-export .panel,
-    body.pdf-export .metric-card {
-      background: #ffffff !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-      box-shadow: none !important;
-    }
-
-    @media print {
-      .meta-card-icon.star-highlight {
-        filter: none !important;
-      }
-
-      .meta-card-icon.star-highlight svg {
-        fill: #f0be23 !important;
-        stroke: #aa7f00 !important;
-      }
-    }
-
-    body.pdf-export .meta-card-icon.star-highlight {
-      filter: none !important;
-    }
-
-    body.pdf-export .meta-card-icon.star-highlight svg {
-      fill: #f0be23 !important;
-      stroke: #aa7f00 !important;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise de Higiene das Mãos - SCIH/HUC</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500&amp;display=swap');
+
+        :root { --tw-color-primary: #10b981; }
+
+        * {
+            transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 25px -5px rgb(16 185 129), 0 8px 10px -6px rgb(16 185 129);
+        }
+
+        .card-hover {
+            transition-property: transform, box-shadow, color, background-color, border-color;
+        }
+
+        .chart-container {
+            height: 320px;
+            position: relative;
+        }
+
+        .chart-container.chart-tall {
+            height: 360px;
+        }
+
+        .chart-container.chart-compact {
+            height: 220px;
+        }
+
+        .chart-container.chart-xlarge {
+            height: 420px;
+        }
+
+        .chart-container.chart-categoria {
+            min-height: 420px;
+        }
+
+        .chart-container.chart-distribuicao {
+            height: 192px;
+        }
+
+        .chart-container.chart-xxlarge {
+            height: 560px;
+        }
+
+        .kpi-card {
+            min-height: 168px;
+        }
+
+        select[multiple] {
+            min-height: 136px;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 1024px) {
+            .chart-container,
+            .chart-container.chart-tall,
+            .chart-container.chart-xlarge,
+            .chart-container.chart-xxlarge {
+                height: 300px;
+            }
+        }
+
+        .loading-spinner {
+            animation: spin 1.5s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
-<body>
-  <main class="app-shell">
-    <section class="hero-card">
-      <div class="top-menu-wrap">
-        <nav class="top-menu" aria-label="Menu superior">
-          <div class="top-menu-inner">
-            <span class="top-menu-toggle" aria-hidden="true"><i class="fa-solid fa-bars"></i></span>
-            <div class="top-menu-links">
-              <a class="top-menu-link" href="#pagina-cosep">COSEP</a>
-              <a class="top-menu-link" href="https://script.google.com/macros/s/AKfycbyrFcu7qj-Ydr2nwWqaaYpzntLct0jjN2ylXnrL5hXP5vWuiYcG_c4LYVVilFvJy-tadg/exec" target="_blank" rel="noopener noreferrer">Painel NUGESP</a>
+<body class="bg-slate-50 font-sans">
+    <!-- HEADER INSTITUCIONAL -->
+    <div class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-50">
+        <div class="max-w-screen-2xl mx-auto px-4 md:px-8 py-5 flex flex-col lg:flex-row lg:items-center gap-4 lg:justify-between">
+            <div class="flex items-center gap-x-4">
+                <div class="flex items-center justify-center w-11 h-11 bg-emerald-600 text-white rounded-2xl shadow-inner">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 4h8m-4 0v4m-6.5 6.5A6.5 6.5 0 1018.5 14a6.5 6.5 0 10-13 0zM12 10.5v7" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-semibold tracking-[-0.5px] text-slate-800" style="font-family: 'Space Grotesk', sans-serif;">Higiene das Mãos</h1>
+                    <p class="text-emerald-700 text-sm font-medium tracking-widest -mt-1">ANÁLISE DE HIGIENE DAS MÃOS • SCIH - HUC</p>
+                </div>
+                <div class="ml-3 px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-3xl flex items-center gap-x-1">
+                    <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                    DADOS EM TEMPO REAL
+                </div>
             </div>
-          </div>
-        </nav>
-      </div>
-      <header class="hero-header">
-        <h1>Boletim da Segurança do Paciente</h1>
-        <p>Selecione os filtros e gere o boletim em duas páginas (Caminhadas e Notificações).</p>
-      </header>
 
-      <div class="section-divider"></div>
+            <div class="flex flex-wrap items-center gap-3 md:gap-x-8">
+                <div onclick="refreshAllData()" class="flex items-center gap-x-2 text-slate-600 hover:text-emerald-700 cursor-pointer text-sm font-medium">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.058 11H1M12 3v2m0 16v2m9-9H15m-6 0a8 8 0 01-7.714-6.314" />
+                    </svg>
+                    ATUALIZAR DADOS
+                </div>
 
-      <section class="filters-grid">
-        <div class="filters-main">
-          <div class="filter-tabs" role="tablist" aria-label="Tipo de boletim">
-            <button type="button" class="tab-btn active" id="tab-caminhadas" data-tab="caminhadas" role="tab" aria-selected="true">Caminhadas</button>
-            <button type="button" class="tab-btn" id="tab-notificacoes" data-tab="notificacoes" role="tab" aria-selected="false">Notificações</button>
-          </div>
+                <div class="flex items-center bg-slate-100 rounded-3xl px-4 py-1 text-xs font-medium text-slate-500">
+                    <span class="bg-white text-emerald-700 px-3 py-px rounded-3xl mr-2">LIVE</span>
+                    Aba: Respostas ao formulário 1
+                </div>
 
-          <div class="filter-panel active" data-panel="caminhadas">
-            <div class="filter-group">
-              <div class="filter-group-head">
-                <span class="filter-icon blue" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.25c.3 0 .6.08.87.23l6.75 3.75c.54.3.88.87.88 1.49v4.6c0 4.86-2.95 9.24-7.45 11.04a2.2 2.2 0 0 1-1.64 0c-4.5-1.8-7.46-6.18-7.46-11.03v-4.61c0-.62.34-1.19.88-1.49l6.75-3.75c.27-.15.57-.23.87-.23Zm3.2 7.95a.75.75 0 0 0-1.08-.03l-2.86 2.71-1.08-1.08a.75.75 0 1 0-1.06 1.06l1.6 1.6c.56.56 1.46.58 2.05.03l3.46-3.22a.75.75 0 0 0 .03-1.07Z"></path></svg>
-                </span>
-                <h2>Caminhadas</h2>
-              </div>
-              <div class="fields">
-                <div class="field searchable-field">
-                  <label for="ano-cosep">Ano</label>
-                  <input id="busca-ano-cosep" class="filter-search" type="search" placeholder="Buscar ano..." data-target="ano-cosep">
-                  <select id="ano-cosep" multiple></select>
+                <div class="text-right">
+                    <div class="text-xs text-slate-400">Última atualização</div>
+                    <div id="last-update" class="text-sm font-medium text-slate-600">Agora</div>
                 </div>
-                <div class="field searchable-field">
-                  <label for="mes-cosep">Mês</label>
-                  <input id="busca-mes-cosep" class="filter-search" type="search" placeholder="Buscar mês..." data-target="mes-cosep">
-                  <select id="mes-cosep" multiple></select>
-                </div>
-                <div class="field searchable-field">
-                  <label for="unidade-cosep">Setor <small id="contador-unidade-cosep">0 selecionados</small></label>
-                  <input id="busca-unidade-cosep" class="filter-search" type="search" placeholder="Buscar setor..." data-target="unidade-cosep">
-                  <select id="unidade-cosep" multiple></select>
-                </div>
-              </div>
             </div>
-          </div>
+        </div>
+    </div>
 
-          <div class="filter-panel" data-panel="notificacoes">
-            <div class="filter-group">
-              <div class="filter-group-head">
-                <span class="filter-icon orange" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.25a4.75 4.75 0 0 0-4.75 4.75v1.06c0 .62-.2 1.22-.58 1.72l-1.17 1.56a3.25 3.25 0 0 0 2.6 5.2h7.8a3.25 3.25 0 0 0 2.6-5.2l-1.17-1.56c-.38-.5-.58-1.1-.58-1.72V8A4.75 4.75 0 0 0 12 3.25Zm0 18a2.74 2.74 0 0 0 2.58-1.85H9.42A2.74 2.74 0 0 0 12 21.25Z"></path></svg>
-                </span>
-                <h2>Notificações</h2>
-              </div>
-              <div class="fields">
-                <div class="field searchable-field">
-                  <label for="ano-notifica">Ano</label>
-                  <input id="busca-ano-notifica" class="filter-search" type="search" placeholder="Buscar ano..." data-target="ano-notifica">
-                  <select id="ano-notifica" multiple></select>
-                </div>
-                <div class="field searchable-field">
-                  <label for="mes-notifica">Mês</label>
-                  <input id="busca-mes-notifica" class="filter-search" type="search" placeholder="Buscar mês..." data-target="mes-notifica">
-                  <select id="mes-notifica" multiple></select>
-                </div>
-                <div class="field searchable-field">
-                  <label for="unidade-notifica">Setor <small id="contador-unidade-notifica">0 selecionados</small></label>
-                  <input id="busca-unidade-notifica" class="filter-search" type="search" placeholder="Buscar setor..." data-target="unidade-notifica">
-                  <select id="unidade-notifica" multiple></select>
-                </div>
-              </div>
+    <div class="max-w-screen-2xl mx-auto px-4 md:px-8 py-8">
+
+        <!-- LOADING OVERLAY -->
+        <div id="loading-screen" class="fixed inset-0 bg-white/80 backdrop-blur-xl flex items-center justify-center z-[9999] hidden">
+            <div class="text-center">
+                <div class="loading-spinner mx-auto w-12 h-12 border-4 border-emerald-300 border-t-emerald-700 rounded-full"></div>
+                <p class="mt-6 text-slate-600 font-medium">Carregando análise de higiene das mãos...</p>
             </div>
-          </div>
         </div>
 
-        <div class="actions">
-          <section class="action-group">
-            <h4>Ação principal</h4>
-            <button type="button" class="btn btn-primary" id="btn-gerar" onclick="carregarDados()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path><path d="M9 13h6"></path><path d="M9 17h6"></path><path d="M9 9h1"></path></svg>
-              <span>Gerar boletim</span>
-            </button>
-            <button type="button" class="btn" id="btn-baixar" onclick="baixarPDF()" disabled>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>
-              <span>Baixar PDF</span>
-            </button>
-          </section>
-
-          <section class="action-group">
-            <h4>Manipulação da fila</h4>
-            <button type="button" class="btn" id="btn-adicionar-fila" onclick="adicionarAFila()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
-              <span>Adicionar à fila</span>
-            </button>
-            <button type="button" class="btn" id="btn-imprimir-fila" onclick="imprimirFilaPDF()" disabled>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V3h12v6"></path><path d="M6 18h12v3H6z"></path><rect x="3" y="9" width="18" height="9" rx="2"></rect></svg>
-              <span>Imprimir fila</span>
-            </button>
-          </section>
-
-          <section class="action-group">
-            <h4>Limpeza</h4>
-            <button type="button" class="btn" id="btn-limpar-fila" onclick="limparFila()" disabled>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="m19 6-1 14H6L5 6"></path></svg>
-              <span>Limpar fila</span>
-            </button>
-            <button type="button" class="btn" id="btn-limpar" onclick="limparFiltros()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="m19 6-1 14H6L5 6"></path></svg>
-              <span>Limpar filtros</span>
-            </button>
-          </section>
-
-          <section class="queue-box" id="queue-box">
-            <strong>Fila de boletins (0)</strong>
-            <ul class="queue-list" id="queue-list">
-              <li class="queue-item">Nenhum boletim adicionado.</li>
-            </ul>
-          </section>
-        </div>
-      </section>
-
-      <div class="section-divider"></div>
-
-      <section class="selection-summary">
-        <div class="summary-header">
-          <div class="summary-title">
-            <span class="filter-icon indigo" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M3 6h.01"></path><path d="M3 12h.01"></path><path d="M3 18h.01"></path></svg>
-            </span>
-            <h3>Resumo da seleção</h3>
-          </div>
-          <div id="status-gerado" class="summary-updated">
-            <span class="icon-inline slate" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
-            </span>
-            <span>Última geração: <strong>não realizada</strong></span>
-          </div>
-        </div>
-
-        <div class="summary-rows">
-          <div class="summary-row" id="status-cosep">
-            <span class="summary-pill primary page-caminhadas">Página 1 · Caminhadas</span>
-            <span class="summary-pill">Todos os anos</span>
-            <span class="summary-pill">Todos os meses</span>
-            <span class="summary-pill">Todos os setores</span>
-          </div>
-          <div class="summary-row" id="status-notifica">
-            <span class="summary-pill primary page-notificacoes">Página 2 · Notificações</span>
-            <span class="summary-pill">Todos os anos</span>
-            <span class="summary-pill">Todos os meses</span>
-            <span class="summary-pill">Todos os setores</span>
-          </div>
-        </div>
-      </section>
-
-      <div class="section-divider"></div>
-
-      <section class="info-strip">
-        <span class="filter-icon indigo" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.75a9.25 9.25 0 1 0 0 18.5 9.25 9.25 0 0 0 0-18.5Zm0 5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5Zm1.25 8.5h-2.5v-5h2.5v5Z"></path></svg>
-        </span>
-        <div>O PDF será gerado em formato A4 com duas páginas: <strong>Caminhadas de Segurança</strong> + <strong>Notificações</strong>, conforme os filtros acima.</div>
-      </section>
-    </section>
-
-    <section id="loading" class="loading-box">Carregando dados do boletim...</section>
-
-    <section id="boletim" class="report-stack hidden">
-      <article class="document-page page-break" id="pagina-cosep">
-        <header class="page-header">
-          <div class="page-header-main">
-            <img class="page-logo" src="https://i.ibb.co/ccny4xx5/NGQS-Caminhada-Pela-Seguran-a-Mascote-Toten-Mandala-24-x-25cm-final-1.png" alt="Logo">
-            <div>
-              <h2>Boletim da Segurança do Paciente · Caminhadas de Segurança</h2>
-            </div>
-          </div>
-          <div class="page-meta" id="periodo-cosep"></div>
-        </header>
-
-        <section class="metrics">
-          <div class="metric-card blue">
-            <span>Conformidade geral</span>
-            <strong id="cosep-conformidade">0%</strong>
-            <small>Resultado consolidado do período selecionado.</small>
-          </div>
-          <div class="metric-card green">
-            <span>Avaliações</span>
-            <strong id="cosep-avaliacoes">0</strong>
-            <small>Formulários considerados na página 1.</small>
-          </div>
-          <div class="metric-card amber" id="card-cosep-unidades">
-            <span>Setores</span>
-            <strong id="cosep-unidades">0</strong>
-            <small>Total de setores identificados no recorte.</small>
-          </div>
-          <div class="metric-card red">
-            <span>Diferença da meta</span>
-            <strong id="cosep-diferenca">0%</strong>
-            <small id="cosep-meta-note">Meta institucional.</small>
-          </div>
-        </section>
-
-        <section class="panel">
-          <h3>Evolução mensal</h3>
-          <p>Conformidade no ano filtrado, sem duplicação de meses.</p>
-          <div class="chart-box compact"><canvas id="graficoEvolucao"></canvas></div>
-        </section>
-
-        <div class="legenda-melhor-meta hidden" id="legenda-melhor-meta">
-          <span class="legenda-melhor-meta-icone" aria-hidden="true">
-            <i class="fas fa-star"></i>
-          </span>
-          <span>Setor com maior conformidade na meta de segurança destacada</span>
-        </div>
-
-        <section class="panel panel-metas">
-          <div class="meta-grid" id="tb-metas"></div>
-        </section>
-
-        <footer class="footer-note">
-          <img class="footer-brand" src="https://i.ibb.co/VYv0RyF3/Rodape-1.png" alt="Rodapé institucional">
-        </footer>
-      </article>
-
-      <article class="document-page" id="pagina-notifica">
-        <header class="page-header">
-          <div class="page-header-main">
-            <img class="page-logo" src="https://i.ibb.co/ccny4xx5/NGQS-Caminhada-Pela-Seguran-a-Mascote-Toten-Mandala-24-x-25cm-final-1.png" alt="Logo">
-            <div>
-              <h2>Boletim da Segurança do Paciente · Notificações</h2>
-              <p>Consolidação da aba de notificações com filtro independente da página 1.</p>
-            </div>
-          </div>
-          <div class="page-meta" id="periodo-notifica"></div>
-        </header>
-
-        <section class="metrics">
-          <div class="metric-card blue">
-            <span>NOTIFICAÇÕES RECEBIDAS</span>
-            <strong id="notifica-total">0</strong>
-            <small>Registros encontrados para a página 2.</small>
-          </div>
-          <div class="metric-card red">
-            <span>Afetou paciente</span>
-            <strong id="notifica-percentual-afetou">0%</strong>
-            <small>Percentual de ocorrências marcadas como sim.</small>
-          </div>
-          <div class="metric-card green">
-            <span>Concluídas</span>
-            <strong id="notifica-concluidas">0</strong>
-            <small>Status concluído no recorte selecionado.</small>
-          </div>
-          <div class="metric-card amber" id="card-notifica-setores">
-            <span>Setores</span>
-            <strong id="notifica-setores">0</strong>
-            <small>Total de setores encontrados no recorte.</small>
-          </div>
-        </section>
-
-        <section class="section-grid-3">
-          <div class="panel">
-            <h3>Afetou paciente?</h3>
-            <p>Distribuição entre registros marcados como sim e não.</p>
-            <div class="chart-box pie-chart-box"><canvas id="graficoAfetou"></canvas></div>
-          </div>
-          <div class="panel">
-            <h3>Classificações</h3>
-            <p>Todas as classificações encontradas no filtro atual.</p>
-            <table class="compact-table">
-              <thead><tr><th>Tipo</th><th style="width:22%;">Qtd</th></tr></thead>
-              <tbody id="tb-tipo"></tbody>
-            </table>
-          </div>
-          <div class="panel" id="panel-top-setores">
-            <h3>Top setores</h3>
-            <p>Setores com maior volume de notificações.</p>
-            <table class="compact-table">
-              <thead><tr><th>Setor</th><th style="width:22%;">Qtd</th></tr></thead>
-              <tbody id="tb-setor"></tbody>
-            </table>
-          </div>
-        </section>
-
-        <section class="section-grid-2">
-          <div class="panel compact-panel" id="panel-tempo-resposta-gestor">
-            <h3>Status das notificações</h3>
-            <p>Situação dos registros no período filtrado.</p>
-            <table class="compact-table">
-              <thead><tr><th>Status</th><th style="width:22%;">Qtd</th></tr></thead>
-              <tbody id="tb-status"></tbody>
-            </table>
-          </div>
-          <div class="panel compact-panel" id="panel-tempo-resposta-gestor">
-            <h3>Tempo médio de resposta do gestor</h3>
-            <p>Prazo calculado entre DAT. CLASSIFICAÇÃO e DAT. RESPOSTA no período filtrado.</p>
-            <div class="response-panels">
-              <section class="response-panel" id="response-panel-meta5">
-                <h4>Meta de 5 dias</h4>
-                <p>EVENTO ADVERSO GRAVE, EVENTO ADVERSO ÓBITO e NEVER EVENT.</p>
-                <div class="response-chart-box"><canvas id="graficoRespostaMeta5"></canvas></div>
-              </section>
-              <section class="response-panel" id="response-panel-meta10">
-                <h4>Meta de 10 dias</h4>
-                <p>Demais classificações do filtro selecionado.</p>
-                <div class="response-chart-box"><canvas id="graficoRespostaMeta10"></canvas></div>
-              </section>
-            </div>
-          </div>
-        </section>
-
-        <footer class="footer-note">
-          <img class="footer-brand" src="https://i.ibb.co/VYv0RyF3/Rodape-1.png" alt="Rodapé institucional">
-        </footer>
-      </article>
-    </section>
-  </main>
-
-  <script>
-    let chartEvolucao = null;
-    let chartAfetou = null;
-    let chartRespostaMeta5 = null;
-    let chartRespostaMeta10 = null;
-    let boletimGerado = false;
-    let filaBoletins = [];
-    let html2pdfLoader = null;
-    let buscaFiltrosConfigurada = false;
-    let tabsConfiguradas = false;
-    let listenersFiltrosConfigurados = false;
-
-    const CHART_DEVICE_PIXEL_RATIO_PDF = 3;
-    const IDS_FILTROS = ['ano-cosep', 'mes-cosep', 'unidade-cosep', 'ano-notifica', 'mes-notifica', 'unidade-notifica'];
-    const MULTI_CONFIG = {
-      'ano-cosep': { label: 'Ano', tipo: 'ano' },
-      'mes-cosep': { label: 'Mês', tipo: 'mes' },
-      'unidade-cosep': { label: 'Setor', tipo: 'setor' },
-      'ano-notifica': { label: 'Ano', tipo: 'ano' },
-      'mes-notifica': { label: 'Mês', tipo: 'mes' },
-      'unidade-notifica': { label: 'Setor', tipo: 'setor' }
-    };
-    const multiSelectRefs = {};
-
-    function getStorage() {
-      try {
-        return window.localStorage;
-      } catch (_) {
-        return null;
-      }
-    }
-
-    function loadScript(src) {
-      return new Promise((resolve, reject) => {
-        const existente = document.querySelector(`script[src="${src}"]`);
-        if (existente) {
-          if (window.html2pdf) {
-            resolve(window.html2pdf);
-            return;
-          }
-          existente.addEventListener('load', () => resolve(window.html2pdf), { once: true });
-          existente.addEventListener('error', () => reject(new Error('Falha ao carregar biblioteca externa.')), { once: true });
-          return;
-        }
-
-        const script = document.createElement('script');
-        script.src = src;
-        script.async = true;
-        script.onload = () => resolve(window.html2pdf);
-        script.onerror = () => reject(new Error('Falha ao carregar biblioteca externa.'));
-        document.head.appendChild(script);
-      });
-    }
-
-    async function getHtml2Pdf() {
-      if (window.html2pdf) return window.html2pdf;
-      if (!html2pdfLoader) {
-        html2pdfLoader = loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js');
-      }
-      const html2pdfRef = await html2pdfLoader;
-      if (!html2pdfRef) throw new Error('html2pdf indisponível.');
-      return html2pdfRef;
-    }
-
-    function fetchViaGoogleScript(params = {}) {
-      return new Promise((resolve, reject) => {
-        if (!(window.google && google.script && google.script.run)) {
-          reject(new Error('google.script.run indisponível.'));
-          return;
-        }
-
-        google.script.run
-          .withSuccessHandler(resolve)
-          .withFailureHandler(reject)
-          .obterPayload(params);
-      });
-    }
-
-    async function fetchViaHttp(params = {}) {
-      const query = new URLSearchParams({ api: '1' });
-      Object.entries(params || {}).forEach(([chave, valor]) => {
-        if (Array.isArray(valor)) {
-          if (valor.length) query.set(chave, valor.join('|'));
-          return;
-        }
-        if (valor != null && String(valor).trim() !== '') query.set(chave, String(valor));
-      });
-      const resposta = await fetch(`${location.pathname}?${query.toString()}`, { cache: 'no-store' });
-      if (!resposta.ok) throw new Error('Falha ao buscar dados do Apps Script.');
-      return resposta.json();
-    }
-
-    async function fetchAPI(params = {}) {
-      if (window.google && google.script && google.script.run) {
-        return fetchViaGoogleScript(params);
-      }
-      return fetchViaHttp(params);
-    }
-
-    async function fetchAPIComRetry(params = {}, tentativas = 2) {
-      let ultimoErro = null;
-      for (let i = 0; i < tentativas; i += 1) {
-        try {
-          return await fetchAPI(params);
-        } catch (erro) {
-          ultimoErro = erro;
-          if (i < tentativas - 1) {
-            await new Promise(resolve => setTimeout(resolve, 250 * (i + 1)));
-          }
-        }
-      }
-      throw ultimoErro || new Error('Falha inesperada ao carregar dados.');
-    }
-
-    function escapeHtml(value) {
-      return String(value == null ? '' : value)
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#039;');
-    }
-
-    function optionHTML(value, text, selected = false) {
-      return `<option value="${escapeHtml(value)}" ${selected ? 'selected' : ''}>${escapeHtml(text)}</option>`;
-    }
-
-    function preencherSelect(id, opcoes) {
-      const elemento = document.getElementById(id);
-      elemento.innerHTML = (opcoes || []).map(item => optionHTML(item, item)).join('');
-      atualizarMultiSelect(id);
-    }
-
-    function preencherFiltros(filtros) {
-      const filtrosCosep = (filtros && filtros.caminhadas) || {};
-      const filtrosNotifica = (filtros && filtros.notificacoes) || {};
-
-      preencherSelect('ano-cosep', filtrosCosep.anos);
-      preencherSelect('mes-cosep', filtrosCosep.meses);
-      preencherSelect('unidade-cosep', filtrosCosep.unidades);
-
-      preencherSelect('ano-notifica', filtrosNotifica.anos);
-      preencherSelect('mes-notifica', filtrosNotifica.meses);
-      preencherSelect('unidade-notifica', filtrosNotifica.unidades);
-
-      const hoje = new Date();
-      const anoAtual = String(hoje.getFullYear());
-      const mesAtual = hoje.toLocaleDateString('pt-BR', { month: 'long' });
-      const mesAtualCapitalizado = mesAtual.charAt(0).toUpperCase() + mesAtual.slice(1);
-
-      selecionarValores('ano-cosep', [anoAtual]);
-      selecionarValores('ano-notifica', [anoAtual]);
-      selecionarValores('mes-cosep', [mesAtualCapitalizado]);
-      selecionarValores('mes-notifica', [mesAtualCapitalizado]);
-
-      restaurarUltimosFiltros();
-      atualizarContadoresFiltros();
-      atualizarEstadoAcoes();
-    }
-
-    function formatPct(value) {
-      return `${Number(value || 0).toFixed(1)}%`;
-    }
-
-    function ordenarEntriesDesc(entries) {
-      return [...(entries || [])].sort((a, b) => {
-        const diferenca = Number(b[1] || 0) - Number(a[1] || 0);
-        if (diferenca !== 0) return diferenca;
-        return String(a[0] || '').localeCompare(String(b[0] || ''), 'pt-BR');
-      });
-    }
-
-    function topEntries(obj, limit = 5) {
-      return ordenarEntriesDesc(Object.entries(obj || {})).slice(0, limit);
-    }
-
-    function renderRows(entries, colSpan = 2, options = {}) {
-      if (!entries.length) {
-        return `<tr><td colspan="${colSpan}">Sem dados no filtro atual.</td></tr>`;
-      }
-
-      const firstCellClass = options.firstCellClass || '';
-      const firstCellClassAttr = firstCellClass ? ` class="${escapeHtml(firstCellClass)}"` : '';
-      const keyFormatter = typeof options.keyFormatter === 'function'
-        ? options.keyFormatter
-        : value => value;
-
-      return entries
-        .map(([chave, valor]) => `<tr><td${firstCellClassAttr}>${escapeHtml(keyFormatter(chave))}</td><td>${escapeHtml(valor)}</td></tr>`)
-        .join('');
-    }
-
-    function abreviarClassificacaoNotifica(valor) {
-      const chave = String(valor == null ? '' : valor)
-        .trim()
-        .replace(/\s+/g, ' ')
-        .toUpperCase();
-
-      const mapa = {
-        'EVENTO ADVERSO MODERADO': 'E.A Moderado',
-        'EVENTO ADVERSO LEVE': 'E.A Leve',
-        'EVENTO ADVERSO GRAVE': 'E.A Grave',
-        'EVENTO ADVERSO ÓBITO': 'E.A Óbito',
-        'EVENTO ADVERSO OBITO': 'E.A Óbito'
-      };
-
-      return mapa[chave] || valor;
-    }
-
-    function selecionarValores(id, valores) {
-      const campo = document.getElementById(id);
-      if (!campo) return;
-      const conjunto = new Set((valores || []).map(item => String(item)));
-      Array.from(campo.options).forEach(opcao => {
-        opcao.selected = conjunto.has(opcao.value);
-      });
-      atualizarMultiSelect(id);
-    }
-
-    function obterValoresSelecionados(id) {
-      const campo = document.getElementById(id);
-      if (!campo) return [];
-      return Array.from(campo.selectedOptions).map(option => String(option.value || '').trim()).filter(Boolean);
-    }
-
-    function obterFiltrosTela() {
-      return {
-        anosCosep: obterValoresSelecionados('ano-cosep'),
-        mesesCosep: obterValoresSelecionados('mes-cosep'),
-        unidadesCosep: obterValoresSelecionados('unidade-cosep'),
-        anosNotifica: obterValoresSelecionados('ano-notifica'),
-        mesesNotifica: obterValoresSelecionados('mes-notifica'),
-        unidadesNotifica: obterValoresSelecionados('unidade-notifica')
-      };
-    }
-
-    function atualizarContadoresFiltros() {
-      const contCosep = document.getElementById('contador-unidade-cosep');
-      const contNotifica = document.getElementById('contador-unidade-notifica');
-      const qtdCosep = obterValoresSelecionados('unidade-cosep').length;
-      const qtdNotifica = obterValoresSelecionados('unidade-notifica').length;
-      if (contCosep) contCosep.textContent = `${qtdCosep} ${qtdCosep === 1 ? 'setor selecionado' : 'setores selecionados'}`;
-      if (contNotifica) contNotifica.textContent = `${qtdNotifica} ${qtdNotifica === 1 ? 'setor selecionado' : 'setores selecionados'}`;
-    }
-
-    function existeFiltroMinimo() {
-      const filtros = obterFiltrosTela();
-      return Boolean(
-        filtros.anosCosep.length && filtros.mesesCosep.length &&
-        filtros.anosNotifica.length && filtros.mesesNotifica.length
-      );
-    }
-
-    function atualizarEstadoAcoes() {
-      const btnGerar = document.getElementById('btn-gerar');
-      const btnBaixar = document.getElementById('btn-baixar');
-      const btnImprimirFila = document.getElementById('btn-imprimir-fila');
-      const btnLimparFila = document.getElementById('btn-limpar-fila');
-      if (btnGerar) btnGerar.disabled = !existeFiltroMinimo();
-      if (btnBaixar) btnBaixar.disabled = !boletimGerado;
-      if (btnImprimirFila) btnImprimirFila.disabled = filaBoletins.length === 0;
-      if (btnLimparFila) btnLimparFila.disabled = filaBoletins.length === 0;
-    }
-
-    function formatResumoFila(filtros) {
-      const p1 = formatPeriodo({
-        anos: filtros.anosCosep,
-        meses: filtros.mesesCosep,
-        unidades: filtros.unidadesCosep
-      }, 'cosep');
-      const p2 = formatPeriodo({
-        anos: filtros.anosNotifica,
-        meses: filtros.mesesNotifica,
-        unidades: filtros.unidadesNotifica
-      }, 'notifica');
-      return `Caminhadas: ${p1.mes}/${p1.ano} · ${p1.unidade} | Notificações: ${p2.mes}/${p2.ano} · ${p2.unidade}`;
-    }
-
-    function renderFila() {
-      const box = document.getElementById('queue-box');
-      const lista = document.getElementById('queue-list');
-      if (!box || !lista) return;
-      const titulo = box.querySelector('strong');
-      if (titulo) titulo.textContent = `Fila de boletins (${filaBoletins.length})`;
-      if (!filaBoletins.length) {
-        lista.innerHTML = '<li class="queue-item">Nenhum boletim adicionado.</li>';
-        return;
-      }
-      lista.innerHTML = filaBoletins.map((item, index) => `
-        <li class="queue-item">
-          <strong>#${index + 1}</strong> · ${escapeHtml(formatResumoFila(item.filtros))}
-        </li>
-      `).join('');
-    }
-
-    function adicionarAFila() {
-      if (!existeFiltroMinimo()) return;
-      filaBoletins.push({
-        filtros: obterFiltrosTela()
-      });
-      fecharTodosMultiSelect();
-      renderFila();
-      atualizarEstadoAcoes();
-    }
-
-    function limparFila() {
-      filaBoletins = [];
-      renderFila();
-      atualizarEstadoAcoes();
-    }
-
-    function salvarUltimosFiltros() {
-      const storage = getStorage();
-      if (!storage) return;
-      try {
-        storage.setItem('boletim_ultimos_filtros', JSON.stringify(obterFiltrosTela()));
-      } catch (_) {}
-    }
-
-    function restaurarUltimosFiltros() {
-      const storage = getStorage();
-      if (!storage) return;
-      try {
-        const dados = JSON.parse(storage.getItem('boletim_ultimos_filtros') || '{}');
-        if (!dados || typeof dados !== 'object') return;
-        selecionarValores('ano-cosep', dados.anosCosep || []);
-        selecionarValores('mes-cosep', dados.mesesCosep || []);
-        selecionarValores('unidade-cosep', dados.unidadesCosep || []);
-        selecionarValores('ano-notifica', dados.anosNotifica || []);
-        selecionarValores('mes-notifica', dados.mesesNotifica || []);
-        selecionarValores('unidade-notifica', dados.unidadesNotifica || []);
-      } catch (_) {}
-    }
-
-    function limparFiltros() {
-      const hoje = new Date();
-      const anoAtual = String(hoje.getFullYear());
-      const mesAtual = hoje.toLocaleDateString('pt-BR', { month: 'long' });
-      const mesAtualCapitalizado = mesAtual.charAt(0).toUpperCase() + mesAtual.slice(1);
-      selecionarValores('ano-cosep', [anoAtual]);
-      selecionarValores('mes-cosep', [mesAtualCapitalizado]);
-      selecionarValores('unidade-cosep', []);
-      selecionarValores('ano-notifica', [anoAtual]);
-      selecionarValores('mes-notifica', [mesAtualCapitalizado]);
-      selecionarValores('unidade-notifica', []);
-      salvarUltimosFiltros();
-      atualizarContadoresFiltros();
-      atualizarEstadoAcoes();
-      atualizarResumoParcial();
-    }
-
-    function atualizarResumoParcial() {
-      const filtrosTela = obterFiltrosTela();
-      atualizarStatus({
-        caminhadas: {
-          anos: filtrosTela.anosCosep,
-          meses: filtrosTela.mesesCosep,
-          unidades: filtrosTela.unidadesCosep
-        },
-        notificacoes: {
-          anos: filtrosTela.anosNotifica,
-          meses: filtrosTela.mesesNotifica,
-          unidades: filtrosTela.unidadesNotifica
-        }
-      }, 'não realizada');
-    }
-
-    function formatPeriodo(filtro, tipo) {
-      const anos = (filtro && filtro.anos) || [];
-      const meses = (filtro && filtro.meses) || [];
-      const unidades = (filtro && filtro.unidades) || [];
-      const faixaMes = meses.length > 1 ? `${meses[0]}–${meses[meses.length - 1]}` : (meses[0] || 'Todos os meses');
-      const anoResumo = anos.length ? anos.join(', ') : 'Todos os anos';
-      const unidadeResumo = unidades.length
-        ? `${unidades.length} ${unidades.length === 1 ? 'setor' : 'setores'}`
-        : 'Todos os setores';
-      return {
-        ano: anoResumo,
-        mes: faixaMes,
-        unidade: unidadeResumo
-      };
-    }
-
-    const META_VISUAL = {
-      'Identificação Segura': {
-        color: '#C62828',
-        icon: '<i class="fas fa-id-badge" aria-hidden="true"></i>'
-      },
-      'Comunicação Efetiva': {
-        color: '#D4A017',
-        icon: '<i class="fas fa-comments" aria-hidden="true"></i>'
-      },
-      'Segurança da Cadeia Medicamentosa': {
-        color: '#1E88E5',
-        icon: '<i class="fas fa-pills" aria-hidden="true"></i>'
-      },
-      'Segurança na Prescrição / Uso de Medicamentos': {
-        color: '#1E88E5',
-        icon: '<i class="fas fa-file-prescription" aria-hidden="true"></i>'
-      },
-      'Cirurgia Segura': {
-        color: '#8E44AD',
-        icon: '<i class="fas fa-user-doctor" aria-hidden="true"></i>'
-      },
-      'Prevenção de Quedas': {
-        color: '#8D6E63',
-        icon: '<i class="fas fa-person-falling" aria-hidden="true"></i>'
-      },
-      'Prevenção de Lesão por Pressão': {
-        color: '#F57C00',
-        icon: '<i class="fas fa-bed" aria-hidden="true"></i>'
-      },
-      'Higienização das Mãos': {
-        color: '#7CB342',
-        icon: '<i class="fas fa-hands-bubbles" aria-hidden="true"></i>'
-      }
-    };
-
-    function hexToRgba(hex, alpha) {
-      const valor = String(hex || '').replace('#', '').trim();
-      if (![3, 6].includes(valor.length)) return `rgba(237, 244, 255, ${alpha})`;
-      const normalizado = valor.length === 3 ? valor.split('').map(char => char + char).join('') : valor;
-      const numero = parseInt(normalizado, 16);
-      const r = (numero >> 16) & 255;
-      const g = (numero >> 8) & 255;
-      const b = numero & 255;
-      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-    }
-
-    function getMetaVisual(nomeMeta) {
-      return META_VISUAL[nomeMeta] || { color: '#1f5fbf', icon: '<i class="fas fa-user-clock" aria-hidden="true"></i>' };
-    }
-
-    function definirCorIcone(svgMarkup, color) {
-      const cor = String(color || '#1f5fbf').trim() || '#1f5fbf';
-      return String(svgMarkup || '')
-        .replace(/currentColor/g, cor)
-        .replace(/stroke="none"/g, `stroke="${cor}"`);
-    }
-
-    function renderTabelaMetas(lista, metasEmDestaque = new Set()) {
-      const metaMinimaDestaque = 80;
-      const alvo = document.getElementById('tb-metas');
-      if (!lista || !lista.length) {
-        alvo.innerHTML = '<div class="meta-card-empty">Sem metas avaliadas no filtro atual.</div>';
-        return;
-      }
-
-      alvo.innerHTML = lista.map(meta => {
-        const visual = getMetaVisual(meta.nome);
-        const percentualMeta = Number(meta.percentual || 0);
-        const destaqueMelhorMeta = metasEmDestaque.has(meta.nome) && percentualMeta > metaMinimaDestaque;
-        const iconeMeta = destaqueMelhorMeta
-          ? '<i class="fas fa-star" aria-hidden="true"></i>'
-          : definirCorIcone(visual.icon, visual.color);
-        const linhasItens = (meta.itens || []).map(item => {
-          const legendaItem = `${item.codigo} ${item.nome || ''}`.trim();
-          return `
-            <tr>
-              <td title="${escapeHtml(legendaItem)}"><span class="meta-item-label">${escapeHtml(legendaItem)}</span></td>
-              <td>${formatPct(item.percentual)}</td>
-            </tr>
-          `;
-        }).join('');
-
-        return `
-          <section class="meta-card ${destaqueMelhorMeta ? 'best-meta' : ''}" style="--meta-color: ${escapeHtml(visual.color)}; --meta-soft: ${escapeHtml(hexToRgba(visual.color, 0.12))};">
-            <div class="meta-card-header">
-              <div class="meta-card-header-text">
-                <div class="meta-card-title" title="${escapeHtml(meta.nome || '')}">
-                  <span class="meta-card-icon ${destaqueMelhorMeta ? 'star-highlight' : ''}">${iconeMeta}</span>
-                  <span>${escapeHtml(`${meta.codigo}. ${meta.nome || `Meta ${meta.codigo}`}`)}</span>
+        <div id="main-content">
+
+            <!-- KPI CARDS -->
+            <div id="kpi-grid" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6 mb-10"></div>
+
+            <!-- FILTROS COMPACTOS -->
+            <div class="bg-white rounded-3xl shadow-lg border border-slate-100 p-5 md:p-7 mb-10">
+                <div class="flex flex-col gap-2 mb-4">
+                    <h2 class="text-xl font-semibold text-slate-800 flex items-center gap-x-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="m21 21-4.35-4.35m1.6-5.15a6.75 6.75 0 11-13.5 0 6.75 6.75 0 0113.5 0z" />
+                        </svg>
+                        Filtros Inteligentes
+                    </h2>
+
+                    <div class="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-3">
+                        <div class="bg-emerald-50/80 border border-emerald-200 rounded-2xl p-3">
+                            <label class="block text-xs font-semibold tracking-wide text-emerald-700 mb-2">PERÍODO</label>
+                            <div class="flex flex-col sm:flex-row gap-2">
+                                <input id="dataInicio" type="date"
+                                       class="border border-emerald-200 bg-white rounded-2xl px-4 py-2 text-sm focus:outline-none focus:border-emerald-500">
+                                <input id="dataFim" type="date"
+                                       class="border border-emerald-200 bg-white rounded-2xl px-4 py-2 text-sm focus:outline-none focus:border-emerald-500">
+                            </div>
+                        </div>
+
+                        <div class="flex gap-x-4">
+                            <button onclick="clearAllFilters()"
+                                    class="text-xs font-medium text-slate-400 hover:text-slate-600 flex items-center">
+                                LIMPAR TUDO
+                            </button>
+                            <button onclick="applyCurrentFilters()"
+                                    class="px-6 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-2xl text-sm font-semibold">
+                                APLICAR FILTROS
+                            </button>
+                        </div>
+                    </div>
                 </div>
-              </div>
-              <strong>${formatPct(meta.percentual)}</strong>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
+                    <!-- Unidade -->
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-2">UNIDADE DE INTERNAÇÃO</label>
+                        <select id="unidades" multiple
+                                class="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-400"></select>
+                    </div>
+
+                    <!-- Categoria -->
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-2">CATEGORIA PROFISSIONAL</label>
+                        <select id="categorias" multiple
+                                class="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-400"></select>
+                    </div>
+
+                    <!-- Momento -->
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-2">MOMENTO DE REALIZAÇÃO</label>
+                        <select id="momentos" multiple
+                                class="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-400"></select>
+                    </div>
+
+                    <!-- Situação -->
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-2">SITUAÇÃO</label>
+                        <select id="situacoes" multiple
+                                class="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-400">
+                            <option value="Realizado">Realizado</option>
+                            <option value="Não realizado">Não realizado</option>
+                            <option value="Incompleto">Incompleto</option>
+                        </select>
+                    </div>
+
+                    <!-- Método -->
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-2">MÉTODO</label>
+                        <select id="metodos" multiple
+                                class="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-400"></select>
+                    </div>
+
+                    <!-- Preenchimento -->
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-2">PREENCHIMENTO</label>
+                        <select id="preenchimentos" multiple
+                                class="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-400">
+                            <option value="Completo">Completo</option>
+                            <option value="Incompleto">Incompleto</option>
+                        </select>
+                    </div>
+                </div>
             </div>
-            <table>
-              <thead>
-                <tr>
-                  <th>Subitem</th>
-                  <th>%</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${linhasItens}
-              </tbody>
-            </table>
-          </section>
-        `;
-      }).join('');
-    }
 
-    function classificarStatusConformidade(percentual) {
-      const valor = Number(percentual || 0);
-      if (valor >= 80) return 'verde';
-      if (valor >= 60) return 'laranja';
-      return 'vermelha';
-    }
+            <!-- GRÁFICOS -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6 mb-12 auto-rows-[minmax(260px,auto)]">
+                <div class="bg-white rounded-3xl shadow-lg p-6 flex flex-col xl:col-span-2">
+                    <div class="flex justify-between items-baseline mb-5">
+                        <h3 class="font-semibold text-slate-800">Evolução Temporal por Mês</h3>
+                    </div>
+                    <div class="chart-container flex-1"><canvas id="temporalChart"></canvas></div>
+                </div>
 
-    function obterIconeStatusConformidade(classeStatus) {
-      const corFaixa = '#8f99a8';
-      const corBandeira = classeStatus === 'verde'
-        ? '#1f8f5f'
-        : (classeStatus === 'laranja' ? '#d4881a' : '#c05621');
+                <div class="bg-white rounded-3xl shadow-lg p-6 flex flex-col xl:col-span-2">
+                    <div class="flex justify-between items-baseline mb-5">
+                        <h3 class="font-semibold text-slate-800">Adesão por Momento</h3>
+                    </div>
+                    <div class="chart-container chart-xlarge flex-1"><canvas id="momentoChart"></canvas></div>
+                </div>
 
-      return `
-        <svg viewBox="0 0 12 12" aria-hidden="true" focusable="false">
-          <rect x="0" y="0.5" width="2" height="11" rx="1" fill="${corFaixa}"></rect>
-          <path d="M2.2 1.4H11L9.7 3.2L11 5L2.2 5.4V1.4z" fill="${corBandeira}"></path>
-        </svg>
-      `;
-    }
+                <div class="bg-white rounded-3xl shadow-lg p-6 flex flex-col lg:col-span-2 xl:col-span-2 xl:row-span-2">
+                    <div class="flex justify-between items-baseline mb-5">
+                        <h3 class="font-semibold text-slate-800">Adesão por Unidade</h3>
+                    </div>
+                    <div class="chart-container chart-xxlarge flex-1"><canvas id="unidadeChart"></canvas></div>
+                </div>
 
-    function renderRankingSetoresConformidade(ranking, filtro) {
-      const metasGrid = document.getElementById('tb-metas');
-      if (!metasGrid) return;
+                <div class="bg-white rounded-3xl shadow-lg p-6 flex flex-col xl:col-span-2">
+                    <div class="flex justify-between items-baseline mb-5">
+                        <h3 class="font-semibold text-slate-800">Por Categoria Profissional</h3>
+                    </div>
+                    <div class="chart-container chart-categoria flex-1"><canvas id="categoriaChart"></canvas></div>
+                </div>
 
-      let box = document.getElementById('ranking-setores-conformidade');
-      if (!box) {
-        box = document.createElement('div');
-        box.id = 'ranking-setores-conformidade';
-        box.className = 'ranking-setores-box grid-slot hidden';
-        box.innerHTML = `
-          <p class="ranking-setores-head">Setores por conformidade</p>
-          <div class="ranking-setores-lista" id="ranking-setores-lista"></div>
-        `;
-      }
+                <div class="bg-white rounded-3xl shadow-lg p-6 flex flex-col">
+                    <div class="flex justify-between items-baseline mb-5">
+                        <h3 class="font-semibold text-slate-800">Distribuição por Situação</h3>
+                    </div>
+                    <div class="chart-container chart-distribuicao flex-1"><canvas id="situacaoChart"></canvas></div>
+                </div>
 
-      const lista = box.querySelector('#ranking-setores-lista');
-      if (!box || !lista) return;
-
-      const unidadesSelecionadas = ((filtro && filtro.unidades) || []).length;
-      if (unidadesSelecionadas < 2) {
-        box.classList.add('hidden');
-        lista.innerHTML = '';
-        if (box.parentElement === metasGrid) box.remove();
-        return;
-      }
-
-      const linhas = (ranking || []).map(item => {
-        const classe = classificarStatusConformidade(item.percentual);
-        return `
-          <div class="ranking-setor-item">
-            <div class="ranking-setor-nome">
-              <span class="flag-status" aria-hidden="true">${obterIconeStatusConformidade(classe)}</span>
-              <span class="ranking-setor-nome-texto" title="${escapeHtml(item.setor || '')}">${escapeHtml(item.setor || 'Não informado')}</span>
+                <div class="bg-white rounded-3xl shadow-lg p-6 flex flex-col">
+                    <div class="flex justify-between items-baseline mb-5">
+                        <h3 class="font-semibold text-slate-800">Distribuição por Método</h3>
+                    </div>
+                    <div class="chart-container chart-distribuicao flex-1"><canvas id="metodoChart"></canvas></div>
+                </div>
             </div>
-            <span class="ranking-setor-valor">${formatPct(item.percentual)}</span>
-          </div>
-        `;
-      }).join('');
 
-      lista.innerHTML = linhas || '<div class="ranking-setor-item"><span class="ranking-setor-nome-texto">Sem dados no filtro atual.</span></div>';
-      box.classList.remove('hidden');
-      metasGrid.appendChild(box);
-    }
+            <!-- INSIGHTS AUTOMÁTICOS -->
+            <div class="bg-gradient-to-r from-emerald-700 to-emerald-800 text-white rounded-2xl p-3 mb-8 shadow-lg">
+                <h2 class="text-base font-semibold mb-2 flex items-center gap-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 18h6m-5 3h4m-7-9a5 5 0 1110 0c0 1.9-.93 3.57-2.36 4.6-.62.45-1.14 1.13-1.14 1.9V19H10.5v-.5c0-.77-.52-1.45-1.14-1.9A5.64 5.64 0 017 12z" />
+                    </svg>
+                    Insights Automáticos
+                </h2>
+                <div id="insights-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2"></div>
+            </div>
 
-    function renderLegendaMelhorMeta(metasEmDestaque = new Set()) {
-      const legenda = document.getElementById('legenda-melhor-meta');
-      if (!legenda) return;
-      if ((metasEmDestaque && metasEmDestaque.size) > 0) {
-        legenda.classList.remove('hidden');
-        return;
-      }
-      legenda.classList.add('hidden');
-    }
+            <!-- TABELA DETALHADA -->
+            <div class="bg-white rounded-3xl shadow-lg overflow-hidden border border-slate-100">
+                <div class="px-8 py-5 border-b flex items-center justify-between bg-slate-50">
+                    <h2 class="font-semibold text-lg flex items-center">
+                        Tabela Detalhada
+                        <span id="table-info" class="ml-3 text-xs font-mono bg-white px-3 py-1 rounded-3xl text-slate-500"></span>
+                    </h2>
+                    <button onclick="exportToCSV()"
+                            class="text-xs flex items-center gap-x-2 px-5 py-2 border border-slate-300 hover:bg-slate-100 rounded-2xl font-medium">
+                        Exportar CSV
+                    </button>
+                </div>
 
-    function criarGraficoLinha(labels, valores) {
-      if (chartEvolucao) chartEvolucao.destroy();
-      chartEvolucao = new Chart(document.getElementById('graficoEvolucao'), {
-        type: 'line',
-        data: {
-          labels,
-          datasets: [{
-            data: valores,
-            borderColor: '#154a96',
-            backgroundColor: 'rgba(21, 74, 150, 0.18)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.25,
-            pointRadius: 3,
-            pointHoverRadius: 4
-          }]
-        },
-        options: {
-          devicePixelRatio: CHART_DEVICE_PIXEL_RATIO_PDF,
-          responsive: true,
-          maintainAspectRatio: false,
-          animation: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: {
-              min: 0,
-              max: 100,
-              afterBuildTicks: axis => {
-                axis.ticks = [20, 60, 80, 100].map(value => ({ value }));
-              },
-              ticks: {
-                autoSkip: false,
-                callback: value => `${value}%`,
-                font: { size: 22 },
-                padding: 8
-              },
-              grid: { color: 'rgba(148, 163, 184, 0.3)' }
-            },
-            x: {
-              ticks: { font: { size: 22 }, maxRotation: 0, minRotation: 0, padding: 6 },
-              grid: { display: false }
-            }
-          }
-        },
-        plugins: [pluginRotuloPontos]
-      });
-    }
+                <div class="overflow-auto max-h-[560px]">
+                    <table class="w-full text-sm" id="detail-table">
+                        <thead class="sticky top-0 bg-white z-10 shadow-sm">
+                            <tr class="border-b">
+                                <th class="text-left px-8 py-4 font-medium text-slate-500 text-xs tracking-widest">DATA/HORA</th>
+                                <th class="text-left px-8 py-4 font-medium text-slate-500 text-xs tracking-widest">UNIDADE</th>
+                                <th class="text-left px-8 py-4 font-medium text-slate-500 text-xs tracking-widest">CATEGORIA</th>
+                                <th class="text-left px-8 py-4 font-medium text-slate-500 text-xs tracking-widest">MOMENTO</th>
+                                <th class="text-left px-8 py-4 font-medium text-slate-500 text-xs tracking-widest">AÇÃO</th>
+                                <th class="text-left px-8 py-4 font-medium text-slate-500 text-xs tracking-widest">SITUAÇÃO</th>
+                                <th class="text-left px-8 py-4 font-medium text-slate-500 text-xs tracking-widest">MÉTODO</th>
+                                <th class="text-left px-8 py-4 font-medium text-slate-500 text-xs tracking-widest">PREENCHIMENTO</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body" class="divide-y text-slate-700"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    const pluginRotuloPontos = {
-      id: 'rotuloPontos',
-      afterDatasetsDraw(chart) {
-        const { ctx } = chart;
-        const meta = chart.getDatasetMeta(0);
-        const dataset = chart.data.datasets[0];
-        if (!meta || !dataset) return;
-
-        meta.data.forEach((point, index) => {
-          const valor = Number((dataset.data || [])[index] || 0);
-          const texto = `${valor.toFixed(1).replace('.', ',')}%`;
-          const ajusteEixoVertical = index === 0 ? 14 : 0;
-          ctx.save();
-          ctx.fillStyle = '#ffffff';
-          ctx.font = '700 22px Assistant, sans-serif';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'top';
-          ctx.fillText(texto, point.x + ajusteEixoVertical, point.y + 8);
-          ctx.restore();
-        });
-      }
-    };
-
-    const pluginLegendaInternaPizza = {
-      id: 'legendaInternaPizza',
-      afterDatasetsDraw(chart) {
-        const { ctx } = chart;
-        const dataset = chart.data.datasets[0];
-        const meta = chart.getDatasetMeta(0);
-        const total = (dataset.data || []).reduce((acc, value) => acc + Number(value || 0), 0);
-
-        meta.data.forEach((arc, index) => {
-          const valor = Number(dataset.data[index] || 0);
-          if (!valor || !total) return;
-
-          const posicao = arc.tooltipPosition();
-          const percentual = Math.round((valor / total) * 100);
-          const label = `${chart.data.labels[index]} ${percentual}%`;
-
-          ctx.save();
-          ctx.fillStyle = '#ffffff';
-          ctx.font = 'bold 22px sans-serif';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.shadowColor = 'rgba(0, 0, 0, 0.18)';
-          ctx.shadowBlur = 3;
-          ctx.fillText(label, posicao.x, posicao.y);
-          ctx.restore();
-        });
-      }
-    };
-
-    const pluginCentroRosca = {
-      id: 'centroRosca',
-      afterDraw(chart, args, options) {
-        if (!options || !options.value) return;
-
-        const { ctx, chartArea } = chart;
-        if (!chartArea) return;
-
-        const centerX = (chartArea.left + chartArea.right) / 2;
-        const centerY = (chartArea.top + chartArea.bottom) / 2;
-        const color = options.color || '#22324c';
-
-        ctx.save();
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillStyle = color;
-        ctx.font = '700 48px Assistant, sans-serif';
-        ctx.fillText(String(options.value), centerX, centerY - 8);
-        ctx.fillStyle = '#6b7280';
-        ctx.font = '600 24px Assistant, sans-serif';
-        ctx.fillText(options.subtext || '', centerX, centerY + 18);
-        ctx.restore();
-      }
-    };
-
-    function criarGraficoRosca(sim, nao) {
-      if (chartAfetou) chartAfetou.destroy();
-      chartAfetou = new Chart(document.getElementById('graficoAfetou'), {
-        type: 'doughnut',
-        data: {
-          labels: ['Sim', 'Não'],
-          datasets: [{
-            data: [sim || 0, nao || 0],
-            backgroundColor: ['#c05621', '#1f8f5f'],
-            borderColor: '#ffffff',
-            borderWidth: 2
-          }]
-        },
-        options: {
-          devicePixelRatio: CHART_DEVICE_PIXEL_RATIO_PDF,
-          responsive: true,
-          maintainAspectRatio: false,
-          animation: false,
-          plugins: {
-            legend: { display: false }
-          },
-          cutout: '42%'
-        },
-        plugins: [pluginLegendaInternaPizza]
-      });
-    }
-
-
-    function obterCorMediaPrazo(mediaDias, metaDias) {
-      return Number(mediaDias || 0) <= Number(metaDias || 0) ? '#1f8f5f' : '#c05621';
-    }
-
-    function criarGraficoPrazoResposta(canvasId, chartAtual, resumo, colorirCentro) {
-      if (chartAtual) chartAtual.destroy();
-
-      const dentroPrazo = Number((resumo && resumo.dentroPrazo) || 0);
-      const foraPrazo = Number((resumo && resumo.foraPrazo) || 0);
-      const metaDias = Number((resumo && resumo.metaDias) || 0);
-      const mediaDias = Number((resumo && resumo.mediaDias) || 0).toFixed(1).replace('.', ',');
-      const corCentro = colorirCentro ? obterCorMediaPrazo(resumo && resumo.mediaDias, metaDias) : '#22324c';
-
-      return new Chart(document.getElementById(canvasId), {
-        type: 'doughnut',
-        data: {
-          labels: ['Dentro do Prazo', 'Fora do Prazo'],
-          datasets: [{
-            data: [dentroPrazo, foraPrazo],
-            backgroundColor: ['#2F9E44', '#E53935'],
-            borderColor: '#ffffff',
-            borderWidth: 3,
-            hoverOffset: 0
-          }]
-        },
-        options: {
-          devicePixelRatio: CHART_DEVICE_PIXEL_RATIO_PDF,
-          responsive: true,
-          maintainAspectRatio: false,
-          animation: false,
-          cutout: '70%',
-          plugins: {
-            legend: {
-              position: 'right',
-              align: 'center',
-              labels: {
-                usePointStyle: true,
-                pointStyle: 'circle',
-                boxWidth: 8,
-                padding: 10,
-                font: { size: 20 }
-              }
-            },
-            tooltip: {
-              callbacks: {
-                label(context) {
-                  const total = context.dataset.data.reduce((acc, value) => acc + Number(value || 0), 0);
-                  const valor = Number(context.raw || 0);
-                  const percentual = total ? ((valor / total) * 100).toFixed(1).replace('.', ',') : '0,0';
-                  return `${context.label}: ${valor} (${percentual}%)`;
+    <script>
+        // ====================== CONFIGURAÇÃO TAILWIND ======================
+        function initTailwind() {
+            tailwind.config = {
+                content: [],
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            heading: ['Space Grotesk', 'sans-serif']
+                        }
+                    }
                 }
-              }
-            },
-            centroRosca: {
-              value: mediaDias,
-              subtext: 'Dias',
-              color: corCentro
+            };
+        }
+
+        // ====================== VARIÁVEIS GLOBAIS ======================
+        let allRecords = null;
+        let currentResponse = null;
+        let chartInstances = {};
+
+        // ====================== CARREGAR DADOS ======================
+        function loadData(filters = {}) {
+            const loading = document.getElementById('loading-screen');
+            loading.classList.remove('hidden');
+
+            google.script.run
+                .withSuccessHandler(onDataSuccess)
+                .withFailureHandler(onDataError)
+                .getAnalysis(filters);
+        }
+
+        function onDataSuccess(response) {
+            const loading = document.getElementById('loading-screen');
+            loading.classList.add('hidden');
+
+            if (!response.success) {
+                showErrorModal(response.error);
+                return;
             }
-          }
-        },
-        plugins: [pluginCentroRosca]
-      });
-    }
 
-    function resumoPrazoRespostaVazio(resumo) {
-      if (!resumo || typeof resumo !== 'object') return true;
-      const campos = ['dentroPrazo', 'foraPrazo', 'metaDias', 'mediaDias'];
-      return campos.every((campo) => resumo[campo] === null || resumo[campo] === undefined || resumo[campo] === '');
-    }
+            currentResponse = response;
+            allRecords = response.totalProcessed || 0;
 
-    function toggleCosepUnidadesCard(filtro) {
-      const cardUnidades = document.getElementById('card-cosep-unidades');
-      if (!cardUnidades) return;
-      cardUnidades.classList.toggle('hidden', Boolean(filtro && (filtro.unidades || []).length));
-    }
-
-    function toggleNotificaSetoresCard(filtro) {
-      const cardSetores = document.getElementById('card-notifica-setores');
-      if (!cardSetores) return;
-      cardSetores.classList.toggle('hidden', Boolean(filtro && (filtro.unidades || []).length));
-    }
-
-    function toggleTopSetoresPanel(filtro, totalSetores) {
-      const panelTopSetores = document.getElementById('panel-top-setores');
-      if (!panelTopSetores) return;
-      panelTopSetores.classList.toggle('hidden', Boolean((filtro && (filtro.unidades || []).length) || Number(totalSetores || 0) <= 1));
-    }
-
-    function renderCosep(data, filtro, geradoEm) {
-      const periodo = formatPeriodo(filtro, 'cosep');
-      document.getElementById('periodo-cosep').innerHTML = `
-        <div><strong>Período:</strong> ${escapeHtml(periodo.mes)} / ${escapeHtml(periodo.ano)}</div>
-        <div><strong>Setor:</strong> ${escapeHtml(periodo.unidade)}</div>
-        <div><strong>Gerado em:</strong> ${escapeHtml(geradoEm)}</div>
-      `;
-
-      document.getElementById('cosep-conformidade').textContent = formatPct(data.conformidadeGeral);
-      document.getElementById('cosep-avaliacoes').textContent = data.totalAvaliacoes || 0;
-      document.getElementById('cosep-unidades').textContent = data.totalUnidades || 0;
-      toggleCosepUnidadesCard(filtro);
-      document.getElementById('cosep-diferenca').textContent = `${data.diferencaMeta >= 0 ? '+' : ''}${formatPct(data.diferencaMeta)}`;
-      document.getElementById('cosep-meta-note').textContent = `Meta institucional de ${formatPct(data.metaInstitucional)}.`;
-      const unidadesSelecionadas = (filtro && filtro.unidades) || [];
-      const metaMinimaDestaque = 80;
-      const metasComMelhorSetorSelecionado = new Set();
-      if (unidadesSelecionadas.length === 1) {
-        const setorSelecionado = unidadesSelecionadas[0];
-        const melhores = data.melhoresSetoresPorMeta || {};
-        const percentualPorMeta = new Map((data.metas || []).map(meta => [meta.nome, Number(meta.percentual || 0)]));
-        Object.entries(melhores).forEach(([nomeMeta, info]) => {
-          const setores = (info && info.setores) || [];
-          if (setores.includes(setorSelecionado) && Number(percentualPorMeta.get(nomeMeta) || 0) > metaMinimaDestaque) {
-            metasComMelhorSetorSelecionado.add(nomeMeta);
-          }
-        });
-      }
-
-      renderTabelaMetas(data.metas || [], metasComMelhorSetorSelecionado);
-      renderLegendaMelhorMeta(metasComMelhorSetorSelecionado);
-      renderRankingSetoresConformidade(data.rankingSetoresConformidade || [], filtro || {});
-      criarGraficoLinha((data.evolucaoMensal || []).map(item => item.mes), (data.evolucaoMensal || []).map(item => item.percentual));
-    }
-
-    function renderNotifica(data, filtro, geradoEm) {
-      const periodo = formatPeriodo(filtro, 'notifica');
-      document.getElementById('periodo-notifica').innerHTML = `
-        <div><strong>Período:</strong> ${escapeHtml(periodo.mes)} / ${escapeHtml(periodo.ano)}</div>
-        <div><strong>Setor:</strong> ${escapeHtml(periodo.unidade)}</div>
-        <div><strong>Gerado em:</strong> ${escapeHtml(geradoEm)}</div>
-      `;
-
-      document.getElementById('notifica-total').textContent = data.total || 0;
-      document.getElementById('notifica-percentual-afetou').textContent = formatPct(data.percentualAfetouPaciente);
-      document.getElementById('notifica-concluidas').textContent = data.concluidas || 0;
-      document.getElementById('notifica-setores').textContent = data.totalSetores || 0;
-      toggleNotificaSetoresCard(filtro);
-      toggleTopSetoresPanel(filtro, data.totalSetores);
-
-      document.getElementById('tb-tipo').innerHTML = renderRows(
-        ordenarEntriesDesc(Object.entries(data.porTipo || {})),
-        2,
-        { firstCellClass: 'cell-nowrap-ellipsis', keyFormatter: abreviarClassificacaoNotifica }
-      );
-      document.getElementById('tb-setor').innerHTML = renderRows(
-        topEntries(data.porSetor, 5),
-        2,
-        { firstCellClass: 'cell-nowrap-ellipsis' }
-      );
-      document.getElementById('tb-status').innerHTML = renderRows(ordenarEntriesDesc(Object.entries(data.porStatus || {})));
-      criarGraficoRosca(data.afetouSim || 0, data.afetouNao || 0);
-      const desempenhoResposta = data.desempenhoResposta || {};
-      const resumoMeta5 = desempenhoResposta.meta5 || {};
-      const resumoMeta10 = desempenhoResposta.meta10 || {};
-      const painelTempoResposta = document.getElementById('panel-tempo-resposta-gestor');
-      const painelMeta5 = document.getElementById('response-panel-meta5');
-      const painelMeta10 = document.getElementById('response-panel-meta10');
-      const ocultarMeta5 = resumoPrazoRespostaVazio(resumoMeta5);
-      const ocultarMeta10 = resumoPrazoRespostaVazio(resumoMeta10);
-      const ocultarPainelTempoResposta = ocultarMeta5 && ocultarMeta10;
-
-      if (painelTempoResposta) {
-        painelTempoResposta.classList.toggle('hidden', ocultarPainelTempoResposta);
-      }
-
-      if (painelMeta5) {
-        painelMeta5.classList.toggle('hidden', ocultarMeta5);
-      }
-
-      if (painelMeta10) {
-        painelMeta10.classList.toggle('hidden', ocultarMeta10);
-      }
-
-      if (ocultarPainelTempoResposta) {
-        if (chartRespostaMeta5) {
-          chartRespostaMeta5.destroy();
-          chartRespostaMeta5 = null;
-        }
-        if (chartRespostaMeta10) {
-          chartRespostaMeta10.destroy();
-          chartRespostaMeta10 = null;
-        }
-        return;
-      }
-
-      if (ocultarMeta5) {
-        if (chartRespostaMeta5) {
-          chartRespostaMeta5.destroy();
-          chartRespostaMeta5 = null;
-        }
-      } else {
-        chartRespostaMeta5 = criarGraficoPrazoResposta('graficoRespostaMeta5', chartRespostaMeta5, resumoMeta5, true);
-      }
-
-      if (ocultarMeta10) {
-        if (chartRespostaMeta10) {
-          chartRespostaMeta10.destroy();
-          chartRespostaMeta10 = null;
-        }
-      } else {
-        chartRespostaMeta10 = criarGraficoPrazoResposta('graficoRespostaMeta10', chartRespostaMeta10, resumoMeta10, true);
-      }
-    }
-
-    function renderSummaryRow(id, titulo, periodo, destaque = '') {
-      const alvo = document.getElementById(id);
-      if (!alvo) return;
-      alvo.innerHTML = `
-        <span class="summary-pill primary ${destaque}">${escapeHtml(titulo)}</span>
-        <span class="summary-pill">${escapeHtml(periodo.ano)} | ${escapeHtml(periodo.mes)} | ${escapeHtml(periodo.unidade)}</span>
-      `;
-    }
-
-    function atualizarStatus(filtrosAplicados, geradoEm) {
-      const periodoCosep = formatPeriodo(filtrosAplicados.caminhadas || {}, 'cosep');
-      const periodoNotifica = formatPeriodo(filtrosAplicados.notificacoes || {}, 'notifica');
-
-      renderSummaryRow('status-cosep', 'Página 1 · Caminhadas', periodoCosep, 'page-caminhadas');
-      renderSummaryRow('status-notifica', 'Página 2 · Notificações', periodoNotifica, 'page-notificacoes');
-      document.getElementById('status-gerado').innerHTML = `
-        <span class="icon-inline slate" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
-        </span>
-        <span>Última geração: <strong>${escapeHtml(geradoEm || 'não realizada')}</strong></span>
-      `;
-    }
-
-    async function carregarDados() {
-      const loading = document.getElementById('loading');
-      const boletim = document.getElementById('boletim');
-      const preview = document.getElementById('preview-geracao');
-
-      try {
-        loading.classList.remove('hidden');
-        boletim.classList.add('hidden');
-        loading.textContent = 'Gerando boletim...';
-
-        const payload = await fetchAPIComRetry(obterFiltrosTela());
-        renderCosep(payload.caminhadas || {}, (payload.aplicado || {}).caminhadas || {}, payload.geradoEm || '');
-        renderNotifica(payload.notificacoes || {}, (payload.aplicado || {}).notificacoes || {}, payload.geradoEm || '');
-        atualizarStatus(payload.aplicado || {}, payload.geradoEm || '');
-        if (preview) {
-          const c = payload.caminhadas || {};
-          const n = payload.notificacoes || {};
-          preview.innerHTML = `<strong>Preview rápido</strong><p>Caminhadas: ${escapeHtml(formatPct(c.conformidadeGeral))} de conformidade | Notificações: ${escapeHtml(String(n.total || 0))} registros.</p>`;
-        }
-
-        boletimGerado = true;
-        salvarUltimosFiltros();
-        atualizarEstadoAcoes();
-        loading.classList.add('hidden');
-        boletim.classList.remove('hidden');
-      } catch (erro) {
-        boletimGerado = false;
-        atualizarEstadoAcoes();
-        loading.classList.remove('hidden');
-        boletim.classList.add('hidden');
-        loading.textContent = 'Não foi possível gerar o boletim agora. Confira as permissões do Apps Script e tente novamente.';
-        if (preview) {
-          preview.innerHTML = '<strong>Preview rápido</strong><p>Não foi possível atualizar o preview nesta tentativa.</p>';
-        }
-        console.error(erro);
-      }
-    }
-
-
-    function agruparSetor(setor) {
-      const valor = String(setor || '').toLowerCase();
-      if (valor.includes('cir')) return '🏥 Cirúrgico';
-      if (valor.includes('onco')) return '🎗️ Oncológico';
-      return '🧪 Clínico';
-    }
-
-    function getResumoInteligente(tipo, selecionados) {
-      if (!selecionados.length) {
-        if (tipo === 'ano') return 'Todos os anos';
-        if (tipo === 'mes') return 'Todos os meses';
-        return 'Todos os setores';
-      }
-      if (selecionados.length === 1) return selecionados[0];
-      if (tipo === 'setor') return `${selecionados.length} setores selecionados`;
-      return `${selecionados[0]} +${selecionados.length - 1}`;
-    }
-
-    function highlightTermo(texto, termo) {
-      if (!termo) return escapeHtml(texto);
-      const idx = texto.toLowerCase().indexOf(termo.toLowerCase());
-      if (idx < 0) return escapeHtml(texto);
-      const ini = escapeHtml(texto.slice(0, idx));
-      const meio = escapeHtml(texto.slice(idx, idx + termo.length));
-      const fim = escapeHtml(texto.slice(idx + termo.length));
-      return `${ini}<mark>${meio}</mark>${fim}`;
-    }
-
-    function montarOptionsMulti(id, termo = '') {
-      const ref = multiSelectRefs[id];
-      const select = document.getElementById(id);
-      if (!ref || !select) return;
-      const cfg = MULTI_CONFIG[id] || {};
-      const filtradas = Array.from(select.options).filter(opt => String(opt.textContent || '').toLowerCase().includes(termo.toLowerCase()));
-      const grupos = {};
-      filtradas.forEach((opt) => {
-        const chave = cfg.tipo === 'setor' ? agruparSetor(opt.value) : '';
-        if (!grupos[chave]) grupos[chave] = [];
-        grupos[chave].push(opt);
-      });
-      ref.options.innerHTML = Object.entries(grupos).map(([grupo, opcoes]) => `
-        ${grupo ? `<div class="multi-group-title">${escapeHtml(grupo)}</div>` : ''}
-        ${opcoes.map((opt) => `
-          <label class="multi-option ${opt.selected ? 'selected' : ''}">
-            <input type="checkbox" data-id="${escapeHtml(id)}" value="${escapeHtml(opt.value)}" ${opt.selected ? 'checked' : ''}>
-            <span>${highlightTermo(String(opt.textContent || ''), termo)}</span>
-          </label>
-        `).join('')}
-      `).join('') || '<div class="multi-option">Nenhum resultado.</div>';
-    }
-
-    function atualizarTriggerMulti(id) {
-      const ref = multiSelectRefs[id];
-      const select = document.getElementById(id);
-      if (!ref || !select) return;
-      const cfg = MULTI_CONFIG[id] || {};
-      const selecionados = Array.from(select.selectedOptions).map(opt => opt.value);
-      if (ref.root.classList.contains('open')) {
-        ref.value.innerHTML = selecionados.length
-          ? selecionados.map(item => `<span class="chip">${escapeHtml(item)} <button type="button" class="chip-remove" data-remove-id="${escapeHtml(id)}" data-remove-value="${escapeHtml(item)}">✕</button></span>`).join('')
-          : `<span class="multi-select-summary">${escapeHtml(getResumoInteligente(cfg.tipo, selecionados))}</span>`;
-      } else {
-        ref.value.innerHTML = `<span class="multi-select-summary">${escapeHtml(getResumoInteligente(cfg.tipo, selecionados))}</span>`;
-      }
-    }
-
-    function atualizarMultiSelect(id) {
-      montarOptionsMulti(id, multiSelectRefs[id]?.search?.value || '');
-      atualizarTriggerMulti(id);
-    }
-
-    function fecharTodosMultiSelect() {
-      document.querySelectorAll('.multi-select.open').forEach((el) => {
-        el.classList.remove('open');
-        const selectId = Object.keys(multiSelectRefs).find((key) => multiSelectRefs[key].root === el);
-        if (!selectId) return;
-        const ref = multiSelectRefs[selectId];
-        if (ref?.trigger) ref.trigger.setAttribute('aria-expanded', 'false');
-        if (ref?.search) ref.search.value = '';
-        montarOptionsMulti(selectId, '');
-        atualizarTriggerMulti(selectId);
-      });
-    }
-
-    function configurarBuscaFiltros() {
-      if (buscaFiltrosConfigurada) {
-        IDS_FILTROS.forEach(atualizarMultiSelect);
-        return;
-      }
-
-      IDS_FILTROS.forEach((id) => {
-        const select = document.getElementById(id);
-        if (!select || multiSelectRefs[id]) return;
-        const cfg = MULTI_CONFIG[id] || { label: 'Filtro', tipo: '' };
-        const root = document.createElement('div');
-        root.className = 'multi-select';
-        root.innerHTML = `
-          <button type="button" class="multi-select-trigger" aria-expanded="false">
-            <span class="multi-select-value"></span>
-            <span class="multi-select-arrow">▼</span>
-          </button>
-          <div class="multi-select-dropdown">
-            <input type="search" class="multi-select-search" placeholder="Buscar ${cfg.label.toLowerCase()}...">
-            <div class="multi-select-options"></div>
-          </div>
-        `;
-        select.insertAdjacentElement('afterend', root);
-        const trigger = root.querySelector('.multi-select-trigger');
-        const value = root.querySelector('.multi-select-value');
-        const search = root.querySelector('.multi-select-search');
-        const options = root.querySelector('.multi-select-options');
-        multiSelectRefs[id] = { root, trigger, value, search, options };
-
-        trigger.addEventListener('click', (event) => {
-          event.stopPropagation();
-          const abrir = !root.classList.contains('open');
-          fecharTodosMultiSelect();
-          root.classList.toggle('open', abrir);
-          trigger.setAttribute('aria-expanded', abrir ? 'true' : 'false');
-          if (abrir) {
-            montarOptionsMulti(id, search.value || '');
-            atualizarTriggerMulti(id);
-            search.focus();
-          } else {
-            atualizarTriggerMulti(id);
-          }
-        });
-
-        search.addEventListener('input', () => montarOptionsMulti(id, search.value || ''));
-        root.querySelector('.multi-select-dropdown').addEventListener('click', (event) => event.stopPropagation());
-      });
-
-      document.addEventListener('click', (event) => {
-        const checkbox = event.target.closest('.multi-option input[type=\"checkbox\"]');
-        if (checkbox) {
-          const id = checkbox.dataset.id;
-          const select = document.getElementById(id);
-          if (!select) return;
-          const option = Array.from(select.options).find(opt => opt.value === checkbox.value);
-          if (option) option.selected = checkbox.checked;
-          select.dispatchEvent(new Event('change'));
-          montarOptionsMulti(id, multiSelectRefs[id]?.search?.value || '');
-          atualizarTriggerMulti(id);
-          return;
-        }
-
-        const chipBtn = event.target.closest('.chip-remove');
-        if (chipBtn) {
-          const id = chipBtn.dataset.removeId;
-          const value = chipBtn.dataset.removeValue;
-          const select = document.getElementById(id);
-          if (!select) return;
-          const option = Array.from(select.options).find(opt => opt.value === value);
-          if (option) option.selected = false;
-          select.dispatchEvent(new Event('change'));
-          montarOptionsMulti(id, multiSelectRefs[id]?.search?.value || '');
-          atualizarTriggerMulti(id);
-          return;
-        }
-
-        if (!event.target.closest('.multi-select')) {
-          fecharTodosMultiSelect();
-        }
-      });
-
-      IDS_FILTROS.forEach(atualizarMultiSelect);
-      buscaFiltrosConfigurada = true;
-    }
-
-    function configurarTabs() {
-      if (tabsConfiguradas) return;
-      const tabs = document.querySelector('.filter-tabs');
-      if (!tabs) return;
-      tabs.addEventListener('click', (event) => {
-        const btn = event.target.closest('.tab-btn');
-        if (!btn) return;
-        const aba = btn.dataset.tab;
-        document.querySelectorAll('.tab-btn').forEach((item) => {
-          const ativa = item.dataset.tab === aba;
-          item.classList.toggle('active', ativa);
-          item.setAttribute('aria-selected', ativa ? 'true' : 'false');
-        });
-        document.querySelectorAll('.filter-panel').forEach((panel) => {
-          panel.classList.toggle('active', panel.dataset.panel === aba);
-        });
-      });
-      tabsConfiguradas = true;
-    }
-
-    async function init() {
-      try {
-        const payload = await fetchAPIComRetry();
-        preencherFiltros(payload.filtros || {});
-        configurarBuscaFiltros();
-        configurarTabs();
-        if (!listenersFiltrosConfigurados) {
-          IDS_FILTROS.forEach(id => {
-            const campo = document.getElementById(id);
-            if (campo) {
-              campo.addEventListener('change', () => {
-                atualizarResumoParcial();
-                atualizarContadoresFiltros();
-                atualizarEstadoAcoes();
-                salvarUltimosFiltros();
-              });
+            // Popula filtros apenas na primeira carga
+            if (!document.getElementById('unidades').hasChildNodes()) {
+                populateFilterOptions(response.filterOptions);
             }
-          });
-          listenersFiltrosConfigurados = true;
-        }
-        atualizarResumoParcial();
-        atualizarContadoresFiltros();
-        renderFila();
-        atualizarEstadoAcoes();
 
-        const loading = document.getElementById('loading');
-        loading.classList.remove('hidden');
-        loading.textContent = 'Selecione os filtros e clique em “Gerar boletim”.';
-      } catch (erro) {
-        const loading = document.getElementById('loading');
-        loading.classList.remove('hidden');
-        loading.textContent = 'Não foi possível iniciar o sistema.';
-        console.error(erro);
-      }
-    }
+            renderKPIs(response.kpis);
+            renderAllCharts(response.chartData);
+            renderInsights(response.insights);
+            renderDetailTable(response.tableData);
 
-    function aguardarRender(ms = 80) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    function criarCloneBoletimComCanvas() {
-      const original = document.getElementById('boletim');
-      const clone = original.cloneNode(true);
-      const canvasOriginais = original.querySelectorAll('canvas');
-      const canvasClone = clone.querySelectorAll('canvas');
-      canvasClone.forEach((canvas, idx) => {
-        const origem = canvasOriginais[idx];
-        if (!origem) return;
-        const img = document.createElement('img');
-        img.src = origem.toDataURL('image/png');
-        img.alt = '';
-        img.style.width = '100%';
-        img.style.height = '100%';
-        img.style.display = 'block';
-        canvas.replaceWith(img);
-      });
-      return clone;
-    }
-
-    async function imprimirFilaPDF() {
-      if (!filaBoletins.length) return;
-      const loading = document.getElementById('loading');
-      const boletim = document.getElementById('boletim');
-      const preview = document.getElementById('preview-geracao');
-      const nomeArquivo = `boletins-fila-${filaBoletins.length}-itens.pdf`;
-      const container = document.createElement('section');
-      container.className = 'report-stack';
-      document.body.appendChild(container);
-
-      try {
-        loading.classList.remove('hidden');
-        boletim.classList.add('hidden');
-        loading.textContent = `Preparando fila (${filaBoletins.length})...`;
-
-        for (let i = 0; i < filaBoletins.length; i += 1) {
-          const item = filaBoletins[i];
-          loading.textContent = `Gerando boletim ${i + 1} de ${filaBoletins.length}...`;
-          const payload = await fetchAPIComRetry(item.filtros);
-          renderCosep(payload.caminhadas || {}, (payload.aplicado || {}).caminhadas || {}, payload.geradoEm || '');
-          renderNotifica(payload.notificacoes || {}, (payload.aplicado || {}).notificacoes || {}, payload.geradoEm || '');
-          await aguardarRender(140);
-
-          const clone = criarCloneBoletimComCanvas();
-          Array.from(clone.children).forEach((page) => container.appendChild(page));
+            document.getElementById('last-update').textContent = new Date().toLocaleTimeString('pt-BR');
         }
 
-        document.body.classList.add('pdf-export');
-        const html2pdf = await getHtml2Pdf();
-        await aguardarRender();
-        await html2pdf().set({
-          margin: [0, 0, 0, 0],
-          filename: nomeArquivo,
-          image: { type: 'png', quality: 1 },
-          html2canvas: { scale: 3, useCORS: true, scrollY: 0, backgroundColor: '#ffffff' },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-          pagebreak: { mode: ['css', 'legacy'] }
-        }).from(container).save();
-
-        if (preview) {
-          preview.innerHTML = `<strong>Preview rápido</strong><p>Fila exportada com ${escapeHtml(String(filaBoletins.length))} boletins.</p>`;
+        function onDataError(err) {
+            const loading = document.getElementById('loading-screen');
+            loading.classList.add('hidden');
+            showErrorModal(err.message || 'Erro de comunicação com o servidor');
         }
-      } catch (erro) {
-        loading.classList.remove('hidden');
-        loading.textContent = 'Não foi possível imprimir a fila agora.';
-        console.error(erro);
-      } finally {
-        document.body.classList.remove('pdf-export');
-        container.remove();
-        loading.classList.remove('hidden');
-        loading.textContent = 'Selecione os filtros e clique em “Gerar boletim”.';
-        boletim.classList.remove('hidden');
-      }
-    }
 
-    async function baixarPDF() {
-      if (!boletimGerado) return;
-      const elemento = document.getElementById('boletim');
-      const filtros = obterFiltrosTela();
-      const anoCosepArquivo = filtros.anosCosep.length ? filtros.anosCosep.join('-') : 'todos';
-      const mesCosepArquivo = filtros.mesesCosep.length ? filtros.mesesCosep.join('-') : 'todos';
-      const anoNotificaArquivo = filtros.anosNotifica.length ? filtros.anosNotifica.join('-') : 'todos';
-      const mesNotificaArquivo = filtros.mesesNotifica.length ? filtros.mesesNotifica.join('-') : 'todos';
-      const nomeArquivo = `boletim-seguranca-paciente-${mesCosepArquivo}-${anoCosepArquivo}-notifica-${mesNotificaArquivo}-${anoNotificaArquivo}.pdf`;
+        // ====================== RENDER KPIs ======================
+        function renderKPIs(kpis) {
+            const container = document.getElementById('kpi-grid');
+            container.innerHTML = `
+                <div class="bg-white rounded-3xl p-6 shadow-inner card-hover kpi-card">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="uppercase text-xs tracking-widest text-slate-400">Total de observações</p>
+                            <p class="text-5xl font-semibold text-slate-800 mt-2">${kpis.totalObservacoes.toLocaleString('pt-BR')}</p>
+                        </div>
+                        <div class="w-9 h-9 text-slate-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M9 2.25A.75.75 0 009.75 3v.75h4.5V3a.75.75 0 011.5 0v.75h.75A2.25 2.25 0 0118.75 6v13.5A2.25 2.25 0 0116.5 21.75h-9A2.25 2.25 0 015.25 19.5V6A2.25 2.25 0 017.5 3.75h.75V3A.75.75 0 019 2.25z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
 
-      document.body.classList.add('pdf-export');
-      const html2pdf = await getHtml2Pdf();
-      await aguardarRender();
+                <div class="bg-white rounded-3xl p-6 shadow-inner card-hover border border-emerald-200 kpi-card">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="uppercase text-xs tracking-widest text-emerald-600">Adesão geral</p>
+                            <p class="text-5xl font-semibold text-emerald-700 mt-2">${kpis.adesaoGeral}<span class="text-2xl">%</span></p>
+                        </div>
+                        <div class="w-9 h-9 text-emerald-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-2.94a.75.75 0 10-1.22-.9l-3.24 4.37-1.54-1.54a.75.75 0 00-1.06 1.06l2.16 2.16a.75.75 0 001.14-.08l3.76-5.07z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="h-2 bg-emerald-100 rounded-3xl mt-8 overflow-hidden">
+                        <div class="h-2 bg-emerald-600 rounded-3xl" style="width: ${kpis.adesaoGeral}%"></div>
+                    </div>
+                </div>
 
-      try {
-        await html2pdf().set({
-          margin: [0, 0, 0, 0],
-          filename: nomeArquivo,
-          image: { type: 'png', quality: 1 },
-          html2canvas: { scale: 3, useCORS: true, scrollY: 0, backgroundColor: '#ffffff' },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-          pagebreak: { mode: ['css', 'legacy'] }
-        }).from(elemento).save();
-      } finally {
-        document.body.classList.remove('pdf-export');
-      }
-    }
+                <div class="bg-white rounded-3xl p-6 shadow-inner card-hover kpi-card">
+                    <div class="flex justify-between">
+                        <div>
+                            <p class="uppercase text-xs tracking-widest text-emerald-500">Realizado</p>
+                            <p class="text-4xl font-semibold text-emerald-600">${kpis.totalRealizado.toLocaleString('pt-BR')}</p>
+                        </div>
+                        <div class="w-8 h-8 text-emerald-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M9 3.75A.75.75 0 019.75 3h4.5a.75.75 0 010 1.5H13.5v1.88a6.75 6.75 0 11-3 0V4.5h-.75A.75.75 0 019 3.75z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
 
-    init();
-  </script>
+                <div class="bg-white rounded-3xl p-6 shadow-inner card-hover kpi-card">
+                    <div class="flex justify-between">
+                        <div>
+                            <p class="uppercase text-xs tracking-widest text-red-500">Não realizado</p>
+                            <p class="text-4xl font-semibold text-red-600">${kpis.totalNaoRealizado.toLocaleString('pt-BR')}</p>
+                        </div>
+                        <div class="w-8 h-8 text-red-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12 2.25c5.385 0 9.75 4.365 9.75 9.75s-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12 6.615 2.25 12 2.25zm4.72 6.22a.75.75 0 00-1.06-1.06L12 11.19 8.34 7.41a.75.75 0 10-1.08 1.04l3.69 3.82-3.69 3.82a.75.75 0 101.08 1.04L12 12.81l3.66 3.78a.75.75 0 101.08-1.04l-3.69-3.82 3.67-3.26z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-3xl p-6 shadow-inner card-hover kpi-card">
+                    <p class="uppercase text-xs tracking-widest text-red-400">Taxa de não realização</p>
+                    <p class="text-5xl font-semibold text-red-600 mt-3">${kpis.taxaNaoRealizacao}%</p>
+                </div>
+            `;
+        }
+
+        // ====================== POPULAR FILTROS ======================
+        function populateFilterOptions(options) {
+            // Unidades
+            const unitSel = document.getElementById('unidades');
+            unitSel.innerHTML = options.unidades.map(u => `<option value="${u}">${u}</option>`).join('');
+
+            // Categorias
+            const catSel = document.getElementById('categorias');
+            catSel.innerHTML = options.categorias.map(c => `<option value="${c}">${c}</option>`).join('');
+
+            // Momentos
+            const momSel = document.getElementById('momentos');
+            momSel.innerHTML = options.momentos.map(m => `<option value="${m}">${m}</option>`).join('');
+
+            // Métodos fixos
+            const metSel = document.getElementById('metodos');
+            const metodosFixos = ['Água e sabonete','Fricção com álcool','Não realizado','Realizado sem método detalhado','Não informado'];
+            metSel.innerHTML = metodosFixos.map(m => `<option value="${m}">${m}</option>`).join('');
+        }
+
+        // ====================== PEGAR FILTROS ======================
+        function getCurrentFilters() {
+            const getSelected = (id) => Array.from(document.getElementById(id).selectedOptions).map(o => o.value);
+
+            return {
+                dataInicio: document.getElementById('dataInicio').value || null,
+                dataFim: document.getElementById('dataFim').value || null,
+                unidades: getSelected('unidades'),
+                categorias: getSelected('categorias'),
+                momentos: getSelected('momentos'),
+                situacoes: getSelected('situacoes'),
+                metodos: getSelected('metodos'),
+                preenchimentos: getSelected('preenchimentos')
+            };
+        }
+
+        function applyCurrentFilters() {
+            loadData(getCurrentFilters());
+        }
+
+        function clearAllFilters() {
+            document.getElementById('dataInicio').value = '';
+            document.getElementById('dataFim').value = '';
+            ['unidades','categorias','momentos','situacoes','metodos','preenchimentos'].forEach(id => {
+                document.getElementById(id).selectedIndex = -1;
+            });
+            loadData({});
+        }
+
+        // ====================== GRÁFICOS ======================
+        function renderAllCharts(chartData) {
+            if (window.ChartDataLabels) {
+                Chart.register(ChartDataLabels);
+            }
+
+            Object.keys(chartInstances).forEach(key => {
+                if (chartInstances[key]) chartInstances[key].destroy();
+            });
+
+            adjustCategoriaChartHeight(chartData?.porCategoria?.labels || []);
+
+            const commonOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            boxWidth: 12,
+                            padding: 18,
+                            usePointStyle: true,
+                            color: '#0f172a',
+                            font: { size: 12, weight: '600' }
+                        }
+                    }
+                }
+            };
+
+            const formatPercentTicks = (value) => `${Math.round(Number(value) || 0)}%`;
+            const formatDataLabelPercent = (value) => `${Math.round(Number(value) || 0)}%`;
+            const percentScaleY = {
+                beginAtZero: true,
+                min: 0,
+                max: 100,
+                ticks: {
+                    callback: formatPercentTicks,
+                    stepSize: 20
+                }
+            };
+            const percentScaleX = {
+                beginAtZero: true,
+                min: 0,
+                max: 100,
+                ticks: {
+                    callback: formatPercentTicks,
+                    stepSize: 20
+                }
+            };
+            const wrapLabel = (label, maxChars = 28) => {
+                if (!label || label.length <= maxChars) return label;
+                const words = label.split(' ');
+                const lines = [];
+                let current = '';
+                words.forEach(word => {
+                    const candidate = current ? `${current} ${word}` : word;
+                    if (candidate.length > maxChars && current) {
+                        lines.push(current);
+                        current = word;
+                    } else {
+                        current = candidate;
+                    }
+                });
+                if (current) lines.push(current);
+                return lines;
+            };
+
+            // Evolução Temporal
+            chartInstances.temporal = new Chart(document.getElementById('temporalChart'), {
+                type: 'line',
+                data: {
+                    labels: chartData.temporal.labels,
+                    datasets: [{
+                        label: 'Adesão (%)',
+                        data: chartData.temporal.adesao,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.3,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    ...commonOptions,
+                    scales: { y: percentScaleY },
+                    plugins: {
+                        legend: { display: false },
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            color: '#0f172a',
+                            font: { weight: '600', size: 10 },
+                            formatter: formatDataLabelPercent
+                        }
+                    }
+                }
+            });
+
+            // Por Unidade
+            chartInstances.unidade = new Chart(document.getElementById('unidadeChart'), {
+                type: 'bar',
+                data: {
+                    labels: chartData.porUnidade.labels,
+                    datasets: [{
+                        label: '% Adesão',
+                        data: chartData.porUnidade.adesaoPercent,
+                        backgroundColor: '#10b981',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    ...commonOptions,
+                    indexAxis: 'y',
+                    layout: {
+                        padding: {
+                            left: 10,
+                            right: 6
+                        }
+                    },
+                    scales: {
+                        x: percentScaleX,
+                        y: {
+                            ticks: {
+                                autoSkip: false,
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // Por Categoria
+            chartInstances.categoria = new Chart(document.getElementById('categoriaChart'), {
+                type: 'bar',
+                data: {
+                    labels: chartData.porCategoria.labels,
+                    datasets: [{
+                        label: '% Adesão',
+                        data: chartData.porCategoria.adesaoPercent,
+                        backgroundColor: '#0ea5e9'
+                    }]
+                },
+                options: {
+                    ...commonOptions,
+                    indexAxis: 'y',
+                    scales: {
+                        x: percentScaleX,
+                        y: {
+                            ticks: {
+                                autoSkip: false,
+                                callback: function(value) {
+                                    const originalLabel = this.getLabelForValue(value);
+                                    return wrapLabel(originalLabel, 24);
+                                },
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // Por Momento
+            chartInstances.momento = new Chart(document.getElementById('momentoChart'), {
+                type: 'bar',
+                data: {
+                    labels: chartData.porMomento.labels,
+                    datasets: [{
+                        label: '% Adesão',
+                        data: chartData.porMomento.adesaoPercent,
+                        backgroundColor: '#8b5cf6'
+                    }]
+                },
+                options: {
+                    ...commonOptions,
+                    scales: {
+                        y: percentScaleY,
+                        x: {
+                            ticks: {
+                                callback: function(value) {
+                                    const originalLabel = this.getLabelForValue(value);
+                                    return wrapLabel(originalLabel, 18);
+                                },
+                                autoSkip: true,
+                                maxTicksLimit: 12,
+                                maxRotation: 0,
+                                minRotation: 0
+                            }
+                        }
+                    },
+                    plugins: {
+                        ...commonOptions.plugins,
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            color: '#0f172a',
+                            font: { weight: '600', size: 10 },
+                            formatter: formatDataLabelPercent
+                        }
+                    }
+                }
+            });
+
+            // Distribuição Situação
+            chartInstances.situacao = new Chart(document.getElementById('situacaoChart'), {
+                type: 'pie',
+                data: {
+                    labels: chartData.distribuicaoSituacao.labels,
+                    datasets: [{
+                        data: chartData.distribuicaoSituacao.data,
+                        backgroundColor: ['#10b981', '#f43f5e', '#f59e0b']
+                    }]
+                },
+                options: {
+                    ...commonOptions,
+                    plugins: {
+                        legend: {
+                            ...commonOptions.plugins.legend,
+                            position: 'bottom',
+                            labels: {
+                                ...commonOptions.plugins.legend.labels,
+                                padding: 14
+                            }
+                        },
+                        datalabels: {
+                            color: '#ffffff',
+                            font: { weight: '700', size: 10 },
+                            formatter: (value, context) => {
+                                const total = context.dataset.data.reduce((sum, item) => sum + item, 0);
+                                if (!total) return '0%';
+                                return `${Math.round((value / total) * 100)}%`;
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Distribuição Método
+            chartInstances.metodo = new Chart(document.getElementById('metodoChart'), {
+                type: 'pie',
+                data: {
+                    labels: chartData.distribuicaoMetodo.labels,
+                    datasets: [{
+                        data: chartData.distribuicaoMetodo.data,
+                        backgroundColor: ['#0ea5e9', '#8b5cf6', '#ec4899', '#f59e0b', '#64748b']
+                    }]
+                },
+                options: {
+                    ...commonOptions,
+                    plugins: {
+                        legend: {
+                            ...commonOptions.plugins.legend,
+                            position: 'bottom',
+                            labels: {
+                                ...commonOptions.plugins.legend.labels,
+                                padding: 14
+                            }
+                        },
+                        datalabels: {
+                            color: '#ffffff',
+                            font: { weight: '700', size: 10 },
+                            formatter: (value, context) => {
+                                const total = context.dataset.data.reduce((sum, item) => sum + item, 0);
+                                if (!total) return '0%';
+                                return `${Math.round((value / total) * 100)}%`;
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function adjustCategoriaChartHeight(labels) {
+            const categoriaContainer = document.querySelector('#categoriaChart')?.closest('.chart-container');
+            if (!categoriaContainer) return;
+
+            const totalCategorias = Array.isArray(labels) ? labels.length : 0;
+            const alturaBase = 420;
+            const alturaPorCategoria = 56;
+            const alturaCalculada = Math.max(alturaBase, totalCategorias * alturaPorCategoria);
+
+            categoriaContainer.style.height = `${alturaCalculada}px`;
+        }
+
+        // ====================== INSIGHTS ======================
+        function renderInsights(insights) {
+            const container = document.getElementById('insights-container');
+            container.innerHTML = insights.map(insight => `
+                <div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-2 text-xs leading-snug">
+                    ${insight}
+                </div>
+            `).join('');
+        }
+
+        // ====================== TABELA ======================
+        function renderDetailTable(tableData) {
+            const tbody = document.getElementById('table-body');
+            const info = document.getElementById('table-info');
+
+            info.innerHTML = `${tableData.length} registros • Total base: ${allRecords}`;
+
+            tbody.innerHTML = tableData.map(row => `
+                <tr class="hover:bg-emerald-50">
+                    <td class="px-8 py-4 whitespace-nowrap text-xs font-medium">${row.data}</td>
+                    <td class="px-8 py-4">${row.unidade}</td>
+                    <td class="px-8 py-4">${row.categoriaProfissional}</td>
+                    <td class="px-8 py-4">${row.momento}</td>
+                    <td class="px-8 py-4 text-xs max-w-[220px] truncate">${row.acao}</td>
+                    <td class="px-8 py-4">
+                        <span class="px-4 py-1 text-xs font-semibold rounded-3xl whitespace-nowrap inline-flex
+                            ${row.situacao === 'Realizado' ? 'bg-emerald-100 text-emerald-700' :
+                              row.situacao === 'Não realizado' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}">
+                            ${row.situacao}
+                        </span>
+                    </td>
+                    <td class="px-8 py-4 text-xs">${row.metodo}</td>
+                    <td class="px-8 py-4">
+                        <span class="px-4 py-1 text-xs font-semibold rounded-3xl
+                            ${row.preenchimento === 'Completo' ? 'bg-sky-100 text-sky-700' : 'bg-orange-100 text-orange-700'}">
+                            ${row.preenchimento}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+
+            if (tableData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="px-8 py-12 text-center text-slate-400">Nenhum registro encontrado com os filtros aplicados.</td></tr>`;
+            }
+        }
+
+        // ====================== EXPORT CSV ======================
+        function exportToCSV() {
+            if (!currentResponse || !currentResponse.tableData) return;
+
+            const headers = ['Data', 'Unidade', 'Categoria Profissional', 'Momento', 'Ação', 'Situação', 'Método', 'Preenchimento'];
+            let csv = headers.join(';') + '\n';
+
+            currentResponse.tableData.forEach(row => {
+                csv += [
+                    `"${row.data}"`,
+                    `"${row.unidade}"`,
+                    `"${row.categoriaProfissional}"`,
+                    `"${row.momento}"`,
+                    `"${row.acao.replace(/"/g, '""')}"`,
+                    `"${row.situacao}"`,
+                    `"${row.metodo}"`,
+                    `"${row.preenchimento}"`
+                ].join(';') + '\n';
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `analise_higiene_maos_${new Date().toISOString().slice(0,10)}.csv`;
+            link.click();
+        }
+
+        // ====================== ERROR MODAL ======================
+        function showErrorModal(message) {
+            const modalHTML = `
+            <div class="fixed inset-0 bg-black/70 flex items-center justify-center z-[10000]">
+                <div class="bg-white rounded-3xl max-w-md w-full mx-4 p-8">
+                    <h3 class="text-red-600 text-xl font-semibold mb-2">Algo deu errado</h3>
+                    <p class="text-slate-600">${message}</p>
+                    <p class="text-xs text-slate-400 mt-8">Verifique se a aba "Respostas ao formulário 1" existe e contém dados.</p>
+                    <button onclick="this.closest('.fixed').remove(); loadData({})"
+                            class="mt-8 w-full py-4 bg-slate-900 text-white rounded-3xl font-medium">
+                        Tentar novamente
+                    </button>
+                </div>
+            </div>`;
+            const div = document.createElement('div');
+            div.innerHTML = modalHTML;
+            document.body.appendChild(div);
+        }
+
+        // ====================== REFRESH ======================
+        function refreshAllData() {
+            loadData(getCurrentFilters());
+        }
+
+        // ====================== INICIALIZAÇÃO ======================
+        function initializeSystem() {
+            initTailwind();
+            loadData({}); // carrega todos os dados
+            console.log('Sistema de Higiene das Mãos carregado com layout e gráficos otimizados.');
+        }
+
+        window.onload = initializeSystem;
+    </script>
 </body>
 </html>
