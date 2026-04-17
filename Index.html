@@ -2612,8 +2612,8 @@
           labels,
           datasets: [{
             data: valores,
-            borderColor: '#1f5fbf',
-            backgroundColor: 'rgba(31, 95, 191, 0.12)',
+            borderColor: '#154a96',
+            backgroundColor: 'rgba(21, 74, 150, 0.18)',
             borderWidth: 2,
             fill: true,
             tension: 0.25,
@@ -2637,13 +2637,13 @@
               ticks: {
                 autoSkip: false,
                 callback: value => `${value}%`,
-                font: { size: 11 },
+                font: { size: 22 },
                 padding: 8
               },
               grid: { color: 'rgba(148, 163, 184, 0.3)' }
             },
             x: {
-              ticks: { font: { size: 11 }, maxRotation: 0, minRotation: 0, padding: 6 },
+              ticks: { font: { size: 22 }, maxRotation: 0, minRotation: 0, padding: 6 },
               grid: { display: false }
             }
           }
@@ -2665,8 +2665,8 @@
           const texto = `${valor.toFixed(1).replace('.', ',')}%`;
           const ajusteEixoVertical = index === 0 ? 14 : 0;
           ctx.save();
-          ctx.fillStyle = '#1f2937';
-          ctx.font = '700 11px Assistant, sans-serif';
+          ctx.fillStyle = '#ffffff';
+          ctx.font = '700 22px Assistant, sans-serif';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'top';
           ctx.fillText(texto, point.x + ajusteEixoVertical, point.y + 8);
@@ -2693,7 +2693,7 @@
 
           ctx.save();
           ctx.fillStyle = '#ffffff';
-          ctx.font = 'bold 11px sans-serif';
+          ctx.font = 'bold 22px sans-serif';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           ctx.shadowColor = 'rgba(0, 0, 0, 0.18)';
@@ -2720,10 +2720,10 @@
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillStyle = color;
-        ctx.font = '700 24px Assistant, sans-serif';
+        ctx.font = '700 48px Assistant, sans-serif';
         ctx.fillText(String(options.value), centerX, centerY - 8);
         ctx.fillStyle = '#6b7280';
-        ctx.font = '600 12px Assistant, sans-serif';
+        ctx.font = '600 24px Assistant, sans-serif';
         ctx.fillText(options.subtext || '', centerX, centerY + 18);
         ctx.restore();
       }
@@ -2776,7 +2776,7 @@
           labels: ['Dentro do Prazo', 'Fora do Prazo'],
           datasets: [{
             data: [dentroPrazo, foraPrazo],
-            backgroundColor: ['#4CCB5A', '#E53935'],
+            backgroundColor: ['#2F9E44', '#E53935'],
             borderColor: '#ffffff',
             borderWidth: 3,
             hoverOffset: 0
@@ -2797,7 +2797,7 @@
                 pointStyle: 'circle',
                 boxWidth: 8,
                 padding: 10,
-                font: { size: 10 }
+                font: { size: 20 }
               }
             },
             tooltip: {
